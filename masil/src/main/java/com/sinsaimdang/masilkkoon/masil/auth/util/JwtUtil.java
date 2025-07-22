@@ -43,7 +43,10 @@ public class JwtUtil {
     //Access Token 생성
     public String generateAccessToken(Long userId, String email, String role) {
         Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, email, refreshTokenExpiration);
+        claims.put("userID", userId);
+        claims.put("userEmail", email);
+        claims.put("userRole", role);
+        return createToken(claims, email, accessTokenExpiration);
     }
 
     // Refresh Token 생성
@@ -67,7 +70,7 @@ public class JwtUtil {
 
     // 토큰에서 사용자 ID 추출
     public Long extractUserId(String token) {
-        return extractClaim(token, claims -> claims.get("userID", Long.class));
+        return extractClaim(token, claims -> claims.get("userId", Long.class));
     }
 
     // 토큰에서 사용자 email 추출

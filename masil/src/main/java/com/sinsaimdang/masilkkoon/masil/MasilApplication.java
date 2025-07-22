@@ -9,5 +9,4 @@ public class MasilApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(MasilApplication.class, args);
 	}
-
 }

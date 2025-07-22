@@ -32,4 +32,9 @@ public class User {
 
     @Column
     private String nickname;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private UserRole role = UserRole.USER;
 }
