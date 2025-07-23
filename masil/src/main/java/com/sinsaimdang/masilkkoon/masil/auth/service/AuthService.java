@@ -84,7 +84,13 @@ public class AuthService {
         }
 
         // 토큰 발급
-        String accessToken = jwtUtil.generateAccessToken(user.getId(), user.getEmail(), UserRole.USER.name());
+        String accessToken = jwtUtil.generateAccessToken(
+                user.getId(),
+                user.getEmail(),
+                user.getName(),
+                user.getNickname(),
+                UserRole.USER.name()
+        );
         String refreshToken = jwtUtil.generateRefreshToken(user.getEmail());
 
         // 기존 Refresh Token 무효화 (삭제)
@@ -135,7 +141,12 @@ public class AuthService {
                 });
 
         // 새로운 토큰 생성
-        String newAccessToken = jwtUtil.generateAccessToken(user.getId(), user.getEmail(), UserRole.USER.name());
+        String newAccessToken = jwtUtil.generateAccessToken(
+                user.getId(),
+                user.getEmail(),
+                user.getName(),
+                user.getNickname(),
+                UserRole.USER.name());
 
         log.info("액세스 토큰 갱신 성공 : ID = {}, Email = {}", user.getId(), user.getEmail());
 

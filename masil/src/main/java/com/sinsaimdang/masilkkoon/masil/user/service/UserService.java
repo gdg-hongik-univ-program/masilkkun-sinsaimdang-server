@@ -42,15 +42,18 @@ public class UserService {
             throw new IllegalArgumentException("이미 존재하는 닉네임 입니다:" + nickname);
         }
 
+        // User Entity 생성
         User user = User.builder()
                 .email(email)
                 .password(password)
                 .nickname(nickname)
                 .build();
 
+        // DB 저장
         User savedUser = userRepository.save(user);
         log.info("새로운 사용자가 생성됨. ID:{}, Email:{}", savedUser.getId(), savedUser.getEmail());
 
+        // 저장한 User Entitiy를 DTO로 변환
         return UserDto.from(savedUser);
     }
 

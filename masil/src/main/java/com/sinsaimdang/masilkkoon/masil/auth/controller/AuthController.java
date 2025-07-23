@@ -47,6 +47,7 @@ public class AuthController {
         }
 
         try {
+            // 이메일, 닉네임 중복 검사, 비밀번호 암호화 포함
             User user = authService.signup(
                     request.getEmail(),
                     request.getPassword(),
@@ -54,6 +55,7 @@ public class AuthController {
                     request.getNickname()
             );
 
+            // response 생성
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("message", "회원가입에 성공하였습니다.");
@@ -65,6 +67,7 @@ public class AuthController {
             ));
 
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
+
         } catch (IllegalArgumentException e) {
             log.warn("회원가입 실패 : 이메일 = {}, 사유 = {}", request.getEmail(), e.getMessage());
 
@@ -73,6 +76,7 @@ public class AuthController {
             response.put("message", e.getMessage());
 
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+
         } catch (Exception e) {
             log.error("회원가입 중 서버 오류 - 이메일: {}", request.getEmail(), e);
 

@@ -14,10 +14,8 @@ import org.springframework.web.filter.CorsFilter;
 public class FilterConfig {
 
     @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter(
-            JwtUtil jwtUtil,
-            UserRepository userRepository) {
-        return new JwtAuthenticationFilter(jwtUtil, userRepository);
+    public JwtAuthenticationFilter jwtAuthenticationFilter(JwtUtil jwtUtil) {
+        return new JwtAuthenticationFilter(jwtUtil);
     }
 
     @Bean

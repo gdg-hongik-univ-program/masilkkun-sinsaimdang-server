@@ -17,11 +17,11 @@ public class UserDto {
     private String name;
     private String nickname;
 
+    // password 제외 -> 노출 위험 있음
     public static UserDto from(User user){
         return UserDto.builder()
                 .id(user.getId())
                 .email(user.getEmail())
-                .password(user.getPassword())
                 .name(user.getName())
                 .nickname(user.getNickname())
                 .build();

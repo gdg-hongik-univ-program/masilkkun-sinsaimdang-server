@@ -17,7 +17,6 @@ import java.util.Optional;
 public class JwtAuthenticationFilter implements Filter {
 
     private final JwtUtil jwtUtil;
-    private final UserRepository userRepository;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -61,22 +60,20 @@ public class JwtAuthenticationFilter implements Filter {
                 return;
             }
 
-            User user = validateTokenAndGetUser(token);
-
-            if(user == null) {
+            if(!validateTokenAndSetAttributes(token, httpRequest)) {
                 log.warn("유효하지 않은 JWT 토큰 : {}", requestURI);
                 sendUnauthorizedResponse(httpResponse, "유효하지 않은 토큰입니다");
                 return;
             }
 
             // 검증된 사용자 정보를 요청 속성에 저장
-            httpRequest.setAttribute("currentUser", user);
-            httpRequest.setAttribute("currentUserId", user.getId());
-            httpRequest.setAttribute("currentUserEmail", user.getEmail());
+            Long userId = (Long) httpRequest.getAttribute("currentUserId");
+            String userEmail = (String) httpRequest.getAttribute("currentUserEmail");
 
-            log.debug("JWT 인증 성공 - 이메일 = {}, 아이디 = {}", user.getEmail(), user.getId());
+            log.debug("JWT 인증 성공 - 이메일 = {}, 아이디 = {}", userEmail, userId);
 
             chain.doFilter(request, response);
+
         } catch (Exception e) {
             log.error("JWT 필터 처리 중 오류 발생 - {} : {}", requestURI, e.getMessage());
             sendUnauthorizedResponse(httpResponse, "인증 처리 중 오류가 발생했습니다");
@@ -85,7 +82,7 @@ public class JwtAuthenticationFilter implements Filter {
 
     // 공개 경로인지 확인
     private boolean isPublicPath(String requestURI) {
-
+        System.out.println("=== 요청 URI 체크: " + requestURI + " ==="); // 임시 로그
         // 공개 경로 목록 (인증 없이 접근 가능한 목록)
         String[] publicPaths = {
                 "/api/auth/signup",
@@ -97,6 +94,7 @@ public class JwtAuthenticationFilter implements Filter {
 
         for (String publicPath : publicPaths) {
             if (requestURI.startsWith(publicPath)) {
+                System.out.println("=== 공개 경로 매칭: " + publicPath + " ==="); // 임시 로그
                 return true;
             }
         }
@@ -132,29 +130,30 @@ public class JwtAuthenticationFilter implements Filter {
         return token;
     }
 
-    private User validateTokenAndGetUser(String token) {
+    private boolean validateTokenAndSetAttributes(String token, HttpServletRequest request) {
         try {
+            Long userId = jwtUtil.extractUserId(token);
             String userEmail = jwtUtil.extractUserEmail(token);
+            String userName = jwtUtil.extractUserName(token);
+            String userNickname = jwtUtil.extractUserNickname(token);
+            String userRole = jwtUtil.extractUserRole(token);
 
-            if (userEmail == null || userEmail.trim().isEmpty()) {
-                log.warn("토큰에서 사용자 이메일을 찾을 수 없음");
-                return null;
+            if (userId == null || userEmail == null) {
+                log.warn("토큰에서 이메일 또는 Id를 찾을 수 없음");
+                return false;
             }
 
-            Optional<User> userOptional = userRepository.findByEmail(userEmail);
+            request.setAttribute("currentUserId", userId);
+            request.setAttribute("currentUserEmail", userEmail);
+            request.setAttribute("currentUserName", userName);
+            request.setAttribute("currentUserNickname", userNickname);
+            request.setAttribute("currentUserRole", userRole);
 
-            if (userOptional.isEmpty()) {
-                log.warn("존재하지 않는 사용자 : {}", userEmail);
-                return null;
-            }
-
-            User user = userOptional.get();
-            log.debug("사용자 정보 조회 성공 : Email = {}, ID = {}", user.getEmail(), user.getId());
-
-            return user;
+            log.debug("토큰 검증 성공 : Email = {}, ID = {}", userEmail, userId);
+            return true;
         } catch (Exception e) {
-            log.warn("JWT 토큰 검증 실패 {}", e.getMessage());
-            return null;
+            log.warn("JWT 토큰 검증 실패: {}", e.getMessage());
+            return false;
         }
     }
 
