@@ -90,6 +90,9 @@ public class JwtAuthenticationFilter implements Filter {
                 "/api/auth/refresh",
                 "/api/auth/check-email",
                 "/api/auth/check-nickname",
+
+                "/api/articles",        // <-- 게시글 목록 조회 API 추가
+                "/api/articles/"        // <-- 게시글 단건 조회 API 추가 (경로 변수 포함)
         };
 
         for (String publicPath : publicPaths) {
