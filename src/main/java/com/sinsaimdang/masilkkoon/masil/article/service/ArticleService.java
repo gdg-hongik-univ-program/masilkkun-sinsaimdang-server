@@ -56,18 +56,24 @@ public class ArticleService {
         return new ArticleResponse(article);
     }
 
-    // TODO: 게시글 생성, 수정, 삭제 등의 비즈니스 로직은 나중에 추가 (Phase 1에서는 조회만 집중)
-    // 참고: 게시글 생성 시에는 'authorName' 필드를 설정해야 합니다.
-    // 만약 User 엔티티와 연관관계를 맺는다면, 현재 로그인한 User 객체를 주입받아 Article에 설정해야 합니다.
+    // TODO: 게시글 생성, 수정, 삭제 등의 비즈니스 로직은 나중에 추가
     /*
     @Transactional
-    public Long createArticle(String title, String content, String authorName, String region,
-                              Set<ArticleTag> articleTags, Set<String> photos, // 변경된 Set 타입 반영
-                              Set<ArticlePlace> articlePlaces) { // 변경된 Set 타입 반영
-        // Article 엔티티 생성 시 authorName 설정 (User 엔티티 연동 이전까지)
-        Article article = new Article(title, content, authorName, region, articleTags, photos, articlePlaces);
-        articleRepository.save(article);
-        return article.getId();
+    public ArticleResponse createArticle(ArticleCreateRequest request, User currentUser) {
+        // ArticleCreateRequest로부터 데이터를 받아오고,
+        // 현재 로그인한 사용자(currentUser) 정보를 사용하여 Article 엔티티를 생성합니다.
+        Article article = new Article(
+            request.getTitle(),
+            request.getContent(),
+            currentUser, // User 객체를 직접 전달
+            request.getRegion(),
+            new HashSet<>(request.getTags()),
+            new HashSet<>(request.getPhotos()),
+            new HashSet<>(request.getPlaces())
+        );
+        Article savedArticle = articleRepository.save(article);
+        // 저장된 엔티티를 다시 DTO로 변환하여 반환
+        return new ArticleResponse(savedArticle);
     }
     */
 }

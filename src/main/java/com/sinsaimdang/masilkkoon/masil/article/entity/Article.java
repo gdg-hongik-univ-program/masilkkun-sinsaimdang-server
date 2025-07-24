@@ -1,11 +1,12 @@
 package com.sinsaimdang.masilkkoon.masil.article.entity;
 
+import com.sinsaimdang.masilkkoon.masil.user.entity.User;
 import jakarta.persistence.*; // JPA 관련 어노테이션
 import lombok.Getter; // Lombok Getter
 import lombok.Setter; // Lombok Setter
 import java.time.LocalDateTime; // 생성일, 수정일을 위한 LocalDateTime
-import java.util.HashSet; // Set 초기화를 위한 HashSet 임포트
-import java.util.Set; // Set 타입 임포트
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity // 이 클래스가 JPA 엔티티임을 명시
 @Table(name = "articles") // 데이터베이스 테이블 이름 지정 (관례상 소문자 복수형)
@@ -24,8 +25,10 @@ public class Article {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content; // 게시글 내용
 
-    @Column(nullable = false, length = 100)
-    private String authorName; // 작성자 이름 (와이어프레임 요구사항 반영: '작성자 이름')
+    // User 엔티티와 다대일(Many-to-One) 관계 설정
+    @ManyToOne(fetch = FetchType.LAZY) // 지연 로딩으로 성능 최적화
+    @JoinColumn(name = "user_id", nullable = false) // DB의 user_id 컬럼과 매핑
+    private User user; // 작성자 정보를 User 객체로 관리
 
     @Column(nullable = false, length = 50) // 10개 지역 중 하나
     private String region; // 지역
@@ -36,14 +39,13 @@ public class Article {
     @CollectionTable(name = "article_tags", joinColumns = @JoinColumn(name = "article_id"))
     @Enumerated(EnumType.STRING) // Enum 이름을 문자열로 DB에 저장
     @Column(name = "tag") // 태그 값을 저장할 컬럼명
-    private Set<ArticleTag> articleTags = new HashSet<>(); // List -> Set, ArrayList -> HashSet으로 변경
+    private Set<ArticleTag> articleTags = new HashSet<>();
 
     // 사진 URL: URL 문자열 Set으로 저장
-    // List 대신 Set을 사용하여 MultipleBagFetchException 회피 및 중복 방지
     @ElementCollection(fetch = FetchType.LAZY) // 지연 로딩
     @CollectionTable(name = "article_photos", joinColumns = @JoinColumn(name = "article_id"))
     @Column(name = "photo_url", length = 1000) // 사진 URL을 저장할 컬럼명 (URL이 길 수 있음)
-    private Set<String> photos = new HashSet<>(); // List -> Set, ArrayList -> HashSet으로 변경
+    private Set<String> photos = new HashSet<>();
 
     @Column(nullable = false)
     private int scrapCount = 0; // 스크랩 수
@@ -55,10 +57,9 @@ public class Article {
     private int viewCount = 0; // 조회수
 
     // 장소 경로: ArticlePlace 임베디드 타입의 Set으로 저장
-    // List 대신 Set을 사용하여 MultipleBagFetchException 회피
     @ElementCollection(fetch = FetchType.LAZY) // 지연 로딩
     @CollectionTable(name = "article_places", joinColumns = @JoinColumn(name = "article_id"))
-    private Set<ArticlePlace> articlePlaces = new HashSet<>(); // List -> Set, ArrayList -> HashSet으로 변경
+    private Set<ArticlePlace> articlePlaces = new HashSet<>();
 
     @Column(name = "created_at", updatable = false, nullable = false)
     private LocalDateTime createdAt; // 게시글 생성 시간
@@ -107,14 +108,13 @@ public class Article {
     protected Article() {
     }
 
-    public Article(String title, String content, String authorName, String region,
-                   Set<ArticleTag> articleTags, Set<String> photos, // List -> Set
-                   Set<ArticlePlace> articlePlaces) { // List -> Set
+    public Article(String title, String content, User user, String region,
+                   Set<ArticleTag> articleTags, Set<String> photos,
+                   Set<ArticlePlace> articlePlaces) {
         this.title = title;
         this.content = content;
-        this.authorName = authorName;
+        this.user = user;
         this.region = region;
-        // 생성자에서도 List 대신 Set으로 초기화
         this.articleTags = articleTags != null ? new HashSet<>(articleTags) : new HashSet<>();
         this.photos = photos != null ? new HashSet<>(photos) : new HashSet<>();
         this.articlePlaces = articlePlaces != null ? new HashSet<>(articlePlaces) : new HashSet<>();
@@ -125,8 +125,8 @@ public class Article {
 
     // 게시글 업데이트를 위한 비즈니스 메서드 (Setter 대신 사용 권장)
     public void updateArticle(String title, String content, String region,
-                              Set<ArticleTag> articleTags, Set<String> photos, // List -> Set
-                              Set<ArticlePlace> articlePlaces) { // List -> Set
+                              Set<ArticleTag> articleTags, Set<String> photos,
+                              Set<ArticlePlace> articlePlaces) {
         if (title != null && !title.isEmpty()) {
             this.title = title;
         }
@@ -136,7 +136,6 @@ public class Article {
         if (region != null && !region.isEmpty()) {
             this.region = region;
         }
-        // Set 컬렉션 업데이트
         if (articleTags != null) {
             this.articleTags.clear();
             this.articleTags.addAll(articleTags);
