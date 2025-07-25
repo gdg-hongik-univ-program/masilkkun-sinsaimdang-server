@@ -24,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-// @Transactional을 제거하고 수동으로 데이터를 관리합니다.
+// @Transactional을 제거하고 @AfterEach로 데이터를 직접 관리합니다.
 class ArticleControllerTest {
 
     @Autowired
@@ -71,13 +71,12 @@ class ArticleControllerTest {
 
     @AfterEach
     void tearDown() {
-        // 각 테스트가 끝난 후 DB를 직접 초기화하여 다음 테스트에 영향을 주지 않도록 합니다.
-        // 자식 테이블(article)을 먼저 삭제해야 외래 키 제약 조건 에러가 발생하지 않습니다.
+        // 각 테스트가 끝난 후 DB를 직접 초기화합니다.
         articleRepository.deleteAll();
         userRepository.deleteAll();
     }
 
-    // =================== 단건 조회 테스트 (기존 코드) ===================
+    // =================== 단건 조회 테스트 ===================
 
     @Test
     @DisplayName("인증된 사용자의 게시글 단건 조회 성공")
@@ -104,26 +103,28 @@ class ArticleControllerTest {
                 .andDo(print());
     }
 
-    // =================== 목록 조회 테스트 (새로 추가) ===================
+    // =================== 목록 조회 테스트 ===================
 
     @Test
     @DisplayName("인증된 사용자의 게시글 전체 목록 조회 성공")
     void getArticles_WithAuthenticatedUser_Success() throws Exception {
-        mockMvc.perform(get("/api/articles") // ID가 없는 경로로 요청
+        mockMvc.perform(get("/api/articles")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk()) // 200 OK 응답을 기대
-                .andExpect(jsonPath("$").isArray()) // 응답이 배열인지 확인
-                .andExpect(jsonPath("$[0].title").value("테스트 게시글")) // 첫 번째 게시글의 제목 확인
+                .andExpect(status().isOk())
+                // 수정된 부분: 응답 전체($)가 아닌, 응답 안의 content 필드($.content)가 배열인지 확인합니다.
+                .andExpect(jsonPath("$.content").isArray())
+                // 수정된 부분: content 배열의 첫 번째 요소($.content[0])의 title을 확인합니다.
+                .andExpect(jsonPath("$.content[0].title").value("테스트 게시글"))
                 .andDo(print());
     }
 
     @Test
     @DisplayName("인증되지 않은 사용자의 게시글 전체 목록 조회 실패 (401 에러)")
     void getArticles_WithUnauthenticatedUser_Fails() throws Exception {
-        mockMvc.perform(get("/api/articles") // ID가 없는 경로로 요청
+        mockMvc.perform(get("/api/articles")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isUnauthorized()) // 401 Unauthorized 응답을 기대
+                .andExpect(status().isUnauthorized())
                 .andDo(print());
     }
 }

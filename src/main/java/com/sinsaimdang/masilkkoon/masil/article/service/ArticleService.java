@@ -26,19 +26,19 @@ public class ArticleService {
      * 모든 게시글 목록 조회 (N+1 문제 해결을 위해 Fetch Join 적용)
      * @return 게시글 DTO 목록
      */
-    public List<ArticleResponse> findAllArticles() { // 메서드 반환 타입은 List 유지 (API 스펙)
-        // ArticleRepository의 findAllWithCollections() 메서드를 호출하여
-        // Article 엔티티와 연관된 컬렉션들을 Fetch Join으로 한 번에 가져옵니다.
-        List<Article> articles = articleRepository.findAllWithCollections();
-
-        // 조회된 Article 엔티티 리스트를 ArticleResponse DTO 리스트로 변환
-        // ArticleResponse의 생성자가 Set<ArticleTag>, Set<String>, Set<ArticlePlaceResponse>를 받으므로,
-        // 여기서 Collectors.toList()를 사용해도 문제는 없지만, Set의 특성(중복 없음)을 유지하려면 toSet()을 사용하는 것이 더 적절할 수 있습니다.
-        // API 반환 스펙이 List<ArticleResponse> 이므로, 최종적으로는 toList()가 맞습니다.
-        return articles.stream()
-                .map(ArticleResponse::new)
-                .collect(Collectors.toList()); // 최종 API 반환 스펙이 List이므로 toList() 유지
-    }
+//    public List<ArticleResponse> findAllArticles() { // 메서드 반환 타입은 List 유지 (API 스펙)
+//        // ArticleRepository의 findAllWithCollections() 메서드를 호출하여
+//        // Article 엔티티와 연관된 컬렉션들을 Fetch Join으로 한 번에 가져옵니다.
+//        List<Article> articles = articleRepository.findAllWithCollections();
+//
+//        // 조회된 Article 엔티티 리스트를 ArticleResponse DTO 리스트로 변환
+//        // ArticleResponse의 생성자가 Set<ArticleTag>, Set<String>, Set<ArticlePlaceResponse>를 받으므로,
+//        // 여기서 Collectors.toList()를 사용해도 문제는 없지만, Set의 특성(중복 없음)을 유지하려면 toSet()을 사용하는 것이 더 적절할 수 있습니다.
+//        // API 반환 스펙이 List<ArticleResponse> 이므로, 최종적으로는 toList()가 맞습니다.
+//        return articles.stream()
+//                .map(ArticleResponse::new)
+//                .collect(Collectors.toList()); // 최종 API 반환 스펙이 List이므로 toList() 유지
+//    }
 
     /**
      * 특정 ID의 게시글 단건 조회 (N+1 문제 해결을 위해 Fetch Join 적용)
