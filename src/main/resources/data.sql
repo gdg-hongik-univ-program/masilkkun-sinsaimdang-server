@@ -13,8 +13,8 @@ INSERT INTO article_tags (article_id, tag) VALUES (1, 'RESTAURANT');
 INSERT INTO article_tags (article_id, tag) VALUES (1, 'CAFE');
 
 -- 게시글 1의 사진 데이터
-INSERT INTO article_photos (article_id, photo_url) VALUES (1, 'https://example.com/photo1.jpg');
-INSERT INTO article_photos (article_id, photo_url) VALUES (1, 'https://example.com/photo2.jpg');
+INSERT INTO article_photos (article_id, photo_url) VALUES (1, 'https://m.fritz.co.kr/web/product/big/202302/1f2cef38956f3cd3be32355907ac8f93.jpg');
+INSERT INTO article_photos (article_id, photo_url) VALUES (1, 'https://m.fritz.co.kr/web/product/big/202302/d42cd7b0d298579692e80638fa6dd6ed.jpg');
 
 -- 게시글 1의 장소 경로 데이터
 INSERT INTO article_places (article_id, place_order, place_name, address, description)
@@ -32,9 +32,9 @@ VALUES ('부산 해변 기차 여행', '해운대에서 송정까지, 해변을 
 INSERT INTO article_tags (article_id, tag) VALUES (2, 'TRAVEL_SPOT');
 
 -- 게시글 2의 사진 데이터
-INSERT INTO article_photos (article_id, photo_url) VALUES (2, 'https://example.com/busan_photo1.jpg');
-INSERT INTO article_photos (article_id, photo_url) VALUES (2, 'https://example.com/busan_photo2.jpg');
-INSERT INTO article_photos (article_id, photo_url) VALUES (2, 'https://example.com/busan_photo3.jpg');
+INSERT INTO article_photos (article_id, photo_url) VALUES (2, 'https://www.visitbusan.net/uploadImgs/files/cntnts/20191227195613061_oen');
+INSERT INTO article_photos (article_id, photo_url) VALUES (2, 'https://tourimage.interpark.com/BBS/Tour/FckUpload/201706/6363304827248806650.jpg');
+INSERT INTO article_photos (article_id, photo_url) VALUES (2, 'https://cdn.kbthink.com/content/dam/tam-dcp-cms/kbcontent/%EC%9E%90%EC%82%B0%EA%B4%80%EB%A6%AC/%EB%94%94%EC%BD%98-%EC%82%AC%EC%97%85%EC%9E%90-%EC%BD%98%ED%85%90%EC%B8%A0/%EC%83%81%EA%B6%8C%EB%B6%84%EC%84%9D/jeonpodong/Jeonpodong-MO-03-1.jpg');
 
 -- 게시글 2의 장소 경로 데이터
 INSERT INTO article_places (article_id, place_order, place_name, address, description)
