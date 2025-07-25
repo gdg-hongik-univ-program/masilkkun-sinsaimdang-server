@@ -18,40 +18,40 @@ public class FilterConfig {
         return new JwtAuthenticationFilter(jwtUtil);
     }
 
-    @Bean
-    public FilterRegistrationBean<CorsFilter> corsFilter() {
-        CorsConfiguration config = new CorsConfiguration();
-
-        config.setAllowCredentials(true);
-
-        config.addAllowedOrigin("http://localhost:3000");
-        config.addAllowedOrigin("http://localhost:3001");
-        config.addAllowedOrigin("http://127.0.0.1:3000");
-
-        config.addAllowedMethod("GET");     // 조회
-        config.addAllowedMethod("POST");    // 생성
-        config.addAllowedMethod("PUT");     // 수정
-        config.addAllowedMethod("DELETE");  // 삭제
-        config.addAllowedMethod("OPTIONS"); // CORS preflight 요청
-        config.addAllowedMethod("PATCH");   // 부분 수정
-
-        config.addAllowedHeader("*");       // 모든 헤더 허용
-
-        config.addExposedHeader("Authorization");
-        config.addExposedHeader("Content-Type");
-        config.addExposedHeader("X-Total-Count");
-
-        config.setMaxAge(3600L); // 1시간
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config); // 모든 경로에 적용
-
-        FilterRegistrationBean<CorsFilter> registrationBean =
-                new FilterRegistrationBean<>(new CorsFilter(source));
-
-        registrationBean.setOrder(0);
-        registrationBean.setName("corsFilter");
-
-        return registrationBean;
-    }
+//    @Bean
+//    public FilterRegistrationBean<CorsFilter> corsFilter() {
+//        CorsConfiguration config = new CorsConfiguration();
+//
+//        config.setAllowCredentials(true);
+//
+//        config.addAllowedOrigin("http://localhost:3000");
+//        config.addAllowedOrigin("http://localhost:3001");
+//        config.addAllowedOrigin("http://127.0.0.1:3000");
+//
+//        config.addAllowedMethod("GET");     // 조회
+//        config.addAllowedMethod("POST");    // 생성
+//        config.addAllowedMethod("PUT");     // 수정
+//        config.addAllowedMethod("DELETE");  // 삭제
+//        config.addAllowedMethod("OPTIONS"); // CORS preflight 요청
+//        config.addAllowedMethod("PATCH");   // 부분 수정
+//
+//        config.addAllowedHeader("*");       // 모든 헤더 허용
+//
+//        config.addExposedHeader("Authorization");
+//        config.addExposedHeader("Content-Type");
+//        config.addExposedHeader("X-Total-Count");
+//
+//        config.setMaxAge(3600L); // 1시간
+//
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        source.registerCorsConfiguration("/**", config); // 모든 경로에 적용
+//
+//        FilterRegistrationBean<CorsFilter> registrationBean =
+//                new FilterRegistrationBean<>(new CorsFilter(source));
+//
+//        registrationBean.setOrder(0);
+//        registrationBean.setName("corsFilter");
+//
+//        return registrationBean;
+//    }
 }
