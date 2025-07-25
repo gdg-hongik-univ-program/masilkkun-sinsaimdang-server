@@ -8,7 +8,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "resfresh_tokens")
+@Table(name = "refresh_tokens")
 @Getter
 @Setter
 @Builder
@@ -34,6 +34,13 @@ public class RefreshToken {
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        if(createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+    }
 
     // Refresh Token 만료 여부 확인
     public boolean isExpired() {
