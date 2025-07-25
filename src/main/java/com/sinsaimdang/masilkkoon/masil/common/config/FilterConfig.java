@@ -19,28 +19,6 @@ public class FilterConfig {
     }
 
     @Bean
-    public FilterRegistrationBean<JwtAuthenticationFilter> jwtFilterRegistration(
-            JwtAuthenticationFilter jwtAuthenticationFilter) {
-
-        FilterRegistrationBean<JwtAuthenticationFilter> registrationBean =
-                new FilterRegistrationBean<>();
-
-        // 등록할 필터 설정
-        registrationBean.setFilter(jwtAuthenticationFilter);
-
-        // 필터가 적용될 URL 패턴 설정
-        registrationBean.addUrlPatterns("/*");
-
-        // 필터 실행 순서 설정 (낮은 숫자가 먼저 실행)
-        registrationBean.setOrder(1);
-
-        // 필터 이름 설정 (Bean 이름 충돌 방지)
-        registrationBean.setName("jwtFilterRegistration");
-
-        return registrationBean;
-    }
-
-    @Bean
     public FilterRegistrationBean<CorsFilter> corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
 
