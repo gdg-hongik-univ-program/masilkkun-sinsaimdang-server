@@ -51,7 +51,7 @@ public class ArticleResponse {
 
     // == 작성자 정보를 담는 내부 DTO 클래스 == //
     @Getter
-    private static class AuthorDto {
+    public static class AuthorDto {
         private final Long id;
         private final String nickname;
         private final UserRole role;
