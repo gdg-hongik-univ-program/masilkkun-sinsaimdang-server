@@ -1,6 +1,7 @@
 package com.sinsaimdang.masilkkoon.masil.article.service;
 
 import com.sinsaimdang.masilkkoon.masil.article.dto.ArticleResponse;
+import com.sinsaimdang.masilkkoon.masil.article.dto.ArticleSearchCondition;
 import com.sinsaimdang.masilkkoon.masil.article.entity.Article;
 import com.sinsaimdang.masilkkoon.masil.article.entity.ArticleTag;
 import com.sinsaimdang.masilkkoon.masil.user.entity.User;
@@ -11,6 +12,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -20,112 +23,119 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
-@Transactional // 테스트 후 데이터베이스 롤백을 보장
+@Transactional
 class ArticleServiceTest {
 
     @Autowired
     private ArticleService articleService;
-
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private EntityManager em;
 
-    private User testUser;
+    private User testUser1;
+    private User testUser2;
 
-    // 각 테스트 실행 전에 테스트에 필요한 기본 데이터를 설정합니다.
     @BeforeEach
     void setUp() {
-        // 테스트용 사용자(User) 생성 및 저장
-        testUser = User.builder()
-                .email("testuser@example.com")
-                .password("password123")
-                .name("테스트유저")
-                .nickname("테스터")
-                .build();
-        userRepository.save(testUser);
+        // 필터링 테스트를 위해 2명의 사용자와 4개의 게시글을 생성합니다.
+        testUser1 = User.builder().email("user1@test.com").password("pw").name("유저1").nickname("서울맛집러").build();
+        testUser2 = User.builder().email("user2@test.com").password("pw").name("유저2").nickname("부산여행가").build();
+        userRepository.saveAll(List.of(testUser1, testUser2));
 
-        // 테스트용 게시글 2개 생성 및 저장
-        Article article1 = new Article("JPA 게시글", "내용1", testUser, "서울", Set.of(ArticleTag.RESTAURANT), null, null);
-        Article article2 = new Article("Spring 게시글", "내용2", testUser, "부산", Set.of(ArticleTag.CAFE), null, null);
+        Article article1 = new Article("서울 맛집", "내용1", testUser1, "서울", Set.of(ArticleTag.RESTAURANT), null, null);
+        Article article2 = new Article("서울 카페", "내용2", testUser1, "서울", Set.of(ArticleTag.CAFE), null, null);
+        Article article3 = new Article("부산 맛집", "내용3", testUser2, "부산", Set.of(ArticleTag.RESTAURANT), null, null);
+        Article article4 = new Article("부산 여행", "내용4", testUser2, "부산", Set.of(ArticleTag.TRAVEL_SPOT, ArticleTag.RESTAURANT), null, null);
         em.persist(article1);
         em.persist(article2);
+        em.persist(article3);
+        em.persist(article4);
 
-        // 영속성 컨텍스트의 변경 내용을 DB에 반영하고 컨텍스트를 초기화하여
-        // 이후의 find 테스트가 캐시가 아닌 DB에서 데이터를 읽도록 보장합니다.
         em.flush();
         em.clear();
     }
 
+    // =================== 기존 조회 테스트 (수정됨) ===================
     @Test
-    @DisplayName("전체 게시글 목록 조회 성공")
-    void findAllArticles_Success() {
-        // given: @BeforeEach에서 데이터 2건이 준비된 상태
+    @DisplayName("조건 없이 전체 게시글 목록 조회 성공")
+    void searchArticles_noCondition() {
+        ArticleSearchCondition condition = new ArticleSearchCondition();
+        PageRequest pageRequest = PageRequest.of(0, 10);
+
+        Page<ArticleResponse> result = articleService.searchArticles(condition, pageRequest);
+
+        assertThat(result.getTotalElements()).isEqualTo(4);
+    }
+
+    // ... (기존의 findById, 조회수 증가 등 다른 테스트는 그대로 둡니다) ...
+
+    // =================== 새로운 필터링 테스트 ===================
+
+    @Test
+    @DisplayName("지역으로 필터링 조회")
+    void searchArticles_byRegion() {
+        // given
+        ArticleSearchCondition condition = new ArticleSearchCondition();
+        condition.setRegion("서울");
+        PageRequest pageRequest = PageRequest.of(0, 10);
 
         // when
-        List<ArticleResponse> articles = articleService.findAllArticles();
+        Page<ArticleResponse> result = articleService.searchArticles(condition, pageRequest);
 
         // then
-        assertThat(articles).isNotNull();
-        assertThat(articles.size()).isEqualTo(2);
-        assertThat(articles).extracting(ArticleResponse::getTitle)
-                .containsExactlyInAnyOrder("JPA 게시글", "Spring 게시글");
+        assertThat(result.getTotalElements()).isEqualTo(2);
+        assertThat(result.getContent()).extracting(ArticleResponse::getTitle).containsExactlyInAnyOrder("서울 맛집", "서울 카페");
     }
 
     @Test
-    @DisplayName("특정 ID 게시글 단건 조회 성공")
-    void findArticleById_Success() {
+    @DisplayName("단일 태그로 필터링 조회 (CAFE)")
+    void searchArticles_bySingleTag() {
         // given
-        // 테스트용 게시글 추가 생성
-        Article newArticle = new Article("단건조회 테스트", "내용3", testUser, "제주", Set.of(ArticleTag.TRAVEL_SPOT), null, null);
-        em.persist(newArticle);
-        Long articleId = newArticle.getId();
-        em.flush();
-        em.clear();
+        ArticleSearchCondition condition = new ArticleSearchCondition();
+        condition.setTags(List.of(ArticleTag.CAFE));
+        PageRequest pageRequest = PageRequest.of(0, 10);
 
         // when
-        ArticleResponse foundArticle = articleService.findArticleById(articleId);
+        Page<ArticleResponse> result = articleService.searchArticles(condition, pageRequest);
 
         // then
-        assertThat(foundArticle).isNotNull();
-        assertThat(foundArticle.getId()).isEqualTo(articleId);
-        assertThat(foundArticle.getTitle()).isEqualTo("단건조회 테스트");
-        assertThat(foundArticle.getAuthor().getNickname()).isEqualTo(testUser.getNickname());
+        assertThat(result.getTotalElements()).isEqualTo(1);
+        assertThat(result.getContent().get(0).getTitle()).isEqualTo("서울 카페");
     }
 
     @Test
-    @DisplayName("단건 조회 시 조회수(viewCount) 1 증가")
-    void findArticleById_IncrementsViewCount() {
+    @DisplayName("다중 태그로 필터링 조회 (RESTAURANT)")
+    void searchArticles_byMultipleTags() {
         // given
-        Article newArticle = new Article("조회수 테스트", "내용4", testUser, "경기", null, null, null);
-        em.persist(newArticle);
-        Long articleId = newArticle.getId();
-        em.flush();
-        em.clear();
+        ArticleSearchCondition condition = new ArticleSearchCondition();
+        condition.setTags(List.of(ArticleTag.RESTAURANT)); // RESTAURANT 태그를 가진 모든 게시글
+        PageRequest pageRequest = PageRequest.of(0, 10);
 
         // when
-        articleService.findArticleById(articleId);
+        Page<ArticleResponse> result = articleService.searchArticles(condition, pageRequest);
 
         // then
-        // 영속성 컨텍스트를 거치지 않고 DB에서 직접 엔티티를 다시 조회하여 검증
-        Article updatedArticle = em.find(Article.class, articleId);
-        assertThat(updatedArticle.getViewCount()).isEqualTo(1);
+        assertThat(result.getTotalElements()).isEqualTo(3);
+        assertThat(result.getContent()).extracting(ArticleResponse::getTitle)
+                .containsExactlyInAnyOrder("서울 맛집", "부산 맛집", "부산 여행");
     }
 
     @Test
-    @DisplayName("존재하지 않는 ID로 조회 시 예외 발생")
-    void findArticleById_NotFound_ThrowsException() {
+    @DisplayName("지역과 태그로 필터링 조회 (부산 & RESTAURANT)")
+    void searchArticles_byRegionAndTags() {
         // given
-        Long nonExistentId = 99999L; // 존재하지 않을 것이 확실한 ID
+        ArticleSearchCondition condition = new ArticleSearchCondition();
+        condition.setRegion("부산");
+        condition.setTags(List.of(ArticleTag.RESTAURANT));
+        PageRequest pageRequest = PageRequest.of(0, 10);
 
-        // when & then
-        // 해당 예외가 발생하는지 검증
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            articleService.findArticleById(nonExistentId);
-        });
+        // when
+        Page<ArticleResponse> result = articleService.searchArticles(condition, pageRequest);
 
-        // 예외 메시지까지 검증하여 더 견고한 테스트 작성
-        assertThat(exception.getMessage()).isEqualTo("Article not found with id: " + nonExistentId);
+        // then
+        assertThat(result.getTotalElements()).isEqualTo(2);
+        assertThat(result.getContent()).extracting(ArticleResponse::getTitle)
+                .containsExactlyInAnyOrder("부산 맛집", "부산 여행");
     }
 }

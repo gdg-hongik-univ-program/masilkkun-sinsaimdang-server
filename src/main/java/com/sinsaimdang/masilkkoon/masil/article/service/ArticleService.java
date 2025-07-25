@@ -11,6 +11,10 @@ import java.util.List; // 이 임포트는 더 이상 직접 사용되지 않지
 import java.util.Set; // Set 임포트 추가 (findAllArticles()의 내부 변환에서 사용)
 import java.util.stream.Collectors; // Stream API를 위한 Collectors 임포트
 
+import com.sinsaimdang.masilkkoon.masil.article.dto.ArticleSearchCondition;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 @Service // 스프링 빈으로 등록
 @RequiredArgsConstructor // final 필드를 이용한 생성자 자동 생성 (의존성 주입)
 @Transactional(readOnly = true) // 읽기 전용 트랜잭션 설정 (조회 기능에 적합하며 성능 향상)
@@ -76,4 +80,9 @@ public class ArticleService {
         return new ArticleResponse(savedArticle);
     }
     */
+
+    @Transactional(readOnly = true)
+    public Page<ArticleResponse> searchArticles(ArticleSearchCondition condition, Pageable pageable) {
+        return articleRepository.search(condition, pageable).map(ArticleResponse::new);
+    }
 }

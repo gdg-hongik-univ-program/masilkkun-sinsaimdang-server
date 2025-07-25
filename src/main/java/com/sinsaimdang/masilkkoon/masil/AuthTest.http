@@ -69,3 +69,26 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJ0ZXN0dXNlciIsI
 
 ### [인증 X] 게시글 단건 조회 (401 Unauthorized 예상)
 GET http://localhost:8080/api/articles/1
+
+
+
+
+### =======================================
+### 필터링 API 테스트
+### =======================================
+
+### [필터링] 지역으로 검색 (서울)
+GET http://localhost:8080/api/articles?region=서울
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJ0ZXN0dXNlciIsInVzZXJFbWFpbCI6InRlc3RAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6Iu2FjOyKpO2KuCDsgqzsmqnsnpAiLCJ1c2VyUm9sZSI6IlVTRVIiLCJ1c2VySWQiOjMsInN1YiI6InRlc3RAZXhhbXBsZS5jb20iLCJpc3MiOiJtYXNpbCIsImlhdCI6MTc1MzQxNjc2OSwiZXhwIjoxNzUzNDE4NTY5fQ.hEtvN3ZymwfR4NJHRT3EQ1cQPwEnelXDrxtS65Xz0Aw
+
+### [필터링] 태그로 검색 (RESTAURANT)
+GET http://localhost:8080/api/articles?tags=RESTAURANT
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJ0ZXN0dXNlciIsInVzZXJFbWFpbCI6InRlc3RAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6Iu2FjOyKpO2KuCDsgqzsmqnsnpAiLCJ1c2VyUm9sZSI6IlVTRVIiLCJ1c2VySWQiOjMsInN1YiI6InRlc3RAZXhhbXBsZS5jb20iLCJpc3MiOiJtYXNpbCIsImlhdCI6MTc1MzQxNjc2OSwiZXhwIjoxNzUzNDE4NTY5fQ.hEtvN3ZymwfR4NJHRT3EQ1cQPwEnelXDrxtS65Xz0Aw
+
+### [필터링] 지역과 태그로 검색 (부산, TRAVEL_SPOT)
+GET http://localhost:8080/api/articles?region=부산&tags=TRAVEL_SPOT
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJ0ZXN0dXNlciIsInVzZXJFbWFpbCI6InRlc3RAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6Iu2FjOyKpO2KuCDsgqzsmqnsnpAiLCJ1c2VyUm9sZSI6IlVTRVIiLCJ1c2VySWQiOjMsInN1YiI6InRlc3RAZXhhbXBsZS5jb20iLCJpc3MiOiJtYXNpbCIsImlhdCI6MTc1MzQxNjc2OSwiZXhwIjoxNzUzNDE4NTY5fQ.hEtvN3ZymwfR4NJHRT3EQ1cQPwEnelXDrxtS65Xz0Aw
+
+### [필터링] 다중 태그로 검색 (CAFE, TRAVEL_SPOT)
+GET http://localhost:8080/api/articles?tags=CAFE,TRAVEL_SPOT
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJ0ZXN0dXNlciIsInVzZXJFbWFpbCI6InRlc3RAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6Iu2FjOyKpO2KuCDsgqzsmqnsnpAiLCJ1c2VyUm9sZSI6IlVTRVIiLCJ1c2VySWQiOjMsInN1YiI6InRlc3RAZXhhbXBsZS5jb20iLCJpc3MiOiJtYXNpbCIsImlhdCI6MTc1MzQxNjc2OSwiZXhwIjoxNzUzNDE4NTY5fQ.hEtvN3ZymwfR4NJHRT3EQ1cQPwEnelXDrxtS65Xz0Aw

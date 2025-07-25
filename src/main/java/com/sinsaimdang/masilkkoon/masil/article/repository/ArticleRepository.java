@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository // 스프링 빈으로 등록 (생략 가능하지만, 명시적으로 유지)
-public interface ArticleRepository extends JpaRepository<Article, Long> {
+public interface ArticleRepository extends JpaRepository<Article, Long>, ArticleRepositoryCustom {
 
     // N+1 문제를 해결하기 위해 Fetch Join을 사용하여 모든 게시글과 연관된 컬렉션들을 한 번에 가져옵니다.
     // SELECT DISTINCT a: 여러 컬렉션을 Fetch Join 할 때 발생할 수 있는 중복 엔티티를 메모리에서 제거합니다.

@@ -9,7 +9,11 @@ import org.springframework.web.bind.annotation.PathVariable; // URL 경로 변�
 import org.springframework.web.bind.annotation.RequestMapping; // 요청 매핑 어노테이션
 import org.springframework.web.bind.annotation.RestController; // REST Controller 어노테이션 (JSON 응답)
 
-import java.util.List; // List 임포트
+//import java.util.List; // List 임포트
+
+import com.sinsaimdang.masilkkoon.masil.article.dto.ArticleSearchCondition;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @RestController // 이 클래스가 REST API를 처리하는 컨트롤러임을 명시 (JSON 응답 자동 변환)
 @RequiredArgsConstructor // final 필드를 이용한 생성자 자동 생성 (의존성 주입)
@@ -18,16 +22,16 @@ public class ArticleController {
 
     private final ArticleService articleService; // ArticleService 주입
 
-    /**
-     * 모든 게시글 목록을 조회하는 API
-     * GET /api/articles
-     * @return 게시글 DTO 목록과 함께 HTTP 200 OK 응답
-     */
-    @GetMapping // /api/articles 경로의 GET 요청 처리
-    public ResponseEntity<List<ArticleResponse>> getArticles() {
-        List<ArticleResponse> articles = articleService.findAllArticles(); // 서비스 계층 호출
-        return ResponseEntity.ok(articles); // HTTP 200 OK 응답과 함께 게시글 목록 반환
-    }
+//    /**
+//     * 모든 게시글 목록을 조회하는 API
+//     * GET /api/articles
+//     * @return 게시글 DTO 목록과 함께 HTTP 200 OK 응답
+//     */
+//    @GetMapping // /api/articles 경로의 GET 요청 처리
+//    public ResponseEntity<List<ArticleResponse>> getArticles() {
+//        List<ArticleResponse> articles = articleService.findAllArticles(); // 서비스 계층 호출
+//        return ResponseEntity.ok(articles); // HTTP 200 OK 응답과 함께 게시글 목록 반환
+//    }
 
     /**
      * 특정 ID의 게시글을 단건 조회하는 API
@@ -40,6 +44,14 @@ public class ArticleController {
         ArticleResponse article = articleService.findArticleById(articleId); // 서비스 계층 호출
         return ResponseEntity.ok(article); // HTTP 200 OK 응답과 함께 단건 게시글 반환
     }
+
+
+    @GetMapping  // 필터링
+    public ResponseEntity<Page<ArticleResponse>> getArticles(ArticleSearchCondition condition, Pageable pageable) {
+        Page<ArticleResponse> articles = articleService.searchArticles(condition, pageable);
+        return ResponseEntity.ok(articles);
+    }
+
 
     // TODO: 게시글 생성, 수정, 삭제 API는 나중에 추가 (Phase 1에서는 조회만 집중)
 }
