@@ -1,0 +1,53 @@
+### 회원가입 테스트
+POST http://localhost:8080/api/auth/signup
+Content-Type: application/json
+
+{
+  "email": "250725@example.com",
+  "password": "password123",
+  "name": "테스트 사용자",
+  "nickname": "250725"
+}
+
+### 로그인 테스트
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+### 이메일 중복 확인 테스트
+GET http://localhost:8080/api/auth/check-email?email=test@example.com
+
+### 닉네임 중복 확인 테스트
+GET http://localhost:8080/api/auth/check-nickname?nickname=testuser
+
+### JWT 인증 테스트
+GET http://localhost:8080/api/user/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJ0ZXN0dXNlciIsInVzZXJFbWFpbCI6InRlc3RAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6Iu2FjOyKpO2KuCDsgqzsmqnsnpAiLCJ1c2VyUm9sZSI6IlVTRVIiLCJ1c2VySWQiOjEsInN1YiI6InRlc3RAZXhhbXBsZS5jb20iLCJpc3MiOiJtYXNpbCIsImlhdCI6MTc1MzIyNDMyMywiZXhwIjoxNzUzMjI2MTIzfQ.P4Fbs8usP_POwWTz50KK0-x1oLaB1afu6e50wqk3MKg
+
+### 사용자 프로필 조회 테스트
+GET http://localhost:8080/api/user/profile
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+### JWT 인증 테스트 엔드포인트
+GET http://localhost:8080/api/user/test
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+### 로그아웃 테스트
+POST http://localhost:8080/api/auth/logout
+Content-Type: application/json
+
+{
+  "email": "test@example.com"
+}
+
+### 토큰 갱신 테스트
+POST http://localhost:8080/api/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTMyMjQ0NzUsImV4cCI6MTc1MzgyOTI3NX0.KwvRiL7bSKNUvb_0RMNKyq_Xs6unNCyHR9ULh_-LFUE"
+}
