@@ -8,6 +8,7 @@ import com.sinsaimdang.masilkkoon.masil.auth.service.AuthService;
 import com.sinsaimdang.masilkkoon.masil.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +23,7 @@ import java.util.Map;
 @RequestMapping("api/auth")
 @RequiredArgsConstructor
 @Slf4j
+@ComponentScan
 public class AuthController {
 
     private final AuthService authService;

@@ -14,8 +14,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
+
 
 @Service
 @RequiredArgsConstructor
@@ -31,22 +34,30 @@ public class AuthService {
     @Value("${jwt.refresh-token-expiration}")
     private Long refreshTokenExpiration;
 
+    // 예약어 목록
+    private static final String[] RESERVED_NICKNAMES = {
+            "admin", "administrator", "관리자", "운영자", "system", "root",
+            "user", "guest", "anonymous", "null", "undefined", "test",
+            "support", "help", "info", "service", "official"
+    };
+
+    // 이름 패턴
+    private static final Pattern NAME_PATTERN = Pattern.compile("^[가-힣a-zA-Z\\s]+$");
+
+    // 닉네임 패턴
+    private static final Pattern NICKNAME_PATTERN = Pattern.compile("^[가-힣a-zA-Z0-9_]+$");
+
     //회원가입
     @Transactional
     public User signup(String email, String password, String name, String nickname) {
         log.info("회원가입 시도 : 이메일 = {}", email);
 
-        // 이메일 중복 검사
-        if(userRepository.existsByEmail(email)) {
-            log.warn("이미 존재하는 이메일로 회원가입을 시도했습니다 : {}", email);
-            throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
-        }
+        // 입력값 전처리
+        NormalizedSignupData data = new NormalizedSignupData(email, password, name, nickname);
 
-        // 닉네임 중복 검사
-        if(userRepository.existsByNickname(nickname)) {
-            log.warn("이미 존재하는 닉네임으로 회원가입을 시도했습니다 : {}", nickname);
-            throw new IllegalArgumentException("이미 존재하는 닉네임입니다.");
-        }
+        // 중복 검사
+        checkDuplicates(data.getEmail(), data.getNickname());
+
 
         // 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(password);
@@ -188,5 +199,103 @@ public class AuthService {
         log.info("만료된 리프레시 토큰 삭제 시작");
         refreshTokenRepository.deleteExpiredTokens(LocalDateTime.now());
         log.info("만료된 리프레시 토큰 삭제 완료");
+    }
+
+    //========== 전처리 메서드 ==========
+
+    // SignUp Request 전처리
+    private String[] normalizeSignUpData(String email, String password, String name, String nickname) {
+        String normalizedEmail = email != null ? email.toLowerCase().trim() : null;
+        String normalizedPassword = password != null ? password.toLowerCase().trim() : null;
+        String normalizedName = name != null ? name.toLowerCase().trim() : null;
+        String normalizedNickname = nickname != null ? nickname.toLowerCase().trim() : null;
+
+        return new String[]{normalizedEmail, normalizedPassword, normalizedName, normalizedNickname};
+    }
+
+    // Login Request 전처리
+    private String[] normalizeLoginData(String email, String password) {
+        String normalizedEmail = email != null ? email.toLowerCase().trim() : null;
+        String normalizedPassword = password != null ? password.toLowerCase().trim() : null;
+
+        return new String[]{normalizedEmail, normalizedPassword};
+    }
+
+    // Signup Request 추가 검증 (DTO에서는 이메일 형식과 나머지 입력값의 길이 제한만 검증)
+    // name : 한글 영문 공백만 사용
+    // nickname : 예약어 제외, 한글 영문 숫자 언더스코어 사용
+    private void validateSignupSecurity(String email, String password, String name, String nickname) {
+        // 이름 패턴 검증
+        if(!NAME_PATTERN.matcher(name).matches()) {
+            throw new SecurityException("이름은 한글, 영문, 공백만 사용할 수 있습니다.");
+        }
+
+        // 닉네임 패턴 검증
+        if(nickname != null && !NICKNAME_PATTERN.matcher(nickname).matches()) {
+            throw new SecurityException("닉네임은 한글, 영문, 숫자, 언더스코어만 사용할 수 있습니다.");
+        }
+
+        // 닉네임 예약어 검증
+        if(nickname != null && isReservedNickname(nickname)) {
+            throw new SecurityException("사용할 수 없는 닉네임 입니다.");
+        }
+    }
+
+    //========== 검증 메서드 ==========
+
+    // 이메일 , 닉네임 중복 검사
+    private void checkDuplicates(String email, String nickname) {
+        // 이메일 중복 검사
+        if(userRepository.existsByEmail(email)) {
+            log.warn("이미 존재하는 이메일로 회원가입을 시도했습니다 : {}", email);
+            throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
+        }
+        // 닉네임 중복 검사
+        if(userRepository.existsByNickname(nickname)) {
+            log.warn("이미 존재하는 닉네임으로 회원가입을 시도했습니다 : {}", nickname);
+            throw new IllegalArgumentException("이미 존재하는 닉네임입니다.");
+        }
+    }
+
+    // 비밀번호 형식 검증 (DTO에서는 길이만 검증)
+    // 영문 대소문자 숫자 특수문자 모두 포함.
+    // 이외 요시 포함 금지
+    private void validatePasswordSecurity(String password, String email, String name) {
+
+        // 1. 영문 소문자 포함 검증
+        if (!password.matches(".*[a-z].*")) {
+            throw new SecurityException("비밀번호에 영문 소문자를 포함해야 합니다");
+        }
+
+        // 2. 영문 대문자 포함 검증
+        if (!password.matches(".*[A-Z].*")) {
+            throw new SecurityException("비밀번호에 영문 대문자를 포함해야 합니다");
+        }
+
+        // 3. 숫자 포함 검증
+        if (!password.matches(".*[0-9].*")) {
+            throw new SecurityException("비밀번호에 숫자를 포함해야 합니다");
+        }
+
+        // 4. 특수문자 포함 검증
+        if (!password.matches(".*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?].*")) {
+            throw new SecurityException("비밀번호에 특수문자를 포함해야 합니다");
+        }
+
+        // 5. 허용되지 않은 문자 검증 (영문, 숫자, 특수문자만 허용)
+        if (!password.matches("^[a-zA-Z0-9!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]*$")) {
+            throw new SecurityException("비밀번호는 영문, 숫자, 특수문자만 사용할 수 있습니다");
+        }
+    }
+
+    // 닉네임 예약어 검증
+    private boolean isReservedNickname(String nickname) {
+        if(nickname == null || nickname.trim().isEmpty()) {
+            return false;
+        }
+
+        String normalizedNickname = nickname.toLowerCase().trim();
+
+        return Arrays.stream(RESERVED_NICKNAMES).anyMatch(reserved -> normalizedNickname.contains(reserved.toLowerCase()));
     }
 }

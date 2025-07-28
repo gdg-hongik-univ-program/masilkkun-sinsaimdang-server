@@ -25,6 +25,10 @@ public class FilterConfig {
         FilterRegistrationBean<JwtAuthenticationFilter> registrationBean =
                 new FilterRegistrationBean<>();
 
+        registrationBean.setFilter(jwtAuthenticationFilter);
+        registrationBean.addUrlPatterns("/*");
+        registrationBean.setOrder(1);  // CORS 필터 다음에 실행
+
         // 등록할 필터 설정
         registrationBean.setFilter(jwtAuthenticationFilter);
 
@@ -44,34 +48,40 @@ public class FilterConfig {
     public FilterRegistrationBean<CorsFilter> corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
 
+        // ✅ 프론트엔드 localhost:5173 명시적 허용
         config.setAllowCredentials(true);
-
-        config.addAllowedOrigin("http://localhost:3000");
-        config.addAllowedOrigin("http://localhost:3001");
+        config.addAllowedOrigin("http://localhost:5173");  // Vite 개발 서버
+        config.addAllowedOrigin("http://127.0.0.1:5173");
+        config.addAllowedOrigin("http://localhost:3000");  // React 기본 포트
         config.addAllowedOrigin("http://127.0.0.1:3000");
 
-        config.addAllowedMethod("GET");     // 조회
-        config.addAllowedMethod("POST");    // 생성
-        config.addAllowedMethod("PUT");     // 수정
-        config.addAllowedMethod("DELETE");  // 삭제
-        config.addAllowedMethod("OPTIONS"); // CORS preflight 요청
-        config.addAllowedMethod("PATCH");   // 부분 수정
+        // ✅ 모든 HTTP 메서드 허용
+        config.addAllowedMethod("GET");
+        config.addAllowedMethod("POST");
+        config.addAllowedMethod("PUT");
+        config.addAllowedMethod("DELETE");
+        config.addAllowedMethod("PATCH");
+        config.addAllowedMethod("OPTIONS");  // preflight 요청 필수
 
-        config.addAllowedHeader("*");       // 모든 헤더 허용
+        // ✅ 모든 헤더 허용
+        config.addAllowedHeader("*");
 
-        config.addExposedHeader("Authorization");
-        config.addExposedHeader("Content-Type");
-        config.addExposedHeader("X-Total-Count");
+        // ✅ 응답 헤더 노출
+        config.addExposedHeader("*");
 
-        config.setMaxAge(3600L); // 1시간
+        // ✅ preflight 캐시 시간
+        config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config); // 모든 경로에 적용
+        source.registerCorsConfiguration("/**", config);  // 모든 경로에 적용
+
 
         FilterRegistrationBean<CorsFilter> registrationBean =
                 new FilterRegistrationBean<>(new CorsFilter(source));
 
-        registrationBean.setOrder(0);
+        // ✅ JWT 필터보다 먼저 실행
+        registrationBean.setOrder(-1);
+
         registrationBean.setName("corsFilter");
 
         return registrationBean;
