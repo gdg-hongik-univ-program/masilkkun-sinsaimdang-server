@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
  * @see com.sinsaimdang.masilkkoon.masil.user.service.UserService
  * @see com.sinsaimdang.masilkkoon.masil.auth.service.AuthService
  */
+
 @Entity
 @Table(name = "users")
 @Getter
@@ -37,6 +38,7 @@ public class User {
      * - DB 에서 자동으로 생성, AUTO_INCREMENT 방식으로 자동 증가<br>
      * - 사용자 식별자로 사용됨
      */
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -113,6 +115,7 @@ public class User {
      *
      * @see UserRole
      */
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default

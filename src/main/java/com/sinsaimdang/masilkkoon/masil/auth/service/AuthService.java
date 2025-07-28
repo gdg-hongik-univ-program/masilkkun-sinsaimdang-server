@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -66,6 +67,7 @@ public class AuthService {
                 normalizedData.getName(),
                 normalizedData.getNickname()
         );
+
 
         // 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(password);

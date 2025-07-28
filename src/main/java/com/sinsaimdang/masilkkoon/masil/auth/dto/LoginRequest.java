@@ -21,11 +21,13 @@ import lombok.Setter;
  * @see com.sinsaimdang.masilkkoon.masil.auth.service.AuthService#login(String, String)
  * @see com.sinsaimdang.masilkkoon.masil.auth.controller.AuthController#login(LoginRequest)
  */
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class LoginRequest {
+
     /**
      * 사용자 이메일 주소 -> 아이디로 사용<br>
      * <br>
@@ -46,6 +48,7 @@ public class LoginRequest {
      * -암호 검증은 PasswordEncoder.matches() 사용
      * @see com.sinsaimdang.masilkkoon.masil.auth.service.AuthService
      */
+
     @NotBlank(message = "비밀번호를 입력해주세요")
     private String password;
 }
