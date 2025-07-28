@@ -138,4 +138,32 @@ public class User {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
+    public void updateNickname(String newNickname) {
+        if (newNickname == null || newNickname.trim().isEmpty()) {
+            throw new IllegalArgumentException("닉네임은 null 또는 empty 일 수 없습니다");
+        }
+        this.nickname = newNickname.trim();
+    }
+
+    public void updatePassword(String newEncodedPassword) {
+        if (newEncodedPassword == null || newEncodedPassword.trim().isEmpty()) {
+            throw new IllegalArgumentException("닉네임은 null 또는 empty 일 수 없습니다");
+        }
+        this.password = newEncodedPassword.trim();
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", email='" + email + '\'' +
+                ", password='***'" + // 보안상 마스킹
+                ", name='" + name + '\'' +
+                ", nickname='" + nickname + '\'' +
+                ", role=" + role +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
+    }
+
 }
