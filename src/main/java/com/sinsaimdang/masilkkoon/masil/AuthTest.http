@@ -14,7 +14,7 @@ POST http://localhost:8080/api/auth/login
 Content-Type: application/json
 
 {
-  "email": "test@example.com",
+  "email": "250725@example.com",
   "password": "password123"
 }
 
@@ -26,22 +26,23 @@ GET http://localhost:8080/api/auth/check-nickname?nickname=testuser
 
 ### JWT 인증 테스트
 GET http://localhost:8080/api/user/me
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJ0ZXN0dXNlciIsInVzZXJFbWFpbCI6InRlc3RAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6Iu2FjOyKpO2KuCDsgqzsmqnsnpAiLCJ1c2VyUm9sZSI6IlVTRVIiLCJ1c2VySWQiOjEsInN1YiI6InRlc3RAZXhhbXBsZS5jb20iLCJpc3MiOiJtYXNpbCIsImlhdCI6MTc1MzIyNDMyMywiZXhwIjoxNzUzMjI2MTIzfQ.P4Fbs8usP_POwWTz50KK0-x1oLaB1afu6e50wqk3MKg
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiIyNTA3MjUiLCJ1c2VyRW1haWwiOiIyNTA3MjVAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6Iu2FjOyKpO2KuCDsgqzsmqnsnpAiLCJ1c2VyUm9sZSI6IlVTRVIiLCJ1c2VySWQiOjMsInN1YiI6IjI1MDcyNUBleGFtcGxlLmNvbSIsImlzcyI6Im1hc2lsIiwiaWF0IjoxNzUzNjcyODYxLCJleHAiOjE3NTM2NzQ2NjF9.TiyS2mgwCx145577CQSMRbuFSrr5D_isXlJZ17a35hc
 
 ### 사용자 프로필 조회 테스트
 GET http://localhost:8080/api/user/profile
-Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiIyNTA3MjUiLCJ1c2VyRW1haWwiOiIyNTA3MjVAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6Iu2FjOyKpO2KuCDsgqzsmqnsnpAiLCJ1c2VyUm9sZSI6IlVTRVIiLCJ1c2VySWQiOjMsInN1YiI6IjI1MDcyNUBleGFtcGxlLmNvbSIsImlzcyI6Im1hc2lsIiwiaWF0IjoxNzUzNjcyODYxLCJleHAiOjE3NTM2NzQ2NjF9.TiyS2mgwCx145577CQSMRbuFSrr5D_isXlJZ17a35hc
 
 ### JWT 인증 테스트 엔드포인트
 GET http://localhost:8080/api/user/test
-Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiIyNTA3MjUiLCJ1c2VyRW1haWwiOiIyNTA3MjVAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6Iu2FjOyKpO2KuCDsgqzsmqnsnpAiLCJ1c2VyUm9sZSI6IlVTRVIiLCJ1c2VySWQiOjMsInN1YiI6IjI1MDcyNUBleGFtcGxlLmNvbSIsImlzcyI6Im1hc2lsIiwiaWF0IjoxNzUzNjcyODYxLCJleHAiOjE3NTM2NzQ2NjF9.TiyS2mgwCx145577CQSMRbuFSrr5D_isXlJZ17a35hc
 
 ### 로그아웃 테스트
 POST http://localhost:8080/api/auth/logout
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiIyNTA3MjUiLCJ1c2VyRW1haWwiOiIyNTA3MjVAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6Iu2FjOyKpO2KuCDsgqzsmqnsnpAiLCJ1c2VyUm9sZSI6IlVTRVIiLCJ1c2VySWQiOjMsInN1YiI6IjI1MDcyNUBleGFtcGxlLmNvbSIsImlzcyI6Im1hc2lsIiwiaWF0IjoxNzUzNjc0MTI3LCJleHAiOjE3NTM2NzU5Mjd9.M1jHdlSlPLfTLblUEa_62xGIZZiAJ5iItcSgJB546mo
 
 {
-  "email": "test@example.com"
+  "email": "250725@example.com"
 }
 
 ### 토큰 갱신 테스트
@@ -49,5 +50,46 @@ POST http://localhost:8080/api/auth/refresh
 Content-Type: application/json
 
 {
-  "refreshToken": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTMyMjQ0NzUsImV4cCI6MTc1MzgyOTI3NX0.KwvRiL7bSKNUvb_0RMNKyq_Xs6unNCyHR9ULh_-LFUE"
+  "refreshToken": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyNTA3MjVAZXhhbXBsZS5jb20iLCJpc3MiOiJtYXNpbCIsImlhdCI6MTc1MzY3Mjg2MSwiZXhwIjoxNzU0Mjc3NjYxfQ.tEMdN-FSUngxW8jZy-A6b-G0bGL2tQ4JASOQzSCxIzo"
 }
+
+### =======================================
+### 최종 API 보안 테스트
+### =======================================
+
+### [인증 O] 게시글 목록 조회 (200 OK 예상)
+GET http://localhost:8080/api/articles
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiIyNTA3MjUiLCJ1c2VyRW1haWwiOiIyNTA3MjVAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6Iu2FjOyKpO2KuCDsgqzsmqnsnpAiLCJ1c2VyUm9sZSI6IlVTRVIiLCJ1c2VySWQiOjMsInN1YiI6IjI1MDcyNUBleGFtcGxlLmNvbSIsImlzcyI6Im1hc2lsIiwiaWF0IjoxNzUzNjczMDI0LCJleHAiOjE3NTM2NzQ4MjR9.Xu5iQdBo4Fq0B_OyCnv7FObDthvxKV6TU0lLGuadCok
+
+### [인증 X] 게시글 목록 조회 (401 Unauthorized 예상)
+GET http://localhost:8080/api/articles
+
+### [인증 O] 게시글 단건 조회 (200 OK 예상)
+GET http://localhost:8080/api/articles/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiIyNTA3MjUiLCJ1c2VyRW1haWwiOiIyNTA3MjVAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6Iu2FjOyKpO2KuCDsgqzsmqnsnpAiLCJ1c2VyUm9sZSI6IlVTRVIiLCJ1c2VySWQiOjMsInN1YiI6IjI1MDcyNUBleGFtcGxlLmNvbSIsImlzcyI6Im1hc2lsIiwiaWF0IjoxNzUzNjczMDI0LCJleHAiOjE3NTM2NzQ4MjR9.Xu5iQdBo4Fq0B_OyCnv7FObDthvxKV6TU0lLGuadCok
+
+### [인증 X] 게시글 단건 조회 (401 Unauthorized 예상)
+GET http://localhost:8080/api/articles/1
+
+
+
+
+### =======================================
+### 필터링 API 테스트
+### =======================================
+
+### [필터링] 지역으로 검색 (서울)
+GET http://localhost:8080/api/articles?region=서울
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiIyNTA3MjUiLCJ1c2VyRW1haWwiOiIyNTA3MjVAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6Iu2FjOyKpO2KuCDsgqzsmqnsnpAiLCJ1c2VyUm9sZSI6IlVTRVIiLCJ1c2VySWQiOjMsInN1YiI6IjI1MDcyNUBleGFtcGxlLmNvbSIsImlzcyI6Im1hc2lsIiwiaWF0IjoxNzUzNjczMDI0LCJleHAiOjE3NTM2NzQ4MjR9.Xu5iQdBo4Fq0B_OyCnv7FObDthvxKV6TU0lLGuadCok
+
+### [필터링] 태그로 검색 (RESTAURANT)
+GET http://localhost:8080/api/articles?tags=RESTAURANT
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiIyNTA3MjUiLCJ1c2VyRW1haWwiOiIyNTA3MjVAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6Iu2FjOyKpO2KuCDsgqzsmqnsnpAiLCJ1c2VyUm9sZSI6IlVTRVIiLCJ1c2VySWQiOjMsInN1YiI6IjI1MDcyNUBleGFtcGxlLmNvbSIsImlzcyI6Im1hc2lsIiwiaWF0IjoxNzUzNjczMDI0LCJleHAiOjE3NTM2NzQ4MjR9.Xu5iQdBo4Fq0B_OyCnv7FObDthvxKV6TU0lLGuadCok
+
+### [필터링] 지역과 태그로 검색 (부산, TRAVEL_SPOT)
+GET http://localhost:8080/api/articles?region=부산&tags=TRAVEL_SPOT
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiIyNTA3MjUiLCJ1c2VyRW1haWwiOiIyNTA3MjVAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6Iu2FjOyKpO2KuCDsgqzsmqnsnpAiLCJ1c2VyUm9sZSI6IlVTRVIiLCJ1c2VySWQiOjMsInN1YiI6IjI1MDcyNUBleGFtcGxlLmNvbSIsImlzcyI6Im1hc2lsIiwiaWF0IjoxNzUzNjczMDI0LCJleHAiOjE3NTM2NzQ4MjR9.Xu5iQdBo4Fq0B_OyCnv7FObDthvxKV6TU0lLGuadCok
+
+### [필터링] 다중 태그로 검색 (CAFE, TRAVEL_SPOT)
+GET http://localhost:8080/api/articles?tags=CAFE,TRAVEL_SPOT
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiIyNTA3MjUiLCJ1c2VyRW1haWwiOiIyNTA3MjVAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6Iu2FjOyKpO2KuCDsgqzsmqnsnpAiLCJ1c2VyUm9sZSI6IlVTRVIiLCJ1c2VySWQiOjMsInN1YiI6IjI1MDcyNUBleGFtcGxlLmNvbSIsImlzcyI6Im1hc2lsIiwiaWF0IjoxNzUzNjczMDI0LCJleHAiOjE3NTM2NzQ4MjR9.Xu5iQdBo4Fq0B_OyCnv7FObDthvxKV6TU0lLGuadCok
