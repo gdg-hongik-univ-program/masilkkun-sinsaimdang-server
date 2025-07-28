@@ -116,6 +116,8 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                 return article.viewCount.desc(); // 조회수 내림차순
             case "오래된순":
                 return article.createdAt.asc();
+            case "스크랩순":
+                return article.scrapCount.desc(); // 스크랩 수 내림차순
             default:
                 return article.createdAt.desc(); // 기본 정렬: 최신순
         }
