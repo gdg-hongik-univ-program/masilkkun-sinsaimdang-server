@@ -28,6 +28,17 @@ public class FilterConfig {
         registrationBean.setFilter(jwtAuthenticationFilter);
         registrationBean.addUrlPatterns("/*");
         registrationBean.setOrder(1);  // CORS 필터 다음에 실행
+
+        // 등록할 필터 설정
+        registrationBean.setFilter(jwtAuthenticationFilter);
+
+        // 필터가 적용될 URL 패턴 설정
+        registrationBean.addUrlPatterns("/*");
+
+        // 필터 실행 순서 설정 (낮은 숫자가 먼저 실행)
+        registrationBean.setOrder(1);
+
+        // 필터 이름 설정 (Bean 이름 충돌 방지)
         registrationBean.setName("jwtFilterRegistration");
 
         return registrationBean;
@@ -64,11 +75,13 @@ public class FilterConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);  // 모든 경로에 적용
 
+
         FilterRegistrationBean<CorsFilter> registrationBean =
                 new FilterRegistrationBean<>(new CorsFilter(source));
 
         // ✅ JWT 필터보다 먼저 실행
         registrationBean.setOrder(-1);
+
         registrationBean.setName("corsFilter");
 
         return registrationBean;

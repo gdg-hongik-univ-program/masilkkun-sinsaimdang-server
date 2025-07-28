@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -56,6 +57,7 @@ public class AuthService {
 
         // 중복 검사
         checkDuplicates(data.getEmail(), data.getNickname());
+
 
         // 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(password);
