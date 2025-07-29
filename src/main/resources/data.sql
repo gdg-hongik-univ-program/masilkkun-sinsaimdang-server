@@ -44,7 +44,7 @@ VALUES (2, 2, '송정해수욕장', '부산시 해운대구 송정동', '서핑�
 
 -- 테스트용 게시글 데이터 (ID=3), 작성자는 1번 유저, 경남 지역
 INSERT INTO articles (title, content, user_id, region, scrap_count, like_count, view_count, created_at, updated_at)
-VALUES ('경남 창원의 아름다운 길', '창원의 숨겨진 길을 따라 걸으며 새로운 풍경을 발견했습니다.', 1, '창원', 7, 18, 90, NOW(), NOW());
+VALUES ('경남 창원 아름다운 길', '창원의 숨겨진 길을 따라 걸으며 새로운 풍경을 발견했습니다.', 1, '창원', 7, 18, 90, NOW(), NOW());
 INSERT INTO article_tags (article_id, tag) VALUES (3, 'TRAVEL_SPOT');
 INSERT INTO article_photos (article_id, photo_url) VALUES (3, 'https://culture.changwon.go.kr/cmm/fms/getImage.do?atchFileId=FILE_000000000008746');
 INSERT INTO article_photos (article_id, photo_url) VALUES (3, 'https://eiec.kdi.re.kr/userdata/nara/202108/edit/aaauOBDTNDE3Kaf343HRx_1627448711563.jpg');
