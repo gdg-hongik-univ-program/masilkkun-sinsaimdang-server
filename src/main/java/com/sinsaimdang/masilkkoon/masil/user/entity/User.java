@@ -1,5 +1,6 @@
 package com.sinsaimdang.masilkkoon.masil.user.entity;
 
+import com.sinsaimdang.masilkkoon.masil.common.config.JpaAuditing;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -126,7 +127,7 @@ public class User {
      * <br>
      * - 사용자 계정이 생성된 시기를 기록합니다<br>
      * - JPA Auditing 기능을 통해서 Entity 생성시 자동으로 기록됩니다.
-     * @see com.sinsaimdang.masilkkoon.masil.common.config.JpaAuditing
+     * @see JpaAuditing
      */
     @CreatedDate
     @Column(nullable = false, updatable = false)
