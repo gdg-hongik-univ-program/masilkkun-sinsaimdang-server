@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
  * @see com.sinsaimdang.masilkkoon.masil.user.service.UserService
  * @see com.sinsaimdang.masilkkoon.masil.auth.service.AuthService
  */
+
 @Entity
 @Table(name = "users")
 @Getter
@@ -37,6 +38,7 @@ public class User {
      * - DB 에서 자동으로 생성, AUTO_INCREMENT 방식으로 자동 증가<br>
      * - 사용자 식별자로 사용됨
      */
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -113,6 +115,7 @@ public class User {
      *
      * @see UserRole
      */
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default
@@ -137,5 +140,33 @@ public class User {
     @LastModifiedDate
     @Column(nullable = false)
     private LocalDateTime updatedAt;
+
+    public void updateNickname(String newNickname) {
+        if (newNickname == null || newNickname.trim().isEmpty()) {
+            throw new IllegalArgumentException("닉네임은 null 또는 empty 일 수 없습니다");
+        }
+        this.nickname = newNickname.trim();
+    }
+
+    public void updatePassword(String newEncodedPassword) {
+        if (newEncodedPassword == null || newEncodedPassword.trim().isEmpty()) {
+            throw new IllegalArgumentException("닉네임은 null 또는 empty 일 수 없습니다");
+        }
+        this.password = newEncodedPassword.trim();
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", email='" + email + '\'' +
+                ", password='***'" + // 보안상 마스킹
+                ", name='" + name + '\'' +
+                ", nickname='" + nickname + '\'' +
+                ", role=" + role +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
+    }
 
 }

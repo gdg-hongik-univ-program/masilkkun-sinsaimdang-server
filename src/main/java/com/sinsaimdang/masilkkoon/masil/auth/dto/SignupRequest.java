@@ -23,6 +23,7 @@ import lombok.Setter;
  * @see com.sinsaimdang.masilkkoon.masil.auth.service.AuthService#signup(String, String, String, String)
  * @see com.sinsaimdang.masilkkoon.masil.auth.controller.AuthController#signup(SignupRequest)
  */
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -51,6 +52,7 @@ public class SignupRequest {
      * -암호화는 SpringSecurity PasswordEncoder 사용<br>
      * @see com.sinsaimdang.masilkkoon.masil.auth.service.AuthService
      */
+
     @NotBlank(message = "비밀번호는 필수 항목입니다")
     @Size(min = 8, max = 20, message = "비밀번호는 8-20자리 사이여야 합니다")
     private String password;
@@ -61,6 +63,7 @@ public class SignupRequest {
      * -@NotBlank : null 또는 blank 시 실패<br>
      * -@Size : 10자리 초과 시 실패<br>
      */
+
     @NotBlank(message = "이름은 필수 항목입니다")
     @Size(max = 10, message = "이름은 10자리를 초과할 수 없습니다")
     private String name;
@@ -71,6 +74,7 @@ public class SignupRequest {
      * -@NotBlank : null 또는 blank 시 실패<br>
      * -@Size : 10자리 초과 시 실패<br>
      */
+
     @NotBlank(message = "닉네임은 필수 항목입니다")
     @Size(max = 10, message = "닉네임은 10자리를 초과할 수 없습니다")
     private String nickname;
