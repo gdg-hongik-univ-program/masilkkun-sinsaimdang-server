@@ -148,17 +148,50 @@ public class AuthController {
      * @see LogoutRequest
      */
     @PostMapping("/logout")
-    public ResponseEntity<Map<String, Object>> logout(@RequestBody LogoutRequest request) {
+    public ResponseEntity<Map<String, Object>> logout(@Valid @RequestBody LogoutRequest request) {
         log.info("로그아웃 요청 - 이메일 = {}", request.getEmail());
 
         try {
+            // 이메일 유효성 검증
+            if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
+                log.warn("로그아웃 실패 - 이메일이 비어있음");
+
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", false);
+                response.put("message", "이메일은 필수 항목입니다.");
+
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+
+            // 이메일 존재 여부 확인 (선택사항 - 보안상 실제 존재 여부를 노출하지 않을 수도 있음)
+            if (!authService.isEmailExists(request.getEmail())) {
+                log.warn("로그아웃 실패 - 존재하지 않는 이메일: {}", request.getEmail());
+
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", false);
+                response.put("message", "존재하지 않는 이메일입니다.");
+
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+
             authService.logout(request.getEmail());
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("message", "로그아웃에 성공했습니다");
 
+            log.info("로그아웃 성공 - 이메일: {}", request.getEmail());
             return ResponseEntity.ok(response);
+
+        } catch (IllegalArgumentException e) {
+            log.warn("로그아웃 실패 - 이메일: {}, 사유: {}", request.getEmail(), e.getMessage());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", e.getMessage());
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+
         } catch (Exception e) {
             log.error("로그아웃 중 서버 오류 - 이메일: {}", request.getEmail(), e);
 
