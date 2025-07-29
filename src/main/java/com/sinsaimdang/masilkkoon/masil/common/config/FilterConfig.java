@@ -2,7 +2,6 @@ package com.sinsaimdang.masilkkoon.masil.common.config;
 
 import com.sinsaimdang.masilkkoon.masil.auth.filter.JwtAuthenticationFilter;
 import com.sinsaimdang.masilkkoon.masil.auth.util.JwtUtil;
-import com.sinsaimdang.masilkkoon.masil.user.repository.UserRepository;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
