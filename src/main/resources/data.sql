@@ -46,15 +46,21 @@ VALUES (2, 2, '송정해수욕장', '부산시 해운대구 송정동', '서핑�
 INSERT INTO articles (title, content, user_id, region, scrap_count, like_count, view_count, created_at, updated_at)
 VALUES ('경남 창원의 아름다운 길', '창원의 숨겨진 길을 따라 걸으며 새로운 풍경을 발견했습니다.', 1, '창원', 7, 18, 90, NOW(), NOW());
 INSERT INTO article_tags (article_id, tag) VALUES (3, 'TRAVEL_SPOT');
-INSERT INTO article_photos (article_id, photo_url) VALUES (3, 'https://example.com/changwon1.jpg');
+INSERT INTO article_photos (article_id, photo_url) VALUES (3, 'https://culture.changwon.go.kr/cmm/fms/getImage.do?atchFileId=FILE_000000000008746');
+INSERT INTO article_photos (article_id, photo_url) VALUES (3, 'https://eiec.kdi.re.kr/userdata/nara/202108/edit/aaauOBDTNDE3Kaf343HRx_1627448711563.jpg');
 INSERT INTO article_places (article_id, place_order, place_name, address, description)
 VALUES (3, 1, '주남저수지', '경남 창원시 의창구 대산면 유등리', '철새들이 많아 아름다운 곳');
+INSERT INTO article_places (article_id, place_order, place_name, address, description)
+VALUES (3, 2, '저도', '경남 창원시 의창구 대산면 유등리', '한적하지만 소박하고 아름다운 곳');
 
 -- 테스트용 게시글 데이터 (ID=4), 작성자는 2번 유저, 태그가 2개 (AND 조건 테스트용)
 INSERT INTO articles (title, content, user_id, region, scrap_count, like_count, view_count, created_at, updated_at)
 VALUES ('제주의 맛집과 카페', '제주도에서 맛집과 분위기 좋은 카페를 동시에 즐겼어요.', 2, '제주', 15, 30, 200, NOW(), NOW());
 INSERT INTO article_tags (article_id, tag) VALUES (4, 'RESTAURANT');
 INSERT INTO article_tags (article_id, tag) VALUES (4, 'CAFE');
-INSERT INTO article_photos (article_id, photo_url) VALUES (4, 'https://example.com/jeju1.jpg');
+INSERT INTO article_photos (article_id, photo_url) VALUES (4, 'https://digitalchosun.dizzo.com/site/data/img_dir/2021/03/05/2021030580086_0.jpg');
+INSERT INTO article_photos (article_id, photo_url) VALUES (4, 'https://i.ytimg.com/vi/AdnXgPYZgR8/maxresdefault.jpg');
 INSERT INTO article_places (article_id, place_order, place_name, address, description)
 VALUES (4, 1, '제주 맛집', '제주시 어딘가', '제주 전통의 맛');
+INSERT INTO article_places (article_id, place_order, place_name, address, description)
+VALUES (4, 2, '제주 맛집', '제주시 어딘가', '제주 특산물의 맛');
