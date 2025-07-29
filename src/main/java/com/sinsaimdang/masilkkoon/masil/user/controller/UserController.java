@@ -1,6 +1,13 @@
 package com.sinsaimdang.masilkkoon.masil.user.controller;
 
+import com.sinsaimdang.masilkkoon.masil.auth.dto.CurrentUser;
+import com.sinsaimdang.masilkkoon.masil.common.util.ApiResponseUtil;
+import com.sinsaimdang.masilkkoon.masil.user.dto.UpdateNicknameRequest;
+import com.sinsaimdang.masilkkoon.masil.user.dto.UpdatePasswordRequest;
+import com.sinsaimdang.masilkkoon.masil.user.dto.UserDto;
 import com.sinsaimdang.masilkkoon.masil.user.entity.User;
+import com.sinsaimdang.masilkkoon.masil.user.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -10,117 +17,139 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * User 관련 API 엔드포인트
+ * 1. 현재 사용자 정보 조회 : GET /api/user/me
+ * 2. 사용자 프로필 조회 : GET /api/user/profile
+ * 3. 닉네임 변경 : PATCH GET /api/user/nickname
+ * 4. 비밀번호 변경 : PATCH /api/user/password
+ * 5. 회원 탈퇴 : DELETE /api/user/me
+ */
 @RestController
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
 @Slf4j
 public class UserController {
 
+    private final UserService userService;
+
     @GetMapping("/me")
-    public ResponseEntity<Map<String, Object>> getCurrentUser(HttpServletRequest request) {
+    public ResponseEntity<Map<String, Object>> getCurrentUser(CurrentUser currentUser) {
         log.info("현재 사용자 정보 조회 요청");
 
         try {
-            // JWT 필터에서 설정한 사용자 정보 추출
-            Long userId = (Long) request.getAttribute("currentUserId");
-            String userEmail = (String) request.getAttribute("currentUserEmail");
-            String userName = (String) request.getAttribute("currentUserName");
-            String userNickname = (String) request.getAttribute("currentUserNickname");
-            String userRole = (String) request.getAttribute("currentUserRole");
+            if(!currentUser.isAuthenticated())
+                return ApiResponseUtil.unauthorized("인증되지 않은 사용자 입니다");
 
-            // 사용자 정보가 없는 경우 (필터에서 인증 실패)
-            if (userId == null || userEmail == null) {
-                log.warn("인증되지 않은 사용자의 정보 조회 시도");
-
-                Map<String, Object> errorResponse = new HashMap<>();
-                errorResponse.put("success", false);
-                errorResponse.put("message", "인증되지 않은 사용자입니다.");
-
-                return ResponseEntity.status(401).body(errorResponse);
-            }
-
-            // 성공 응답 생성
-            Map<String, Object> userData = new HashMap<>();
-            userData.put("id", userId);
-            userData.put("email", userEmail);
-            userData.put("name", userName);
-            userData.put("nickname", userNickname);
-            userData.put("role", userRole);
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "사용자 정보 조회 성공");
-            response.put("data", userData);
-
-            log.info("사용자 정보 조회 성공 - ID: {}, Email: {}", userId, userEmail);
-            return ResponseEntity.ok(response);
-
+            log.info("사용자 정보 조회 성공 - ID = {}, 이메일 = {}", currentUser.getId(), currentUser.getName());
+            return ApiResponseUtil.success("사용자 정보 조회 성공", currentUser.toMap());
         } catch (Exception e) {
-            log.error("사용자 정보 조회 중 오류 발생", e);
-
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("success", false);
-            errorResponse.put("message", "서버 내부 오류가 발생했습니다.");
-
-            return ResponseEntity.status(500).body(errorResponse);
+            log.error("사용자 정보 조회 중 내부 오류 발생", e);
+            return ApiResponseUtil.internalServerError("서버 내부 오류가 발생했습니다");
         }
     }
 
     @GetMapping("/profile")
-    public ResponseEntity<Map<String, Object>> getUserProfile(HttpServletRequest request) {
+    public ResponseEntity<Map<String, Object>> getUserProfile(CurrentUser currentUser) {
         log.info("사용자 프로필 조회 요청");
 
-        Long userId = (Long) request.getAttribute("currentUserId");
-        String userEmail = (String) request.getAttribute("currentUserEmail");
-        String userName = (String) request.getAttribute("currentUserName");
-        String userNickname = (String) request.getAttribute("currentUserNickname");
-
-        if (userId == null || userEmail == null) {
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("success", false);
-            errorResponse.put("message", "인증이 필요합니다.");
-
-            return ResponseEntity.status(401).body(errorResponse);
+        if (!currentUser.isAuthenticated()) {
+            return ApiResponseUtil.unauthorized("인증되지 않은 사용자입니다.");
         }
 
-        Map<String, Object> profileData = new HashMap<>();
-        profileData.put("id", userId);
-        profileData.put("email", userEmail);
-        profileData.put("name", userName);
-        profileData.put("nickname", userNickname);
+        return ApiResponseUtil.success("프로필 조회 성공", currentUser.toMapWithoutRole());
+    }
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("success", true);
-        response.put("message", "프로필 조회 성공");
-        response.put("data", profileData);
+    @PatchMapping("nickname")
+    public ResponseEntity<Map<String, Object>> updateNickname(
+            CurrentUser currentUser,
+            @RequestBody @Valid UpdateNicknameRequest updateRequest) {
 
-        return ResponseEntity.ok(response);
+        log.info("닉네임 변경 요청");
+
+        try {
+            if(!currentUser.isAuthenticated()) {
+                return ApiResponseUtil.unauthorized("인증되지 않은 사용자입니다.");
+            }
+
+            UserDto updatedUser = userService.updateNickname(currentUser.getId(), updateRequest.getNickname());
+
+            log.info("닉네임 변경 성공 - ID = {}, 새로운 닉네임 = {}", updatedUser.getId(), updatedUser.getName());
+            return ApiResponseUtil.success("닉네임이 성공적으로 변경되었습니다", updatedUser);
+        } catch (IllegalArgumentException e) {
+            log.warn("닉네임 변경 실패 - 사유 = {}", e.getMessage());
+            return ApiResponseUtil.badRequest(e.getMessage());
+        } catch (Exception e) {
+            log.error("닉네임 변경 중 서버 오류");
+            return ApiResponseUtil.internalServerError("서버 내부 오류가 발생했습니다");
+        }
+    }
+
+    @PatchMapping("/password")
+    public ResponseEntity<Map<String, Object>> updatePassword(
+            CurrentUser currentUser,
+            @RequestBody @Valid UpdatePasswordRequest updateRequest) {
+
+        log.info("비밀번호 변경 요청");
+
+        try {
+            if (!currentUser.isAuthenticated()) {
+                return ApiResponseUtil.unauthorized("인증이 필요합니다.");
+            }
+
+            UserDto updatedUser = userService.updatePassword(currentUser.getId(), updateRequest.getNewPassword());
+
+            log.info("비밀번호 변경 성공 - ID: {}", currentUser.getId());
+            return ApiResponseUtil.success("비밀번호가 성공적으로 변경되었습니다.", updatedUser);
+
+        } catch (SecurityException | IllegalArgumentException e) {
+            log.warn("비밀번호 변경 실패 - 사유: {}", e.getMessage());
+            return ApiResponseUtil.badRequest(e.getMessage());
+
+        } catch (Exception e) {
+            log.error("비밀번호 변경 중 서버 오류", e);
+            return ApiResponseUtil.internalServerError("서버 내부 오류가 발생했습니다.");
+        }
+    }
+
+    @DeleteMapping("/me")
+    public ResponseEntity<Map<String, Object>> deleteUser(CurrentUser currentUser) {
+        log.info("회원 탈퇴 요청");
+
+        try {
+            if (!currentUser.isAuthenticated()) {
+                return ApiResponseUtil.unauthorized("인증이 필요합니다.");
+            }
+
+            userService.deleteUser(currentUser.getId());
+
+            log.info("회원 탈퇴 성공 - ID: {}, Email: {}", currentUser.getId(), currentUser.getEmail());
+            return ApiResponseUtil.success("회원 탈퇴가 완료되었습니다.");
+
+        } catch (IllegalArgumentException e) {
+            log.warn("회원 탈퇴 실패 - 사유: {}", e.getMessage());
+            return ApiResponseUtil.badRequest(e.getMessage());
+
+        } catch (Exception e) {
+            log.error("회원 탈퇴 중 서버 오류", e);
+            return ApiResponseUtil.internalServerError("서버 내부 오류가 발생했습니다.");
+        }
     }
 
     @GetMapping("/test")
-    public ResponseEntity<Map<String, Object>> testAuth(
-            @RequestAttribute(value = "currentUserId", required = false) Long userId) {
-
+    public ResponseEntity<Map<String, Object>> testAuth(CurrentUser currentUser) {
         log.info("JWT 인증 테스트 요청");
 
-        if (userId == null) {
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("success", false);
-            errorResponse.put("message", "인증 실패");
-
-            return ResponseEntity.status(401).body(errorResponse);
+        if (!currentUser.isAuthenticated()) {
+            return ApiResponseUtil.unauthorized("인증 실패");
         }
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("success", true);
-        response.put("message", "JWT 인증 성공!");
-        response.put("data", Map.of(
-                "userId", userId,
+        Map<String, Object> testData = Map.of(
+                "userId", currentUser.getId(),
                 "timestamp", System.currentTimeMillis()
-        ));
+        );
 
-        log.info("JWT 인증 테스트 성공 - 사용자 ID: {}", userId);
-
-        return ResponseEntity.ok(response);
+        log.info("JWT 인증 테스트 성공 - 사용자 ID: {}", currentUser.getId());
+        return ApiResponseUtil.success("JWT 인증 성공!", testData);
     }
 }
