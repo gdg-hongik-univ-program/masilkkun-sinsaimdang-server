@@ -145,12 +145,31 @@ public class AuthService {
 
     // 로그아웃
     @Transactional
-    public void logout(String email){
+    public void logout(String email) {
         log.info("로그아웃 시도 : 이메일 = {}", email);
 
-        refreshTokenRepository.deleteByEmail(email);
+        // 이메일 유효성 검증
+        if (email == null || email.trim().isEmpty()) {
+            log.warn("로그아웃 실패 - 이메일이 null이거나 비어있음");
+            throw new IllegalArgumentException("이메일은 필수 항목입니다.");
+        }
 
-        log.info("로그아웃 완료 : 이메일 = {}", email);
+        String normalizedEmail = email.toLowerCase().trim();
+
+        // 사용자 존재 여부 확인 (선택사항)
+        if (!userRepository.existsByEmail(normalizedEmail)) {
+            log.warn("로그아웃 실패 - 존재하지 않는 이메일: {}", normalizedEmail);
+            throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
+        }
+
+        // Refresh Token 삭제
+        try {
+            refreshTokenRepository.deleteByEmail(normalizedEmail);
+            log.info("로그아웃 완료 : 이메일 = {}", normalizedEmail);
+        } catch (Exception e) {
+            log.error("로그아웃 중 토큰 삭제 실패 - 이메일: {}", normalizedEmail, e);
+            throw new RuntimeException("로그아웃 처리 중 오류가 발생했습니다.");
+        }
     }
 
     /**
