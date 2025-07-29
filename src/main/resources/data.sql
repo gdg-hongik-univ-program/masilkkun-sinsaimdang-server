@@ -6,21 +6,25 @@ VALUES (2, 'user2@example.com', '$2a$10$y.CVG.xSnaRwv2gG.3eK/eY9Z9C.Y4G/2N2b2d.Y
 
 -- 테스트용 게시글 데이터 (ID=1), 작성자는 1번 유저
 INSERT INTO articles (title, content, user_id, region, scrap_count, like_count, view_count, created_at, updated_at)
-VALUES ('서울의 숨겨진 맛집 탐방', '서울의 잘 알려지지 않은 맛집들을 찾아가 봤습니다. 정말 놀라운 경험이었어요!', 1, '서울', 10, 25, 150, NOW(), NOW());
+VALUES ('수원의 숨겨진 맛집 탐방', '수원의 잘 알려지지 않은 맛집들을 찾아가 봤습니다. 정말 놀라운 경험이었어요!', 1, '수원', 10, 25, 150, NOW(), NOW());
 
 -- 게시글 1의 태그 데이터
 INSERT INTO article_tags (article_id, tag) VALUES (1, 'RESTAURANT');
 INSERT INTO article_tags (article_id, tag) VALUES (1, 'CAFE');
+INSERT INTO article_tags (article_id, tag) VALUES (1, 'TRAVEL_SPOT');
 
 -- 게시글 1의 사진 데이터
-INSERT INTO article_photos (article_id, photo_url) VALUES (1, 'https://m.fritz.co.kr/web/product/big/202302/1f2cef38956f3cd3be32355907ac8f93.jpg');
-INSERT INTO article_photos (article_id, photo_url) VALUES (1, 'https://m.fritz.co.kr/web/product/big/202302/d42cd7b0d298579692e80638fa6dd6ed.jpg');
+INSERT INTO article_photos (article_id, photo_url) VALUES (1, 'https://www.esquirekorea.co.kr/resources_old/online/org_online_image/eq/afcd68be-5e61-4ec0-832f-b572c13634c0.jpg');
+INSERT INTO article_photos (article_id, photo_url) VALUES (1, 'https://d12zq4w4guyljn.cloudfront.net/750_750_20250603084601_photo1_66362ea9f767.webp');
+INSERT INTO article_photos (article_id, photo_url) VALUES (1, 'https://ggc.ggcf.kr/uploadimg/resize/ce9fb7f81544103150251.jpeg');
 
 -- 게시글 1의 장소 경로 데이터
 INSERT INTO article_places (article_id, place_order, place_name, address, description)
-VALUES (1, 1, '마실 카페', '서울시 강남구 테헤란로 123', '아늑한 분위기의 시그니처 커피가 맛있는 곳');
+VALUES (1, 1, '신라갈비', '경기도 수원시 영통구 동수원로 538', '수원 3대 갈비 맛집');
 INSERT INTO article_places (article_id, place_order, place_name, address, description)
-VALUES (1, 2, '쿤 레스토랑', '서울시 강남구 역삼동 456', '신선한 재료로 만든 이탈리안 요리가 일품입니다.');
+VALUES (1, 2, '누크녹', '경기 수원시 팔달구 화서문로31번길 14-32 1 2층', '누크녹은 골목에 위치해 있지만, 멀리서도 존재감 퐁퐁');
+INSERT INTO article_places (article_id, place_order, place_name, address, description)
+VALUES (1, 3, '만석공원', '경기 수원시 장안구 송죽동 248', '밥 먹고 느즈막히 산책하기');
 
 -- =================================================================================================
 
