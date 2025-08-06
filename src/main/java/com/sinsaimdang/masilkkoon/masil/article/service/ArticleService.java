@@ -3,7 +3,9 @@ package com.sinsaimdang.masilkkoon.masil.article.service;
 import com.sinsaimdang.masilkkoon.masil.article.entity.Article;
 import com.sinsaimdang.masilkkoon.masil.article.repository.ArticleRepository;
 import com.sinsaimdang.masilkkoon.masil.article.dto.ArticleResponse;
-import com.sinsaimdang.masilkkoon.masil.user.entity.UserRole; // UserRole 임포트
+import com.sinsaimdang.masilkkoon.masil.user.entity.UserRole;
+import com.sinsaimdang.masilkkoon.masil.article.dto.ArticleCreateRequest;
+import com.sinsaimdang.masilkkoon.masil.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j; // Slf4j 임포트
 import org.springframework.stereotype.Service;
@@ -119,4 +121,50 @@ public class ArticleService {
 
         return articleRepository.search(condition, pageable).map(ArticleResponse::new);
     }
+    /**
+     * 게시글을 생성하는 메서드
+     * @param request 게시글 생성에 필요한 데이터 DTO
+     * @param currentUser 현재 로그인한 사용자 정보
+     * @return 생성된 게시글 정보를 담은 DTO
+     */
+    @Transactional
+    public ArticleResponse createArticle(ArticleCreateRequest request, User currentUser) {
+        log.info("게시글 생성 서비스 호출 - 작성자: {}", currentUser.getNickname());
+
+        // DTO를 Article 엔티티로 변환합니다. 이 때 작성자 정보(currentUser)를 함께 넘겨줍니다.
+        Article article = request.toEntity(currentUser);
+
+        // Article 엔티티를 데이터베이스에 저장합니다.
+        Article savedArticle = articleRepository.save(article);
+        log.info("게시글 저장 완료 - ID: {}, 제목: {}", savedArticle.getId(), savedArticle.getTitle());
+
+        // 저장된 엔티티를 다시 ArticleResponse DTO로 변환하여 반환합니다.
+        return new ArticleResponse(savedArticle);
+    }
+
+    /**
+     * 게시글을 삭제하는 메서드
+     * @param articleId 삭제할 게시글 ID
+     * @param currentUserId 현재 로그인한 사용자 ID
+     */
+    @Transactional
+    public void deleteArticle(Long articleId, Long currentUserId) {
+        log.info("게시글 삭제 서비스 호출 - 게시글 ID: {}, 요청자 ID: {}", articleId, currentUserId);
+
+        // 1. articleId로 게시글을 DB에서 조회합니다. 없으면 예외를 발생시킵니다.
+        Article article = articleRepository.findById(articleId)
+                .orElseThrow(() -> new IllegalArgumentException("ID " + articleId + "에 해당하는 게시글을 찾을 수 없습니다."));
+
+        // 2. (핵심) 게시글의 작성자 ID와 현재 요청한 사용자의 ID가 일치하는지 확인합니다.
+        if (!article.getUser().getId().equals(currentUserId)) {
+            log.warn("게시글 삭제 권한 없음 - 게시글 작성자: {}, 요청자: {}", article.getUser().getId(), currentUserId);
+            // 일치하지 않으면 SecurityException 예외를 발생시켜 삭제를 막습니다.
+            throw new SecurityException("게시글을 삭제할 권한이 없습니다.");
+        }
+
+        // 3. 권한 확인이 통과되면 게시글을 삭제합니다.
+        articleRepository.delete(article);
+        log.info("게시글 삭제 완료 - ID: {}", articleId);
+    }
+
 }

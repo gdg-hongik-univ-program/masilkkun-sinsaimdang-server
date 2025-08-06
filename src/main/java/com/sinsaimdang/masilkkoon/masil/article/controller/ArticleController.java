@@ -2,6 +2,12 @@ package com.sinsaimdang.masilkkoon.masil.article.controller;
 
 import com.sinsaimdang.masilkkoon.masil.article.dto.ArticleResponse; // ArticleResponse DTO 임포트
 import com.sinsaimdang.masilkkoon.masil.article.service.ArticleService; // ArticleService 임포트
+import com.sinsaimdang.masilkkoon.masil.article.dto.ArticleCreateRequest;
+import com.sinsaimdang.masilkkoon.masil.auth.dto.CurrentUser;
+import com.sinsaimdang.masilkkoon.masil.common.util.ApiResponseUtil;
+import com.sinsaimdang.masilkkoon.masil.user.entity.User;
+import com.sinsaimdang.masilkkoon.masil.user.repository.UserRepository;
+
 import lombok.RequiredArgsConstructor; // Lombok RequiredArgsConstructor 임포트
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus; // HTTP 상태 코드를 위한 HttpStatus 임포트
@@ -19,6 +25,7 @@ import com.sinsaimdang.masilkkoon.masil.article.dto.ArticleSearchCondition;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import jakarta.validation.Valid;
 import java.util.HashMap; // Map 응답을 위한 HashMap 임포트
 import java.util.Map;     // Map 응답을 위한 Map 임포트
 
@@ -29,6 +36,7 @@ import java.util.Map;     // Map 응답을 위한 Map 임포트
 public class ArticleController {
 
     private final ArticleService articleService; // ArticleService 주입
+    private final UserRepository userRepository; // ✨ UserRepository 주입
 
 //    /**
 //     * 모든 게시글 목록을 조회하는 API
@@ -121,4 +129,75 @@ public class ArticleController {
     }
 
     // TODO: 게시글 생성, 수정, 삭제 API는 나중에 추가 (Phase 1에서는 조회만 집중)
+
+    /**
+     * 새로운 게시글을 생성하는 API
+     * POST /api/articles
+     * @param request 게시글 생성 요청 데이터 DTO
+     * @param currentUser 현재 로그인한 사용자 정보 (ArgumentResolver가 주입)
+     * @return 생성된 게시글 DTO와 함께 HTTP 201 Created 응답 또는 오류 응답
+     */
+    @PostMapping
+    public ResponseEntity<Map<String, Object>> createArticle(
+            @Valid @RequestBody ArticleCreateRequest request,
+            CurrentUser currentUser) {
+
+        log.info("게시글 생성 요청 - 작성자 ID: {}", currentUser.getId());
+
+        try {
+            // CurrentUser에 담긴 id로 실제 User 엔티티를 데이터베이스에서 조회합니다.
+            User user = userRepository.findById(currentUser.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. ID: " + currentUser.getId()));
+
+            ArticleResponse createdArticle = articleService.createArticle(request, user);
+
+            return ApiResponseUtil.created("게시글이 성공적으로 등록되었습니다.", createdArticle);
+
+        } catch (IllegalArgumentException e) {
+            log.warn("게시글 생성 실패 - 사유: {}", e.getMessage());
+            return ApiResponseUtil.badRequest(e.getMessage());
+        } catch (Exception e) {
+            log.error("게시글 생성 중 서버 오류 발생", e);
+            return ApiResponseUtil.internalServerError("서버 내부 오류가 발생했습니다.");
+        }
+    }
+
+    /**
+     * 특정 ID의 게시글을 삭제하는 API
+     * DELETE /api/articles/{articleId}
+     * @param articleId 삭제할 게시글의 ID
+     * @param currentUser 현재 로그인한 사용자 정보
+     * @return 성공 또는 실패 메시지와 함께 HTTP 응답
+     */
+    @DeleteMapping("/{articleId}")
+    public ResponseEntity<Map<String, Object>> deleteArticle(
+            @PathVariable Long articleId,
+            CurrentUser currentUser) {
+
+        log.info("게시글 삭제 요청 - 게시글 ID: {}, 요청자 ID: {}", articleId, currentUser.getId());
+
+        try {
+            // 1. 로그인된 사용자인지 확인합니다. (토큰이 유효한지)
+            if (!currentUser.isAuthenticated()) {
+                return ApiResponseUtil.unauthorized("인증이 필요합니다.");
+            }
+
+            // 2. 서비스 계층에 articleId와 요청자 ID를 넘겨 삭제를 위임합니다.
+            articleService.deleteArticle(articleId, currentUser.getId());
+
+            // 3. 성공 응답을 반환합니다.
+            return ApiResponseUtil.success("게시글이 성공적으로 삭제되었습니다.");
+
+        } catch (IllegalArgumentException e) { // Service에서 게시글을 못 찾았을 경우
+            log.warn("게시글 삭제 실패 - 사유: {}", e.getMessage());
+            return ApiResponseUtil.badRequest(e.getMessage());
+        } catch (SecurityException e) { // Service에서 권한이 없다고 판단했을 경우
+            log.warn("게시글 삭제 권한 없음 - 사유: {}", e.getMessage());
+            return ApiResponseUtil.error(HttpStatus.FORBIDDEN, e.getMessage()); // 403 Forbidden 응답
+        } catch (Exception e) { // 그 외 서버 에러
+            log.error("게시글 삭제 중 서버 오류 발생", e);
+            return ApiResponseUtil.internalServerError("서버 내부 오류가 발생했습니다.");
+        }
+    }
+
 }
