@@ -7,6 +7,7 @@ import com.sinsaimdang.masilkkoon.masil.auth.dto.CurrentUser;
 import com.sinsaimdang.masilkkoon.masil.common.util.ApiResponseUtil;
 import com.sinsaimdang.masilkkoon.masil.user.entity.User;
 import com.sinsaimdang.masilkkoon.masil.user.repository.UserRepository;
+import com.sinsaimdang.masilkkoon.masil.article.dto.ArticleUpdateRequest;
 
 import lombok.RequiredArgsConstructor; // Lombok RequiredArgsConstructor 임포트
 import lombok.extern.slf4j.Slf4j;
@@ -196,6 +197,36 @@ public class ArticleController {
             return ApiResponseUtil.error(HttpStatus.FORBIDDEN, e.getMessage()); // 403 Forbidden 응답
         } catch (Exception e) { // 그 외 서버 에러
             log.error("게시글 삭제 중 서버 오류 발생", e);
+            return ApiResponseUtil.internalServerError("서버 내부 오류가 발생했습니다.");
+        }
+    }
+
+    /**
+     * 특정 ID의 게시글을 수정하는 API
+     * PUT /api/articles/{articleId}
+     * @param articleId 수정할 게시글의 ID
+     * @param request 수정할 내용이 담긴 DTO
+     * @param currentUser 현재 로그인한 사용자 정보
+     * @return 수정된 게시글 DTO와 함께 HTTP 200 OK 응답
+     */
+    @PutMapping("/{articleId}")
+    public ResponseEntity<Map<String, Object>> updateArticle(
+            @PathVariable Long articleId,
+            @Valid @RequestBody ArticleUpdateRequest request,
+            CurrentUser currentUser) {
+
+        log.info("게시글 수정 요청 - 게시글 ID: {}, 요청자 ID: {}", articleId, currentUser.getId());
+
+        try {
+            ArticleResponse updatedArticle = articleService.updateArticle(articleId, request, currentUser.getId());
+            return ApiResponseUtil.success("게시글이 성공적으로 수정되었습니다.", updatedArticle);
+
+        } catch (IllegalArgumentException e) {
+            return ApiResponseUtil.badRequest(e.getMessage());
+        } catch (SecurityException e) {
+            return ApiResponseUtil.error(HttpStatus.FORBIDDEN, e.getMessage());
+        } catch (Exception e) {
+            log.error("게시글 수정 중 서버 오류 발생", e);
             return ApiResponseUtil.internalServerError("서버 내부 오류가 발생했습니다.");
         }
     }

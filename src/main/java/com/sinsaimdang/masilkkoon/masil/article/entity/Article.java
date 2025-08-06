@@ -7,6 +7,8 @@ import lombok.Setter; // Lombok Setter
 import java.time.LocalDateTime; // 생성일, 수정일을 위한 LocalDateTime
 import java.util.HashSet;
 import java.util.Set;
+import com.sinsaimdang.masilkkoon.masil.article.dto.ArticleUpdateRequest;
+import java.util.stream.Collectors;
 
 @Entity // 이 클래스가 JPA 엔티티임을 명시
 @Table(name = "articles") // 데이터베이스 테이블 이름 지정 (관례상 소문자 복수형)
@@ -123,31 +125,28 @@ public class Article {
         this.viewCount = 0;
     }
 
-    // 게시글 업데이트를 위한 비즈니스 메서드 (Setter 대신 사용 권장)
-    public void updateArticle(String title, String content, String region,
-                              Set<ArticleTag> articleTags, Set<String> photos,
-                              Set<ArticlePlace> articlePlaces) {
-        if (title != null && !title.isEmpty()) {
-            this.title = title;
-        }
-        if (content != null && !content.isEmpty()) {
-            this.content = content;
-        }
-        if (region != null && !region.isEmpty()) {
-            this.region = region;
-        }
-        if (articleTags != null) {
-            this.articleTags.clear();
-            this.articleTags.addAll(articleTags);
-        }
-        if (photos != null) {
-            this.photos.clear();
-            this.photos.addAll(photos);
-        }
-        if (articlePlaces != null) {
-            this.articlePlaces.clear();
-            this.articlePlaces.addAll(articlePlaces);
-        }
-        // updatedAt은 @PreUpdate에서 자동 처리됨
+    /**
+     * 게시글 수정 DTO를 기반으로 엔티티의 내용을 업데이트하는 메서드
+     * @param request 수정 요청 DTO
+     */
+    public void update(ArticleUpdateRequest request) {
+        this.title = request.getTitle();
+        this.content = request.getContent();
+        this.region = request.getRegion();
+
+        // 기존 컬렉션들을 모두 비우고 새로운 데이터로 채워넣는 방식 (가장 간단하고 확실한 방법)
+        this.articleTags.clear();
+        this.articleTags.addAll(request.getTags());
+
+        this.photos.clear();
+        this.photos.addAll(request.getPlaces().stream()
+                .map(ArticleUpdateRequest.PlaceInfo::getPhotoUrl)
+                .collect(Collectors.toSet()));
+
+        this.articlePlaces.clear();
+        Set<ArticlePlace> newPlaces = request.getPlaces().stream()
+                .map(p -> new ArticlePlace(p.getPlaceOrder(), p.getPlaceName(), p.getAddress(), p.getDescription()))
+                .collect(Collectors.toSet());
+        this.articlePlaces.addAll(newPlaces);
     }
 }

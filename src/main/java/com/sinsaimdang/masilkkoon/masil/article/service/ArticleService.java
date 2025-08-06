@@ -6,6 +6,7 @@ import com.sinsaimdang.masilkkoon.masil.article.dto.ArticleResponse;
 import com.sinsaimdang.masilkkoon.masil.user.entity.UserRole;
 import com.sinsaimdang.masilkkoon.masil.article.dto.ArticleCreateRequest;
 import com.sinsaimdang.masilkkoon.masil.user.entity.User;
+import com.sinsaimdang.masilkkoon.masil.article.dto.ArticleUpdateRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j; // Slf4j 임포트
 import org.springframework.stereotype.Service;
@@ -165,6 +166,35 @@ public class ArticleService {
         // 3. 권한 확인이 통과되면 게시글을 삭제합니다.
         articleRepository.delete(article);
         log.info("게시글 삭제 완료 - ID: {}", articleId);
+    }
+
+    /**
+     * 게시글을 수정하는 메서드
+     * @param articleId 수정할 게시글 ID
+     * @param request 수정할 내용이 담긴 DTO
+     * @param currentUserId 현재 로그인한 사용자 ID
+     * @return 수정된 게시글 정보를 담은 DTO
+     */
+    @Transactional
+    public ArticleResponse updateArticle(Long articleId, ArticleUpdateRequest request, Long currentUserId) {
+        log.info("게시글 수정 서비스 호출 - 게시글 ID: {}, 요청자 ID: {}", articleId, currentUserId);
+
+        // 1. 게시글을 조회합니다.
+        Article article = articleRepository.findById(articleId)
+                .orElseThrow(() -> new IllegalArgumentException("ID " + articleId + "에 해당하는 게시글을 찾을 수 없습니다."));
+
+        // 2. (핵심) 삭제와 동일하게, 작성자와 요청자가 같은지 권한을 확인합니다.
+        if (!article.getUser().getId().equals(currentUserId)) {
+            log.warn("게시글 수정 권한 없음 - 게시글 작성자: {}, 요청자: {}", article.getUser().getId(), currentUserId);
+            throw new SecurityException("게시글을 수정할 권한이 없습니다.");
+        }
+
+        // 3. Article 엔티티의 update 메소드를 호출하여 내용을 갱신합니다.
+        article.update(request);
+
+        // 4. 변경된 내용은 @Transactional에 의해 자동으로 DB에 반영(Dirty Checking)됩니다.
+        //    따로 save를 호출할 필요가 없습니다.
+        return new ArticleResponse(article);
     }
 
 }
