@@ -20,7 +20,7 @@ public class ArticleCreateRequest {
     @NotBlank
     private String title;
 
-    @NotBlank
+//    @NotBlank
     private String content;
 
     @NotNull
