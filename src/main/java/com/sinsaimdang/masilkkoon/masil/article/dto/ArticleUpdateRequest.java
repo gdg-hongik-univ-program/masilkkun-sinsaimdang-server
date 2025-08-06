@@ -5,12 +5,14 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.List;
 import java.util.Set;
 
 @Getter
 @NoArgsConstructor
+@ToString
 public class ArticleUpdateRequest {
 
     @NotBlank

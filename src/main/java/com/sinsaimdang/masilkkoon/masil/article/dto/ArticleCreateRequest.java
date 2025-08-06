@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.List;
 import java.util.Set;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 
 @Getter
 @NoArgsConstructor
+@ToString
 public class ArticleCreateRequest {
 
     @NotBlank

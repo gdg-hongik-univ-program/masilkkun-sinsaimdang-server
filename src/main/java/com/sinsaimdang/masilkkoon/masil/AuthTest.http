@@ -103,7 +103,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiIyNTA3MjUiLCJ1c
 # 2. 응답으로 온 accessToken 값을 복사해서 아래 'Bearer ???' 부분에 붙여넣으세요.
 POST http://localhost:8080/api/articles
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjozLCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTQ1MDk2NDksImV4cCI6MTc1NDUxMTQ0OX0.L8SRCqb_yH9v3FiqcHYOVcrTMjU5an2JXZOL4RlpcfA
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjozLCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTQ1MTg4MTYsImV4cCI6MTc1NDUyMDYxNn0.DNJoV4xB4IehvlfFACTlgSfkMUMAfrJo4Fpwt90Quxg
 
 
 
@@ -140,7 +140,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlc
 # 1. 삭제할 게시글의 ID를 아래 URL 경로의 {articleId} 부분에 입력하세요. (예: 5)
 # 2. '로그인 테스트'를 실행해서 받은 accessToken을 아래 'Bearer ???' 부분에 붙여넣으세요.
 DELETE http://localhost:8080/api/articles/5
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjozLCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTQ1MDgzODMsImV4cCI6MTc1NDUxMDE4M30.7NHt7jw3sa0x3m3bmCDpDpGatjpgyw5umvAjhnJ0oio
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjozLCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTQ1MTg4MTYsImV4cCI6MTc1NDUyMDYxNn0.DNJoV4xB4IehvlfFACTlgSfkMUMAfrJo4Fpwt90Quxg
 
 ### =======================================
 ### ✨ 게시글 수정 테스트 ✨
@@ -150,7 +150,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlc
 # 2. 로그인 토큰을 복사해서 'Bearer ???' 부분에 붙여넣으세요.
 PUT http://localhost:8080/api/articles/5
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjozLCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTQ1MDk2NDksImV4cCI6MTc1NDUxMTQ0OX0.L8SRCqb_yH9v3FiqcHYOVcrTMjU5an2JXZOL4RlpcfA
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjozLCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTQ1MTg4MTYsImV4cCI6MTc1NDUyMDYxNn0.DNJoV4xB4IehvlfFACTlgSfkMUMAfrJo4Fpwt90Quxg
 
 {
   "title": "수정된 테스트 게시글 제목입니다",

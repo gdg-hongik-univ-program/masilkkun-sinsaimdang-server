@@ -143,7 +143,8 @@ public class ArticleController {
             @Valid @RequestBody ArticleCreateRequest request,
             CurrentUser currentUser) {
 
-        log.info("게시글 생성 요청 - 작성자 ID: {}", currentUser.getId());
+        // 요청 수신 및 받은 데이터(DTO) 전체를 기록
+        log.info("=> 게시글 생성 요청 수신 - 요청자 ID: {}, 요청 내용: {}", currentUser.getId(), request);
 
         try {
             // CurrentUser에 담긴 id로 실제 User 엔티티를 데이터베이스에서 조회합니다.
@@ -155,10 +156,10 @@ public class ArticleController {
             return ApiResponseUtil.created("게시글이 성공적으로 등록되었습니다.", createdArticle);
 
         } catch (IllegalArgumentException e) {
-            log.warn("게시글 생성 실패 - 사유: {}", e.getMessage());
+            log.warn("<= 게시글 생성 실패 - 사유: {}, 요청 내용: {}", e.getMessage(), request, e);
             return ApiResponseUtil.badRequest(e.getMessage());
         } catch (Exception e) {
-            log.error("게시글 생성 중 서버 오류 발생", e);
+            log.error("<= 게시글 생성 중 서버 오류 발생 - 요청 내용: {}", request, e);
             return ApiResponseUtil.internalServerError("서버 내부 오류가 발생했습니다.");
         }
     }
@@ -190,13 +191,13 @@ public class ArticleController {
             return ApiResponseUtil.success("게시글이 성공적으로 삭제되었습니다.");
 
         } catch (IllegalArgumentException e) { // Service에서 게시글을 못 찾았을 경우
-            log.warn("게시글 삭제 실패 - 사유: {}", e.getMessage());
+            log.warn("<= 게시글 삭제 실패 - 사유: {}, 게시글 ID: {}", e.getMessage(), articleId, e);
             return ApiResponseUtil.badRequest(e.getMessage());
         } catch (SecurityException e) { // Service에서 권한이 없다고 판단했을 경우
-            log.warn("게시글 삭제 권한 없음 - 사유: {}", e.getMessage());
+            log.warn("<= 게시글 삭제 권한 없음 - 게시글 ID: {}, 요청자 ID: {}", articleId, currentUser.getId(), e);
             return ApiResponseUtil.error(HttpStatus.FORBIDDEN, e.getMessage()); // 403 Forbidden 응답
         } catch (Exception e) { // 그 외 서버 에러
-            log.error("게시글 삭제 중 서버 오류 발생", e);
+            log.error("<= 게시글 삭제 중 서버 오류 발생 - 게시글 ID: {}", articleId, e);
             return ApiResponseUtil.internalServerError("서버 내부 오류가 발생했습니다.");
         }
     }
@@ -222,11 +223,13 @@ public class ArticleController {
             return ApiResponseUtil.success("게시글이 성공적으로 수정되었습니다.", updatedArticle);
 
         } catch (IllegalArgumentException e) {
+            log.warn("<= 게시글 수정 실패 - 사유: {}, 게시글 ID: {}, 요청 내용: {}", e.getMessage(), articleId, request, e);
             return ApiResponseUtil.badRequest(e.getMessage());
         } catch (SecurityException e) {
+            log.warn("<= 게시글 수정 권한 없음 - 게시글 ID: {}, 요청자 ID: {}", articleId, currentUser.getId(), e);
             return ApiResponseUtil.error(HttpStatus.FORBIDDEN, e.getMessage());
         } catch (Exception e) {
-            log.error("게시글 수정 중 서버 오류 발생", e);
+            log.error("<= 게시글 수정 중 서버 오류 발생 - 게시글 ID: {}, 요청 내용: {}", articleId, request, e);
             return ApiResponseUtil.internalServerError("서버 내부 오류가 발생했습니다.");
         }
     }
