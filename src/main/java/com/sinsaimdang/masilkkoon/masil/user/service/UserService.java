@@ -121,7 +121,7 @@ public class UserService {
         log.debug("비밀번호 보안 정책 검증 통과");
     }
 
-    private User getUserEntity(Long userId) {
+    public User getUserEntity(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> {
                     log.warn("사용자 조회 실패 - 존재하지 않는 ID: {}", userId);

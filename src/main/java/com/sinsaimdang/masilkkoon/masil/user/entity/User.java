@@ -122,6 +122,14 @@ public class User {
     @Builder.Default
     private UserRole role = UserRole.USER;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private int followerCount = 0;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private int followingCount = 0;
+
     /**
      * 계정 생성 일시<br>
      * <br>
@@ -154,6 +162,22 @@ public class User {
             throw new IllegalArgumentException("닉네임은 null 또는 empty 일 수 없습니다");
         }
         this.password = newEncodedPassword.trim();
+    }
+
+    public void incrementFollowerCount() {
+        this.followerCount++;
+    }
+
+    public void decrementFollowerCount() {
+        this.followerCount--;
+    }
+
+    public void incrementFollowingCount() {
+        this.followingCount++;
+    }
+
+    public void decrementFollowingCount() {
+        this.followingCount--;
     }
 
     @Override

@@ -19,14 +19,14 @@ import jakarta.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * 인증 관련 엔드포인트
- * 1. 회원가입 : POST /api/auth/signup
- * 2. 로그인 : POST /api/auth/login
- * 3. 로그아웃 : POST /api/auth/logout
- * 4. Access Token 갱신 : POST /api/auth/refresh
- * 5. 이메일 중복 확인 : GET /api/auth/check-email
- * 6. 닉네임 중복 확인 : GET /api/auth/check-nickname
+/**<br>
+ * 인증 관련 엔드포인트<br>
+ * 1. 회원가입 : POST /api/auth/signup<br>
+ * 2. 로그인 : POST /api/auth/login<br>
+ * 3. 로그아웃 : POST /api/auth/logout<br>
+ * 4. Access Token 갱신 : POST /api/auth/refresh<br>
+ * 5. 이메일 중복 확인 : GET /api/auth/check-email<br>
+ * 6. 닉네임 중복 확인 : GET /api/auth/check-nickname<br>
  */
 @RestController
 @RequestMapping("api/auth")
