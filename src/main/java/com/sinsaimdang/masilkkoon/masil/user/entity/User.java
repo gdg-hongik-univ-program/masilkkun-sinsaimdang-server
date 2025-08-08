@@ -122,11 +122,11 @@ public class User {
     @Builder.Default
     private UserRole role = UserRole.USER;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "int default 0")
     @Builder.Default
     private int followerCount = 0;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "int default 0")
     @Builder.Default
     private int followingCount = 0;
 

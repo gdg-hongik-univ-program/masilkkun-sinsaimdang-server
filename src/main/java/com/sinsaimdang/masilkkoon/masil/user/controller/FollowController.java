@@ -133,7 +133,7 @@ public class FollowController {
         }
     }
 
-    @GetMapping("/{userId}/follwers")
+    @GetMapping("/{userId}/followers")
     public ResponseEntity<Map<String, Object>> getFollowers(@PathVariable Long userId, Pageable pageable) {
 
         log.debug("팔로워 목록 조회 요청 - 사용자 {}, 페이지 {}", userId, pageable);
@@ -155,7 +155,7 @@ public class FollowController {
         }
     }
 
-    @GetMapping("/{userId}/follwings")
+    @GetMapping("/{userId}/followings")
     public ResponseEntity<Map<String, Object>> getFollowings(@PathVariable Long userId, Pageable pageable) {
 
         log.debug("팔로잉 목록 조회 요청 - 사용자 {}, 페이지 {}", userId, pageable);

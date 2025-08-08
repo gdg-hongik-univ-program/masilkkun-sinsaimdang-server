@@ -33,11 +33,11 @@ public class Follow {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "follwer_id", nullable = false, foreignKey = @ForeignKey(name = "fk_follow_follower"))
+    @JoinColumn(name = "follower_id", nullable = false, foreignKey = @ForeignKey(name = "fk_follow_follower"))
     private User follower;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "follwing_id", nullable = false, foreignKey = @ForeignKey(name = "fk_follow_follower"))
+    @JoinColumn(name = "following_id", nullable = false, foreignKey = @ForeignKey(name = "fk_follow_following"))
     private User following;
 
     @CreatedDate
