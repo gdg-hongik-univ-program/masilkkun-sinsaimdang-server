@@ -1,6 +1,6 @@
 package com.sinsaimdang.masilkkoon.masil.user.service;
 
-import com.sinsaimdang.masilkkoon.masil.user.dto.FollowStatusDto;
+import com.sinsaimdang.masilkkoon.masil.user.dto.UserDto;
 import com.sinsaimdang.masilkkoon.masil.user.entity.Follow;
 import com.sinsaimdang.masilkkoon.masil.user.entity.User;
 import com.sinsaimdang.masilkkoon.masil.user.repository.FollowRepository;
@@ -24,7 +24,7 @@ public class FollowService {
 
     @Transactional
     public Follow followUser(Long followerId, Long followingId) {
-        log.info("팔로우 요청 - 팔로워 : {}, 팔로잉 : {}", followerId, followingId);
+        log.info("팔로우 요청 처리 시작 - 팔로워 : {} -> 팔로잉 : {}", followerId, followingId);
 
         if (followerId.equals(followingId)) {
             log.warn("스스로 팔로우 시도");
@@ -50,19 +50,18 @@ public class FollowService {
         userRepository.save(follower);
         userRepository.save(following);
 
-        log.info("팔로우 완료 FollowId :{}, 팔로워 :{} -> 팔로잉 : {}",savedFollow.getId(), follower.getNickname(), following.getNickname());
-
+        log.info("팔로우 요청 처리 완료 FollowId :{}, 팔로워 :{} -> 팔로잉 : {}",savedFollow.getId(), followerId, followingId);
         return savedFollow;
     }
 
     @Transactional
     public void unfollowUser(Long followerId, Long followingId) {
-        log.info("언팔로우 요청 - 팔로워: {}, 팔로잉: {}", followerId, followingId);
+        log.info("언팔로우 요청 처리 시작 - 팔로워: {} -> 팔로잉: {}", followerId, followingId);
 
         int deletedCount = followRepository.deleteByFollowerIdAndFollowingId(followerId, followingId);
 
         if (deletedCount == 0) {
-            log.warn("존재하지 않는 팔로우 관계 언팔로우 시도 - 팔로워: {}, 팔로잉: {}", followerId, followingId);
+            log.warn("존재하지 않는 팔로우 관계 언팔로우 시도 - 팔로워: {} -> 팔로잉: {}", followerId, followingId);
             throw new IllegalArgumentException("팔로우 관계가 존재하지 않습니다.");
         }
 
@@ -72,8 +71,41 @@ public class FollowService {
         follower.decrementFollowingCount();
         following.decrementFollowerCount();
 
-        log.info("언팔로우 완료 - 팔로워: {} -> 팔로잉: {}", follower.getNickname(), following.getNickname());
+        log.info("언팔로우 요청 처리 완료 - 팔로워: {} -> 팔로잉: {}", followerId, followingId);
     }
+
+    public UserDto getFollowStatus(Long userId) {
+        log.info("팔로우 통계 요청 처리 시작 - 대상 {}", userId);
+
+        User user = userService.getUserEntity(userId);
+
+        log.info("팔로우 통계 요청 처리 완료 - 대상 {}", userId);
+        return UserDto.from(user);
+    }
+
+    public Page<User> getFollowers(Long userId, Pageable pageable) {
+        log.debug("팔로워 목록 조회 요청 처리 시작 - 사용자 : {}, 페이지 : {}", userId, pageable.getPageNumber());
+
+        if(!userRepository.existsById(userId)) {
+            throw new IllegalArgumentException("존재하지 않는 사용자 입니다 - Id : {}" + userId);
+        }
+
+        log.debug("팔로워 목록 조회 요청 처리 완료 - 사용자 : {}, 페이지 : {}", userId, pageable.getPageNumber());
+        return followRepository.getFollowers(userId, pageable);
+    }
+
+    public Page<User> getFollowing(Long userId, Pageable pageable) {
+        log.debug("팔로잉 목록 조회 요청 처리 시작 - 사용자 : {}, 페이지 : {}", userId, pageable.getPageNumber());
+
+        if (!userRepository.existsById(userId)) {
+            throw new IllegalArgumentException("존재하지 않는 사용자입니다: " + userId);
+        }
+
+        log.debug("팔로잉 목록 조회 요청 처리 완료 - 사용자 : {}, 페이지 : {}", userId, pageable.getPageNumber());
+        return followRepository.getFollowing(userId, pageable);
+    }
+
+    // =================================================================================================================
 
     public boolean isFollowing(Long followerId, Long followingId) {
         return followRepository.existsByFollowerIdAndFollowingId(followerId, followingId);
@@ -87,32 +119,5 @@ public class FollowService {
         if (followerId == null || followingId == null) {
             throw new IllegalArgumentException("사용자 ID는 null일 수 없습니다.");
         }
-    }
-
-    public FollowStatusDto getFollowStatus(Long userId) {
-        User user = userService.getUserEntity(userId);
-
-        return FollowStatusDto.from(user);
-    }
-
-    public Page<User> getFollowers(Long userId, Pageable pageable) {
-        log.debug("팔로워 목록 조회 - 사용자 : {}, 페이지 : {}", userId, pageable.getPageNumber());
-
-        if(!userRepository.existsById(userId)) {
-            throw new IllegalArgumentException("존재하지 않는 사용자 입니다 - Id : {}" + userId);
-        }
-
-        return followRepository.getFollowers(userId, pageable);
-    }
-
-    public Page<User> getFollowing(Long userId, Pageable pageable) {
-        log.debug("팔로잉 목록 조회 - 사용자: {}, 페이지: {}", userId, pageable.getPageNumber());
-
-        // 사용자 존재 여부 확인
-        if (!userRepository.existsById(userId)) {
-            throw new IllegalArgumentException("존재하지 않는 사용자입니다: " + userId);
-        }
-
-        return followRepository.getFollowing(userId, pageable);
     }
 }

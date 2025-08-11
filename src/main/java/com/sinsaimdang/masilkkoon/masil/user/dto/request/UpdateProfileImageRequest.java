@@ -1,4 +1,4 @@
-package com.sinsaimdang.masilkkoon.masil.user.dto;
+package com.sinsaimdang.masilkkoon.masil.user.dto.request;
 
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;

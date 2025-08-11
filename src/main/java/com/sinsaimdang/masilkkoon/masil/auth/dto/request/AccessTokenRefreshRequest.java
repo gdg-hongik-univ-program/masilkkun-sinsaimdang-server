@@ -1,4 +1,4 @@
-package com.sinsaimdang.masilkkoon.masil.auth.dto;
+package com.sinsaimdang.masilkkoon.masil.auth.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;

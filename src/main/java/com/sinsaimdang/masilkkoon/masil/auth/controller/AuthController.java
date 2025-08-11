@@ -1,9 +1,10 @@
 package com.sinsaimdang.masilkkoon.masil.auth.controller;
 
-import com.sinsaimdang.masilkkoon.masil.auth.dto.AccessTokenRefreshRequest;
-import com.sinsaimdang.masilkkoon.masil.auth.dto.LoginRequest;
-import com.sinsaimdang.masilkkoon.masil.auth.dto.LogoutRequest;
-import com.sinsaimdang.masilkkoon.masil.auth.dto.SignupRequest;
+import com.sinsaimdang.masilkkoon.masil.auth.dto.request.AccessTokenRefreshRequest;
+import com.sinsaimdang.masilkkoon.masil.auth.dto.request.LoginRequest;
+import com.sinsaimdang.masilkkoon.masil.auth.dto.request.LogoutRequest;
+import com.sinsaimdang.masilkkoon.masil.auth.dto.request.SignupRequest;
+import com.sinsaimdang.masilkkoon.masil.auth.dto.response.SignupResponse;
 import com.sinsaimdang.masilkkoon.masil.auth.service.AuthService;
 import com.sinsaimdang.masilkkoon.masil.common.util.ApiResponseUtil;
 import com.sinsaimdang.masilkkoon.masil.user.entity.User;
@@ -50,15 +51,13 @@ public class AuthController {
      */
     @PostMapping("/signup")
     public ResponseEntity<Map<String, Object>> signup(@Valid @RequestBody SignupRequest request) {
-        log.info("회원가입 요청 : 이메일 = {}", request.getEmail());
+        log.info("API REQ >> POST /api/auth/signup | 요청 이메일: {}", request.getEmail());
+
         User user = authService.signup(request.getEmail(), request.getPassword(), request.getName(), request.getNickname());
-        log.info("회원가입 성공 - ID: {}, 이메일: {}", user.getId(), user.getEmail());
-        return ApiResponseUtil.created("회원가입에 성공하였습니다.", Map.of(
-                "id", user.getId(),
-                "email", user.getEmail(),
-                "name", user.getName(),
-                "nickname", user.getNickname()
-        ));
+        SignupResponse responseDto = SignupResponse.from(user);
+
+        log.info("API RES >> POST /api/auth/signup | 요청 이메일: {}", request.getEmail());
+        return ApiResponseUtil.created("회원가입에 성공하였습니다.", responseDto);
     }
 
     /**
@@ -71,8 +70,11 @@ public class AuthController {
      */
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@Valid @RequestBody LoginRequest request) {
-        log.info("로그인 요청 : 이메일 = {}", request.getEmail());
+        log.info("API REQ >> POST /api/auth/login | 요청 이메일: {}", request.getEmail());
+
         Map<String, String> tokens = authService.login(request.getEmail(), request.getPassword());
+
+        log.info("API RES >> POST /api/auth/login | 요청 이메일: {}", request.getEmail());
         return ApiResponseUtil.success("로그인에 성공했습니다", tokens);
     }
 
@@ -86,13 +88,11 @@ public class AuthController {
      */
     @PostMapping("/logout")
     public ResponseEntity<Map<String, Object>> logout(@Valid @RequestBody LogoutRequest request) {
-
-        log.info("로그아웃 요청 - 이메일 = {}", request.getEmail());
+        log.info("API REQ >> POST /api/auth/logout | 요청 이메일: {}", request.getEmail());
 
         authService.logout(request.getEmail());
 
-        log.info("로그아웃 성공 - 이메일: {}", request.getEmail());
-
+        log.info("API RES >> POST /api/auth/logout | 요청 이메일: {}", request.getEmail());
         return ApiResponseUtil.success("로그아웃에 성공했습니다");
     }
 
@@ -106,33 +106,33 @@ public class AuthController {
      */
     @PostMapping("/refresh")
     public ResponseEntity<Map<String, Object>> refreshToken(@Valid @RequestBody AccessTokenRefreshRequest request) {
-
-        log.info("액세스 토큰 갱신 요청");
+        log.info("API REQ >> POST /api/auth/refresh");
 
         Map<String, String> tokens = authService.refreshAccessToken(request.getRefreshToken());
 
+        log.info("API RES >> POST /api/auth/refresh");
         return ApiResponseUtil.success("토큰 갱신이 완료되었습니다.", tokens);
     }
 
     // 이메일 중복 확인
     @GetMapping("/check-email")
     public ResponseEntity<Map<String, Object>> checkEmailDuplicate(@RequestParam String email) {
-
-        log.info("이메일 중복 확인 요청 - 이메일 = {}", email);
+        log.info("API REQ >> GET /api/auth/check-email | email={}", email);
 
         boolean exists = authService.isEmailExists(email);
 
+        log.info("API RES >> GET /api/auth/check-email | email={}", email);
         return ApiResponseUtil.success("이메일 중복 확인 완료", Map.of("exists", exists, "available", !exists));
     }
 
     // 닉네임 중복 확인
     @GetMapping("/check-nickname")
     public ResponseEntity<Map<String, Object>> checkNicknameDuplicate(@RequestParam String nickname) {
-
-        log.info("닉네임 중복 확인 요청 - 닉네임 = {}", nickname);
+        log.info("API REQ >> GET /api/auth/check-nickname | nickname={}", nickname);
 
         boolean exists = authService.isNicknameExists(nickname);
 
+        log.info("API RES >> GET /api/auth/check-nickname | nickname={}", nickname);
         return ApiResponseUtil.success("닉네임 중복 확인 완료", Map.of("exists", exists, "available", !exists));
     }
 }
