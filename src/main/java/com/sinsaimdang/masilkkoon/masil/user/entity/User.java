@@ -130,6 +130,9 @@ public class User {
     @Builder.Default
     private int followingCount = 0;
 
+    @Column(length = 1000)
+    private String profileImageUrl;
+
     /**
      * 계정 생성 일시<br>
      * <br>
@@ -149,6 +152,8 @@ public class User {
     @LastModifiedDate
     @Column(nullable = false)
     private LocalDateTime updatedAt;
+
+    // =================================================================================================================
 
     public void updateNickname(String newNickname) {
         if (newNickname == null || newNickname.trim().isEmpty()) {
@@ -178,6 +183,10 @@ public class User {
 
     public void decrementFollowingCount() {
         this.followingCount--;
+    }
+
+    public void updateProfileImageUrl(String newProfileImageUrl) {
+        this.profileImageUrl = newProfileImageUrl;
     }
 
     @Override

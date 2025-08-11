@@ -9,7 +9,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -119,6 +118,36 @@ public class UserService {
         }
 
         log.debug("비밀번호 보안 정책 검증 통과");
+    }
+
+    @Transactional
+    public UserDto updateProfileImage(Long userId, String profileImageUrl) {
+        log.info("프로필 이미지 업데이트 요청 - ID: {}", userId);
+
+        User user = getUserEntity(userId);
+
+        String normalizedProfileImageUrl = profileImageUrl != null ? profileImageUrl.trim() : null;
+        if (normalizedProfileImageUrl != null && normalizedProfileImageUrl.trim().isEmpty()) {
+            normalizedProfileImageUrl = null;
+        }
+
+        user.updateProfileImageUrl(normalizedProfileImageUrl);
+        User savedUser = userRepository.save(user);
+
+        log.info("프로필 이미지 업데이트 완료 - ID: {}", userId);
+        return UserDto.from(savedUser);
+    }
+
+    @Transactional
+    public UserDto removeProfileImage(Long userId) {
+        log.info("프로필 사진 삭제 요청 - ID: {}", userId);
+
+        User user = getUserEntity(userId);
+        user.updateProfileImageUrl(null);
+        User savedUser = userRepository.save(user);
+
+        log.info("프로필 이미지 삭제 요청 - ID: {}", userId);
+        return UserDto.from(savedUser);
     }
 
     public User getUserEntity(Long userId) {

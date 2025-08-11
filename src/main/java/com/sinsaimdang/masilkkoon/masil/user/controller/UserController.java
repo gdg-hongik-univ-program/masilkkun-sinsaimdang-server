@@ -4,6 +4,7 @@ import com.sinsaimdang.masilkkoon.masil.auth.dto.CurrentUser;
 import com.sinsaimdang.masilkkoon.masil.common.util.ApiResponseUtil;
 import com.sinsaimdang.masilkkoon.masil.user.dto.UpdateNicknameRequest;
 import com.sinsaimdang.masilkkoon.masil.user.dto.UpdatePasswordRequest;
+import com.sinsaimdang.masilkkoon.masil.user.dto.UpdateProfileImageRequest;
 import com.sinsaimdang.masilkkoon.masil.user.dto.UserDto;
 import com.sinsaimdang.masilkkoon.masil.user.service.UserService;
 import jakarta.validation.Valid;
@@ -51,7 +52,45 @@ public class UserController {
             return ApiResponseUtil.unauthorized("인증되지 않은 사용자입니다.");
         }
 
-        return ApiResponseUtil.success("프로필 조회 성공", currentUser.toMapWithoutRole());
+        UserDto userProfile = userService.findById(currentUser.getId())
+                .orElseThrow(() -> {
+                    log.warn("프로필 조회 실패 - 존재하지 않는 사용자 ID {}", currentUser.getId());
+                    return new IllegalArgumentException("사용자 정보를 찾을 수 없습니다");
+                });
+
+        log.info("프로필 조회 성공 - ID {}, 이메일 {}", userProfile.getId(), userProfile.getEmail());
+
+        return ApiResponseUtil.success("프로필 조회 성공", Map.of(
+                "id", userProfile.getId(),
+                "email", userProfile.getEmail(),
+                "name", userProfile.getName(),
+                "nickname", userProfile.getNickname(),
+                "profileImageUrl", userProfile.getProfileImageUrl(),
+                "followerCount", userProfile.getFollowerCount(),
+                "followingCount", userProfile.getFollowingCount()
+        ));
+    }
+
+    @GetMapping("/{userId}/profile")
+    public ResponseEntity<Map<String, Object>> getUserProfileById(@PathVariable Long userId) {
+        log.info("사용자 프로필 조회 요청 - 대상 ID: {}", userId);
+
+        UserDto userProfile = userService.findById(userId)
+                .orElseThrow(() -> {
+                    log.warn("프로필 조회 실패 - 존재하지 않는 사용자 ID: {}", userId);
+                    return new IllegalArgumentException("사용자 정보를 찾을 수 없습니다.");
+                });
+
+        log.info("프로필 조회 성공 - ID: {}, 닉네임: {}", userProfile.getId(), userProfile.getNickname());
+
+        return ApiResponseUtil.success("프로필 조회 성공", Map.of(
+                "id", userProfile.getId(),
+                "name", userProfile.getName(),
+                "nickname", userProfile.getNickname(),
+                "profileImageUrl", userProfile.getProfileImageUrl(),
+                "followerCount", userProfile.getFollowerCount(),
+                "followingCount", userProfile.getFollowingCount()
+        ));
     }
 
     @PatchMapping("/nickname")
@@ -86,6 +125,40 @@ public class UserController {
         log.info("비밀번호 변경 성공 - ID: {}", currentUser.getId());
 
         return ApiResponseUtil.success("비밀번호가 성공적으로 변경되었습니다.", updatedUser);
+    }
+
+    @PatchMapping("/profile-image")
+    public ResponseEntity<Map<String, Object>> updateProfileImage(
+            CurrentUser currentUser,
+            @RequestBody @Valid UpdateProfileImageRequest updateRequest) {
+        log.info("프로필 이미지 업데이트 요청");
+
+        if(!currentUser.isAuthenticated()) {
+            return ApiResponseUtil.unauthorized("인증이 필요합니다.");
+        }
+
+        UserDto updatedUser = userService.updateProfileImage(
+                currentUser.getId(), updateRequest.getProfileImageUrl()
+        );
+
+        log.info("프로필 이미지 업데이트 성공 - ID: {}", currentUser.getId());
+
+        return ApiResponseUtil.success("프로필 이미지가 성공적으로 업데이트 되었습니다.", updatedUser);
+    }
+
+    @DeleteMapping("/profile-image")
+    public ResponseEntity<Map<String, Object>> removeProfileImage(CurrentUser currentUser) {
+        log.info("프로필 이미지 삭제 요청");
+
+        if(!currentUser.isAuthenticated()) {
+            return ApiResponseUtil.unauthorized("인증이 필요합니다.");
+        }
+
+        UserDto updatedUser = userService.removeProfileImage(currentUser.getId());
+
+        log.info("프로필 이미지 삭제 완료");
+
+        return ApiResponseUtil.success("프로필 이미지가 삭제되었습니다", updatedUser);
     }
 
     @DeleteMapping("/me")
