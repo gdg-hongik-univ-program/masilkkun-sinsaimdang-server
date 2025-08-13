@@ -5,17 +5,21 @@ import com.sinsaimdang.masilkkoon.masil.user.entity.User;
 import com.sinsaimdang.masilkkoon.masil.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j // Lombok에서 제공하는 Logger 필드 자동 생성기 *** 공부 필요 ***
 public class UserService {
+
+    @Value("${user.default-profile-image-url}")
+    private String defaultProfileImageUrl;
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -55,7 +59,7 @@ public class UserService {
         User user = getUserEntity(id);
         String normalizedNickname = newNickname != null ? newNickname.trim() : null;
 
-        if (normalizedNickname.equals(user.getNickname())) {
+        if (Objects.equals(normalizedNickname, user.getNickname())) {
             log.debug("변경하고자 하는 닉네임이 기존과 동일함 ID = {}, 닉네임 = {}", id, user.getNickname());
             return UserDto.from(user);
         }
@@ -121,7 +125,37 @@ public class UserService {
         log.debug("비밀번호 보안 정책 검증 통과");
     }
 
-    private User getUserEntity(Long userId) {
+    @Transactional
+    public UserDto updateProfileImage(Long userId, String profileImageUrl) {
+        log.info("프로필 이미지 업데이트 요청 - ID: {}", userId);
+
+        User user = getUserEntity(userId);
+
+        String normalizedProfileImageUrl = profileImageUrl != null ? profileImageUrl.trim() : null;
+        if (normalizedProfileImageUrl != null && normalizedProfileImageUrl.trim().isEmpty()) {
+            normalizedProfileImageUrl = null;
+        }
+
+        user.updateProfileImageUrl(normalizedProfileImageUrl);
+        User savedUser = userRepository.save(user);
+
+        log.info("프로필 이미지 업데이트 완료 - ID: {}", userId);
+        return UserDto.from(savedUser);
+    }
+
+    @Transactional
+    public UserDto removeProfileImage(Long userId) {
+        log.info("프로필 사진 삭제 요청 - ID: {}", userId);
+
+        User user = getUserEntity(userId);
+        user.updateProfileImageUrl(defaultProfileImageUrl);
+        User savedUser = userRepository.save(user);
+
+        log.info("프로필 이미지 삭제 요청 - ID: {}", userId);
+        return UserDto.from(savedUser);
+    }
+
+    public User getUserEntity(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> {
                     log.warn("사용자 조회 실패 - 존재하지 않는 ID: {}", userId);

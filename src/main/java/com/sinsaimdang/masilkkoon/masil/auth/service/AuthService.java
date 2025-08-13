@@ -34,6 +34,9 @@ public class AuthService {
     @Value("${jwt.refresh-token-expiration}")
     private Long refreshTokenExpiration;
 
+    @Value("${user.default-profile-image-url}")
+    private String defaultProfileImageUrl;
+
     /**
      * 회원가입 메서드 <br>
      * 1. 입력값 전처리 (공백 제거, 이메일 소문자 처리) <br>
@@ -78,6 +81,7 @@ public class AuthService {
                 .password(encodedPassword)
                 .name(name)
                 .nickname(nickname)
+                .profileImageUrl(defaultProfileImageUrl)
                 .build();
 
         User savedUser = userRepository.save(user);
