@@ -28,13 +28,13 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
     /**
      * 팔로워 User 목록 조회 (간단한 메서드명)
      */
-    @Query("SELECT f.follower FROM Follow f WHERE f.following.id = ?1 ORDER BY f.createdAt DESC")
+    @Query("SELECT f.follower FROM Follow f WHERE f.following.id = ?1")
     Page<User> getFollowers(Long followingId, Pageable pageable);
 
     /**
      * 팔로잉 User 목록 조회 (간단한 메서드명)
      */
-    @Query("SELECT f.following FROM Follow f WHERE f.follower.id = ?1 ORDER BY f.createdAt DESC")
+    @Query("SELECT f.following FROM Follow f WHERE f.follower.id = ?1")
     Page<User> getFollowing(Long followerId, Pageable pageable);
 
     @Query("SELECT f FROM Follow f " +
