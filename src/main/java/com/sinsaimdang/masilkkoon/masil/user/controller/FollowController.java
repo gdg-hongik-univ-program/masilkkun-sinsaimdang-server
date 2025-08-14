@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -105,7 +107,9 @@ public class FollowController {
     }
 
     @GetMapping("/{userId}/followers")
-    public ResponseEntity<Map<String, Object>> getFollowers(@PathVariable Long userId, Pageable pageable) {
+    public ResponseEntity<Map<String, Object>> getFollowers(
+            @PathVariable Long userId,
+            @PageableDefault(size = 40, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         log.info("API REQ : GET api/users/{}/followers", userId);
 
         Page<User> followers = followService.getFollowers(userId, pageable);
@@ -116,7 +120,9 @@ public class FollowController {
     }
 
     @GetMapping("/{userId}/followings")
-    public ResponseEntity<Map<String, Object>> getFollowings(@PathVariable Long userId, Pageable pageable) {
+    public ResponseEntity<Map<String, Object>> getFollowings(
+            @PathVariable Long userId,
+            @PageableDefault(size = 40, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         log.info("API REQ : GET api/users/{}/followings", userId);
         Page<User> followings = followService.getFollowing(userId, pageable);
         Page<UserDto> followingDtos = followings.map(UserDto::from);

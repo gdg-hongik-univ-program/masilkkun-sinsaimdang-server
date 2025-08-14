@@ -37,7 +37,7 @@ class AuthServiceTest {
     void signup_Success() {
         // given
         String email = "newuser@example.com";
-        String password = "password123";
+        String password = "Password123!";
         String name = "새사용자";
         String nickname = "뉴비";
 
@@ -58,11 +58,11 @@ class AuthServiceTest {
     void signup_Fail_DuplicateEmail() {
         // given
         // 이미 존재하는 사용자 생성
-        authService.signup("duplicate@example.com", "pw123", "기존유저", "기존닉");
+        authService.signup("duplicate@example.com", "Password123!", "기존유저", "기존닉");
 
         // when & then
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            authService.signup("duplicate@example.com", "pw456", "새유저", "새닉");
+            authService.signup("duplicate@example.com", "Password456!", "새유저", "새닉");
         });
         assertThat(exception.getMessage()).isEqualTo("이미 존재하는 이메일입니다.");
     }
@@ -72,7 +72,7 @@ class AuthServiceTest {
     void login_Success() {
         // given
         String email = "loginuser@example.com";
-        String password = "password123";
+        String password = "Password123!";
         authService.signup(email, password, "로그인유저", "로그인닉");
 
         // when
@@ -92,7 +92,7 @@ class AuthServiceTest {
     void login_Fail_WrongPassword() {
         // given
         String email = "loginuser@example.com";
-        authService.signup(email, "password123", "로그인유저", "로그인닉");
+        authService.signup(email, "Password123!", "로그인유저", "로그인닉");
 
         // when & then
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
