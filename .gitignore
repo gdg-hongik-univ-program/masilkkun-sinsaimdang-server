@@ -36,3 +36,14 @@ out/
 
 ### VS Code ###
 .vscode/
+
+# Application Properties - Local and Production secrets
+# 로컬 및 운영 환경의 비밀번호 등 민감한 정보가 담긴 설정 파일은 Git이 추적하지 않도록 무시합니다.
+application-local.properties
+application-prod.properties
+
+# Log files
+*.log
+
+# Mac OS specific files
+.DS_Store
