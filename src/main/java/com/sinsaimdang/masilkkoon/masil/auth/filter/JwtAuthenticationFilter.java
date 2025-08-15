@@ -33,6 +33,13 @@ public class JwtAuthenticationFilter implements Filter {
 
         log.debug("JWT 필터 처리 시작 - {}, {}", method, requestURI);
 
+        // 0. 게시글 조회(GET) 요청은 인증 없이 허용
+        if ("GET".equalsIgnoreCase(method) && requestURI.startsWith("/api/articles")) {
+            log.debug("게시글 조회(GET) 요청 - 인증 절차를 건너뜁니다: {}", requestURI);
+            chain.doFilter(request, response);
+            return;
+        }
+
         // 1. 인증이 필요하지 않은 기능들에 대해서는 필터를 통한 검증을 건너뜀
         if(isPublicPath(requestURI)) {
             log.debug("공개 경로 접근 - 인증 생략: {}", requestURI);
@@ -88,7 +95,7 @@ public class JwtAuthenticationFilter implements Filter {
                 "/api/auth/refresh",
                 "/api/auth/check-email",
                 "/api/auth/check-nickname",
-                "/api/articles",
+//                "/api/articles",
         };
 
         for (String publicPath : publicPaths) {
