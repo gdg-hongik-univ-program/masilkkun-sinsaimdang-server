@@ -70,7 +70,7 @@ GET http://localhost:8080/api/articles/1
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjoxLCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTUyNDg4MzMsImV4cCI6MTc1NTI1MDYzM30.3VrEi4On8BTBu3tXOxvZDT6ZtHMgiuAL18bmZew7axw
 
 ### [인증 X] 게시글 단건 조회 (200 OK 예상)
-GET http://localhost:8080/api/articles/3
+GET http://localhost:8080/api/articles/1
 
 
 
@@ -132,7 +132,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlc
       "description": "골목에 위치한 감성 카페",
       "photoUrl": "https://d12zq4w4guyljn.cloudfront.net/750_750_20250603084601_photo1_66362ea9f767.webp",
       "roadAddress": {
-        "address_name": "경기 수원시 팔달구 화서문로31번길 14-32",
+        "address_name": "경기도 수원시 팔달구 화서문로31번길 14-32",
         "region_1depth_name": "경기도",
         "region_2depth_name": "수원시"
       }
@@ -163,7 +163,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlc
       "description": "부산하면 역시 해운대죠!",
       "photoUrl": "https://www.visitbusan.net/uploadImgs/files/cntnts/20191227195613061_oen",
       "roadAddress": {
-        "address_name": "부산 해운대구 우동",
+        "address_name": "부산광역시 해운대구 우동",
         "region_1depth_name": "부산광역시",
         "region_2depth_name": "해운대구"
       }
