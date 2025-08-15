@@ -1,12 +1,15 @@
 package com.sinsaimdang.masilkkoon.masil.article.entity;
 
 import com.sinsaimdang.masilkkoon.masil.user.entity.User;
+import com.sinsaimdang.masilkkoon.masil.region.entity.Region;
 import jakarta.persistence.*; // JPA 관련 어노테이션
 import lombok.Getter; // Lombok Getter
 import lombok.Setter; // Lombok Setter
 import java.time.LocalDateTime; // 생성일, 수정일을 위한 LocalDateTime
 import java.util.HashSet;
 import java.util.Set;
+import java.util.ArrayList; // [추가] ArrayList import
+import java.util.List;    // [추가] List import
 import com.sinsaimdang.masilkkoon.masil.article.dto.ArticleUpdateRequest;
 import java.util.stream.Collectors;
 
@@ -32,8 +35,9 @@ public class Article {
     @JoinColumn(name = "user_id", nullable = false) // DB의 user_id 컬럼과 매핑
     private User user; // 작성자 정보를 User 객체로 관리
 
-    @Column(nullable = false, length = 50) // 10개 지역 중 하나
-    private String region; // 지역
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "region_id", nullable = false)
+    private Region region;
 
     // 태그: Enum 컬렉션을 DB에 저장하기 위해 @ElementCollection 사용
     // List 대신 Set을 사용하여 MultipleBagFetchException 회피 및 중복 방지
@@ -47,7 +51,8 @@ public class Article {
     @ElementCollection(fetch = FetchType.LAZY) // 지연 로딩
     @CollectionTable(name = "article_photos", joinColumns = @JoinColumn(name = "article_id"))
     @Column(name = "photo_url", length = 1000) // 사진 URL을 저장할 컬럼명 (URL이 길 수 있음)
-    private Set<String> photos = new HashSet<>();
+    @OrderColumn(name = "photo_order")
+    private List<String> photos = new ArrayList<>();
 
     @Column(nullable = false)
     private int scrapCount = 0; // 스크랩 수
@@ -110,15 +115,15 @@ public class Article {
     protected Article() {
     }
 
-    public Article(String title, String content, User user, String region,
-                   Set<ArticleTag> articleTags, Set<String> photos,
+    public Article(String title, String content, User user, Region region,
+                   Set<ArticleTag> articleTags, List<String> photos,
                    Set<ArticlePlace> articlePlaces) {
         this.title = title;
         this.content = content;
         this.user = user;
         this.region = region;
         this.articleTags = articleTags != null ? new HashSet<>(articleTags) : new HashSet<>();
-        this.photos = photos != null ? new HashSet<>(photos) : new HashSet<>();
+        this.photos = photos != null ? new ArrayList<>(photos) : new ArrayList<>();
         this.articlePlaces = articlePlaces != null ? new HashSet<>(articlePlaces) : new HashSet<>();
         this.scrapCount = 0;
         this.likeCount = 0;
@@ -129,10 +134,10 @@ public class Article {
      * 게시글 수정 DTO를 기반으로 엔티티의 내용을 업데이트하는 메서드
      * @param request 수정 요청 DTO
      */
-    public void update(ArticleUpdateRequest request) {
+    public void update(ArticleUpdateRequest request, Region region) {
         this.title = request.getTitle();
         this.content = request.getContent();
-        this.region = request.getRegion();
+        this.region = region;
 
         // 기존 컬렉션들을 모두 비우고 새로운 데이터로 채워넣는 방식 (가장 간단하고 확실한 방법)
         this.articleTags.clear();
@@ -141,11 +146,11 @@ public class Article {
         this.photos.clear();
         this.photos.addAll(request.getPlaces().stream()
                 .map(ArticleUpdateRequest.PlaceInfo::getPhotoUrl)
-                .collect(Collectors.toSet()));
+                .collect(Collectors.toList()));
 
         this.articlePlaces.clear();
         Set<ArticlePlace> newPlaces = request.getPlaces().stream()
-                .map(p -> new ArticlePlace(p.getPlaceOrder(), p.getPlaceName(), p.getAddress(), p.getDescription()))
+                .map(p -> new ArticlePlace(p.getPlaceOrder(), p.getPlaceName(), p.getRoadAddress().getAddressName(), p.getDescription()))
                 .collect(Collectors.toSet());
         this.articlePlaces.addAll(newPlaces);
     }

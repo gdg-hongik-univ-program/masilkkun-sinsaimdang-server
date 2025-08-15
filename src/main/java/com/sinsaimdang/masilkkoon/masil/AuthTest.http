@@ -60,17 +60,19 @@ Content-Type: application/json
 
 ### [인증 O] 게시글 목록 조회 (200 OK 예상)
 GET http://localhost:8080/api/articles
-Authorization: Bearer ZXN0QGV4YeyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjozLCJzdWIiOiJ0W1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTM4MjA1OTksImV4cCI6MTc1MzgyMjM5OX0.c9cyMDFcjDk9NwKpOb4EHXr0FJtNe7ThTn2xagtHMTM
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjoxLCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTUyNDg4MzMsImV4cCI6MTc1NTI1MDYzM30.3VrEi4On8BTBu3tXOxvZDT6ZtHMgiuAL18bmZew7axw
 
-### [인증 X] 게시글 목록 조회 (401 Unauthorized 예상)
+### [인증 X] 게시글 목록 조회 (200 OK 예상)
 GET http://localhost:8080/api/articles
 
 ### [인증 O] 게시글 단건 조회 (200 OK 예상)
 GET http://localhost:8080/api/articles/1
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjozLCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTM4MjA4MTAsImV4cCI6MTc1MzgyMjYxMH0.r19W-TT0mRCT5rcqw__VNG8mOiqsaVmdnCK44VMa0zU
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjoxLCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTUyNDg4MzMsImV4cCI6MTc1NTI1MDYzM30.3VrEi4On8BTBu3tXOxvZDT6ZtHMgiuAL18bmZew7axw
 
-### [인증 X] 게시글 단건 조회 (401 Unauthorized 예상)
-GET http://localhost:8080/api/articles/1
+### [인증 X] 게시글 단건 조회 (200 OK 예상)
+GET http://localhost:8080/api/articles/3
+
+
 
 
 
@@ -79,21 +81,19 @@ GET http://localhost:8080/api/articles/1
 ### 필터링 API 테스트
 ### =======================================
 
-### [필터링] 지역으로 검색 (서울)
-GET http://localhost:8080/api/articles?region=서울
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiIyNTA3MjUiLCJ1c2VyRW1haWwiOiIyNTA3MjVAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6Iu2FjOyKpO2KuCDsgqzsmqnsnpAiLCJ1c2VyUm9sZSI6IlVTRVIiLCJ1c2VySWQiOjMsInN1YiI6IjI1MDcyNUBleGFtcGxlLmNvbSIsImlzcyI6Im1hc2lsIiwiaWF0IjoxNzUzNjczMDI0LCJleHAiOjE3NTM2NzQ4MjR9.Xu5iQdBo4Fq0B_OyCnv7FObDthvxKV6TU0lLGuadCok
+### [필터링] 지역으로 검색 (서울특별시)
+GET http://localhost:8080/api/articles?region=서울특별시
 
 ### [필터링] 태그로 검색 (RESTAURANT)
 GET http://localhost:8080/api/articles?tags=RESTAURANT
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiIyNTA3MjUiLCJ1c2VyRW1haWwiOiIyNTA3MjVAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6Iu2FjOyKpO2KuCDsgqzsmqnsnpAiLCJ1c2VyUm9sZSI6IlVTRVIiLCJ1c2VySWQiOjMsInN1YiI6IjI1MDcyNUBleGFtcGxlLmNvbSIsImlzcyI6Im1hc2lsIiwiaWF0IjoxNzUzNjczMDI0LCJleHAiOjE3NTM2NzQ4MjR9.Xu5iQdBo4Fq0B_OyCnv7FObDthvxKV6TU0lLGuadCok
 
-### [필터링] 지역과 태그로 검색 (부산, TRAVEL_SPOT)
-GET http://localhost:8080/api/articles?region=부산&tags=TRAVEL_SPOT
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiIyNTA3MjUiLCJ1c2VyRW1haWwiOiIyNTA3MjVAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6Iu2FjOyKpO2KuCDsgqzsmqnsnpAiLCJ1c2VyUm9sZSI6IlVTRVIiLCJ1c2VySWQiOjMsInN1YiI6IjI1MDcyNUBleGFtcGxlLmNvbSIsImlzcyI6Im1hc2lsIiwiaWF0IjoxNzUzNjczMDI0LCJleHAiOjE3NTM2NzQ4MjR9.Xu5iQdBo4Fq0B_OyCnv7FObDthvxKV6TU0lLGuadCok
+### [필터링] 지역과 태그로 검색 (부산광역시, TRAVEL_SPOT)
+GET http://localhost:8080/api/articles?region=부산광역시&tags=TRAVEL_SPOT
 
 ### [필터링] 다중 태그로 검색 (CAFE, TRAVEL_SPOT)
 GET http://localhost:8080/api/articles?tags=CAFE,TRAVEL_SPOT
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiIyNTA3MjUiLCJ1c2VyRW1haWwiOiIyNTA3MjVAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6Iu2FjOyKpO2KuCDsgqzsmqnsnpAiLCJ1c2VyUm9sZSI6IlVTRVIiLCJ1c2VySWQiOjMsInN1YiI6IjI1MDcyNUBleGFtcGxlLmNvbSIsImlzcyI6Im1hc2lsIiwiaWF0IjoxNzUzNjczMDI0LCJleHAiOjE3NTM2NzQ4MjR9.Xu5iQdBo4Fq0B_OyCnv7FObDthvxKV6TU0lLGuadCok
+
+
 
 ### =======================================
 ### ✨ 게시글 작성 테스트 ✨
@@ -103,14 +103,13 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiIyNTA3MjUiLCJ1c
 # 2. 응답으로 온 accessToken 값을 복사해서 아래 'Bearer ???' 부분에 붙여넣으세요.
 POST http://localhost:8080/api/articles
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjozLCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTQ1MTg4MTYsImV4cCI6MTc1NDUyMDYxNn0.DNJoV4xB4IehvlfFACTlgSfkMUMAfrJo4Fpwt90Quxg
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjozLCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTUyNTUyMjEsImV4cCI6MTc1NTI1NzAyMX0.kaNs6o73LKzfFq_dhcl3RIf7PRB94c8w8NaLklsp6f0
 
 
 
 {
   "title": "새로운 테스트 게시글",
   "content": "테스트 내용입니다.",
-  "region": "서울",
   "tags": [
     "RESTAURANT",
     "CAFE"
@@ -118,17 +117,56 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlc
   "places": [
     {
       "placeOrder": 1,
-      "placeName": "첫 번째 장소",
-      "address": "서울시 어딘가",
-      "description": "첫 번째 장소에 대한 설명입니다.",
-      "photoUrl": "https://example.com/photo1.jpg"
+      "placeName": "첫 번째 장소 (신라갈비)",
+      "description": "수원 3대 갈비 맛집",
+      "photoUrl": "https://www.esquirekorea.co.kr/resources_old/online/org_online_image/eq/afcd68be-5e61-4ec0-832f-b572c13634c0.jpg",
+      "roadAddress": {
+        "address_name": "경기도 수원시 영통구 동수원로 538",
+        "region_1depth_name": "경기도",
+        "region_2depth_name": "수원시"
+      }
     },
     {
       "placeOrder": 2,
-      "placeName": "두 번째 장소",
-      "address": "서울시 저딘가",
-      "description": "두 번째 장소에 대한 설명입니다.",
-      "photoUrl": "https://example.com/photo2.jpg"
+      "placeName": "두 번째 장소 (누크녹)",
+      "description": "골목에 위치한 감성 카페",
+      "photoUrl": "https://d12zq4w4guyljn.cloudfront.net/750_750_20250603084601_photo1_66362ea9f767.webp",
+      "roadAddress": {
+        "address_name": "경기 수원시 팔달구 화서문로31번길 14-32",
+        "region_1depth_name": "경기도",
+        "region_2depth_name": "수원시"
+      }
+    }
+  ]
+}
+
+### =======================================
+### ✨ 게시글 수정 테스트 ✨
+### =======================================
+# [테스트 방법]
+# 1. 수정할 게시글의 ID를 아래 URL의 {articleId}에 입력하세요.
+# 2. 로그인 토큰을 복사해서 'Bearer ???' 부분에 붙여넣으세요.
+PUT http://localhost:8080/api/articles/6
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjozLCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTUyNTUyMjEsImV4cCI6MTc1NTI1NzAyMX0.kaNs6o73LKzfFq_dhcl3RIf7PRB94c8w8NaLklsp6f0
+
+{
+  "title": "수정된 테스트 게시글 제목입니다",
+  "content": "내용도 이렇게 멋지게 수정되었습니다.",
+  "tags": [
+    "TRAVEL_SPOT"
+  ],
+  "places": [
+    {
+      "placeOrder": 1,
+      "placeName": "수정된 첫 번째 장소: 해운대",
+      "description": "부산하면 역시 해운대죠!",
+      "photoUrl": "https://www.visitbusan.net/uploadImgs/files/cntnts/20191227195613061_oen",
+      "roadAddress": {
+        "address_name": "부산 해운대구 우동",
+        "region_1depth_name": "부산광역시",
+        "region_2depth_name": "해운대구"
+      }
     }
   ]
 }
@@ -139,33 +177,5 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlc
 # [테스트 방법]
 # 1. 삭제할 게시글의 ID를 아래 URL 경로의 {articleId} 부분에 입력하세요. (예: 5)
 # 2. '로그인 테스트'를 실행해서 받은 accessToken을 아래 'Bearer ???' 부분에 붙여넣으세요.
-DELETE http://localhost:8080/api/articles/5
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjozLCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTQ1MTg4MTYsImV4cCI6MTc1NDUyMDYxNn0.DNJoV4xB4IehvlfFACTlgSfkMUMAfrJo4Fpwt90Quxg
-
-### =======================================
-### ✨ 게시글 수정 테스트 ✨
-### =======================================
-# [테스트 방법]
-# 1. 수정할 게시글의 ID를 아래 URL의 {articleId}에 입력하세요.
-# 2. 로그인 토큰을 복사해서 'Bearer ???' 부분에 붙여넣으세요.
-PUT http://localhost:8080/api/articles/5
-Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjozLCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTQ1MTg4MTYsImV4cCI6MTc1NDUyMDYxNn0.DNJoV4xB4IehvlfFACTlgSfkMUMAfrJo4Fpwt90Quxg
-
-{
-  "title": "수정된 테스트 게시글 제목입니다",
-  "content": "내용도 이렇게 멋지게 수정되었습니다.",
-  "region": "부산",
-  "tags": [
-    "TRAVEL_SPOT"
-  ],
-  "places": [
-    {
-      "placeOrder": 1,
-      "placeName": "수정된 첫 번째 장소: 해운대",
-      "address": "부산시 해운대구",
-      "description": "부산하면 역시 해운대죠!",
-      "photoUrl": "https://example.com/new_photo.jpg"
-    }
-  ]
-}
+DELETE http://localhost:8080/api/articles/6
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjozLCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTUyNTUyMjEsImV4cCI6MTc1NTI1NzAyMX0.kaNs6o73LKzfFq_dhcl3RIf7PRB94c8w8NaLklsp6f0

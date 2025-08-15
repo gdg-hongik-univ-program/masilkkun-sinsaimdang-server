@@ -7,6 +7,10 @@ import com.sinsaimdang.masilkkoon.masil.user.entity.UserRole;
 import com.sinsaimdang.masilkkoon.masil.article.dto.ArticleCreateRequest;
 import com.sinsaimdang.masilkkoon.masil.user.entity.User;
 import com.sinsaimdang.masilkkoon.masil.article.dto.ArticleUpdateRequest;
+import com.sinsaimdang.masilkkoon.masil.article.dto.ArticleSearchCondition;
+import com.sinsaimdang.masilkkoon.masil.region.entity.Region;
+import com.sinsaimdang.masilkkoon.masil.region.repository.RegionRepository;
+import com.sinsaimdang.masilkkoon.masil.visit.dto.VisitRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j; // Slf4j 임포트
 import org.springframework.stereotype.Service;
@@ -16,7 +20,6 @@ import java.util.List; // 이 임포트는 더 이상 직접 사용되지 않지
 import java.util.Set; // Set 임포트 추가 (findAllArticles()의 내부 변환에서 사용)
 import java.util.stream.Collectors; // Stream API를 위한 Collectors 임포트
 
-import com.sinsaimdang.masilkkoon.masil.article.dto.ArticleSearchCondition;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -27,6 +30,7 @@ import org.springframework.data.domain.Pageable;
 public class ArticleService {
 
     private final ArticleRepository articleRepository; // ArticleRepository 주입
+    private final RegionRepository regionRepository;
 
     /**
      * 모든 게시글 목록 조회 (N+1 문제 해결을 위해 Fetch Join 적용)
@@ -136,15 +140,17 @@ public class ArticleService {
     public ArticleResponse createArticle(ArticleCreateRequest request, User currentUser) {
         log.info("-> 게시글 생성 서비스 시작 - 작성자 ID: {}", currentUser.getId());
 
-        // DTO를 Article 엔티티로 변환합니다. 이 때 작성자 정보(currentUser)를 함께 넘겨줍니다.
-        Article article = request.toEntity(currentUser);
+        // 1. private 메소드를 호출하여 요청 데이터로부터 Region 엔티티를 찾아옵니다.
+        Region childRegion = findRegionFromRequest(request.getPlaces());
+
+        // 2. DTO를 Article 엔티티로 변환할 때, 찾아낸 Region 객체를 함께 전달합니다.
+        Article article = request.toEntity(currentUser, childRegion);
         log.debug("Article 엔티티 생성 완료");
 
-        // Article 엔티티를 데이터베이스에 저장합니다.
+        // 3. Article 엔티티를 데이터베이스에 저장합니다.
         Article savedArticle = articleRepository.save(article);
         log.info("게시글 저장 완료 - ID: {}, 제목: {}", savedArticle.getId(), savedArticle.getTitle());
 
-        // 저장된 엔티티를 다시 ArticleResponse DTO로 변환하여 반환합니다.
         return new ArticleResponse(savedArticle);
     }
 
@@ -185,26 +191,46 @@ public class ArticleService {
     public ArticleResponse updateArticle(Long articleId, ArticleUpdateRequest request, Long currentUserId) {
         log.info("게시글 수정 서비스 호출 - 게시글 ID: {}, 요청자 ID: {}", articleId, currentUserId);
 
-        // 1. 게시글을 조회합니다.
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new IllegalArgumentException("ID " + articleId + "에 해당하는 게시글을 찾을 수 없습니다."));
-        log.debug("게시글 조회 성공 - ID: {}", articleId);
-
-        // 2. (핵심) 삭제와 동일하게, 작성자와 요청자가 같은지 권한을 확인합니다.
         if (!article.getUser().getId().equals(currentUserId)) {
             log.warn("게시글 수정 권한 없음 - 게시글 작성자: {}, 요청자: {}", article.getUser().getId(), currentUserId);
             throw new SecurityException("게시글을 수정할 권한이 없습니다.");
         }
-        log.debug("게시글 수정 권한 확인 완료 - ID: {}", articleId);
 
-        // 3. Article 엔티티의 update 메소드를 호출하여 내용을 갱신합니다.
-        article.update(request);
+        // 1. 수정 요청에서도 동일하게 Region 엔티티를 찾아옵니다.
+        Region childRegion = findRegionFromRequest(request.getPlaces());
+
+        // 2. Article 엔티티의 update 메소드를 호출할 때, 찾아낸 Region 객체를 함께 전달합니다.
+        article.update(request, childRegion);
         log.debug("게시글 내용 업데이트 완료 (Dirty Checking 대상) - ID: {}", articleId);
 
-        // 4. 변경된 내용은 @Transactional에 의해 자동으로 DB에 반영(Dirty Checking)됩니다.
-        //    따로 save를 호출할 필요가 없습니다.
         log.info("<- 게시글 수정 서비스 완료 - ID: {}", articleId);
         return new ArticleResponse(article);
+    }
+
+    // 요청 DTO에서 Region을 찾는 중복 로직 추출
+    // ArticleCreateRequest와 ArticleUpdateRequest가 동일한 구조의 PlaceInfo를 가지고 있어 제네릭(<T>)으로 처리
+    private Region findRegionFromRequest(List<? extends ArticleCreateRequest.PlaceInfo> places) {
+        // 1. 장소 목록에서 첫 번째 장소를 찾습니다.
+        ArticleCreateRequest.PlaceInfo firstPlace = places.stream()
+                .filter(p -> p.getPlaceOrder() == 1)
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("첫 번째 장소 정보가 반드시 필요합니다."));
+
+        // 2. 첫 번째 장소의 roadAddress 객체를 가져옵니다.
+        VisitRequest.RoadAddress address = firstPlace.getRoadAddress();
+        if (address == null || address.getRegion1DepthName() == null || address.getRegion2DepthName() == null) {
+            throw new IllegalArgumentException("첫 번째 장소의 주소 정보(roadAddress)가 올바르지 않습니다.");
+        }
+
+        // 3. 주소의 1depth 이름으로 부모 Region(예: 경기도)을 DB에서 찾습니다.
+        Region parentRegion = regionRepository.findByNameAndParentIsNull(address.getRegion1DepthName())
+                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 상위 지역입니다: " + address.getRegion1DepthName()));
+
+        // 4. 부모 Region과 2depth 이름으로 자식 Region(예: 수원시)을 DB에서 찾아서 반환합니다.
+        return regionRepository.findByNameAndParent(address.getRegion2DepthName(), parentRegion)
+                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 하위 지역입니다: " + address.getRegion2DepthName()));
     }
 
 }

@@ -34,7 +34,7 @@ public class ArticleResponse {
         this.title = article.getTitle();
         this.content = article.getContent();
         this.author = new AuthorDto(article.getUser()); // User 엔티티로 AuthorDto 생성
-        this.region = article.getRegion();
+        this.region = article.getRegion().getName();
         this.tags = article.getArticleTags().stream().distinct().collect(Collectors.toList());
         this.photos = article.getPhotos().stream().distinct().collect(Collectors.toList());
         this.scrapCount = article.getScrapCount();

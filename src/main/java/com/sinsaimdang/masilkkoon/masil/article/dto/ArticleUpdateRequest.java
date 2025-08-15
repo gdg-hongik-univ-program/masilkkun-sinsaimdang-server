@@ -1,6 +1,7 @@
 package com.sinsaimdang.masilkkoon.masil.article.dto;
 
 import com.sinsaimdang.masilkkoon.masil.article.entity.ArticleTag;
+import com.sinsaimdang.masilkkoon.masil.visit.dto.VisitRequest;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -22,9 +23,6 @@ public class ArticleUpdateRequest {
     private String content;
 
     @NotNull
-    private String region;
-
-    @NotNull
     private Set<ArticleTag> tags;
 
     @NotNull
@@ -32,16 +30,7 @@ public class ArticleUpdateRequest {
 
     @Getter
     @NoArgsConstructor
-    public static class PlaceInfo {
-        @NotNull
-        private int placeOrder;
-        @NotBlank
-        private String placeName;
-        @NotBlank
-        private String address;
-        @NotBlank
-        private String description;
-        @NotBlank
-        private String photoUrl;
+    public static class PlaceInfo extends ArticleCreateRequest.PlaceInfo {
+        // 부모 클래스의 필드를 그대로 사용
     }
 }
