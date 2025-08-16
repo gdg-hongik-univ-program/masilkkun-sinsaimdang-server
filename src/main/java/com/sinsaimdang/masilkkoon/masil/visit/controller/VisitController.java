@@ -26,6 +26,7 @@ public class VisitController {
     public ResponseEntity<Map<String, Object>> verifyLocation(
             @RequestBody VisitRequest visitRequest, CurrentUser currentUser) {
 
+        log.info("Received VisitRequest DTO: {}", visitRequest.toString());
         log.info("API REQ >> POST /api/location/verify | 요청자 ID: {}", currentUser.getId());
 
         if(!currentUser.isAuthenticated()) {

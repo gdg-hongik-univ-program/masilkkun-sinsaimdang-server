@@ -103,7 +103,7 @@ GET http://localhost:8080/api/articles?tags=CAFE,TRAVEL_SPOT
 # 2. 응답으로 온 accessToken 값을 복사해서 아래 'Bearer ???' 부분에 붙여넣으세요.
 POST http://localhost:8080/api/articles
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjozLCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTUyNTUyMjEsImV4cCI6MTc1NTI1NzAyMX0.kaNs6o73LKzfFq_dhcl3RIf7PRB94c8w8NaLklsp6f0
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjoxLCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTUyNjAxMTYsImV4cCI6MTc1NTI2MTkxNn0.y9SMmHz8pA2kHXoLox3Ggz3-7k5bXIglrcsOoZz6RBA
 
 
 
@@ -146,9 +146,9 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlc
 # [테스트 방법]
 # 1. 수정할 게시글의 ID를 아래 URL의 {articleId}에 입력하세요.
 # 2. 로그인 토큰을 복사해서 'Bearer ???' 부분에 붙여넣으세요.
-PUT http://localhost:8080/api/articles/6
+PUT http://localhost:8080/api/articles/5
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjozLCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTUyNTUyMjEsImV4cCI6MTc1NTI1NzAyMX0.kaNs6o73LKzfFq_dhcl3RIf7PRB94c8w8NaLklsp6f0
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjoxLCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTUyNjAxMTYsImV4cCI6MTc1NTI2MTkxNn0.y9SMmHz8pA2kHXoLox3Ggz3-7k5bXIglrcsOoZz6RBA
 
 {
   "title": "수정된 테스트 게시글 제목입니다",
@@ -179,3 +179,23 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlc
 # 2. '로그인 테스트'를 실행해서 받은 accessToken을 아래 'Bearer ???' 부분에 붙여넣으세요.
 DELETE http://localhost:8080/api/articles/6
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjozLCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTUyNTUyMjEsImV4cCI6MTc1NTI1NzAyMX0.kaNs6o73LKzfFq_dhcl3RIf7PRB94c8w8NaLklsp6f0
+
+
+### =======================================
+### ✨ 지역 방문 인증 테스트 ✨
+### =======================================
+# [테스트 방법]
+# 1. '로그인 테스트'를 실행해서 받은 accessToken을 아래 'Bearer ???' 부분에 붙여넣으세요.
+# 2. 아래 body를 그대로 보내서 성공 여부를 확인합니다.
+# 3. 만약 400 에러가 난다면, DTO 필드명과 JSON 키가 다른지 확인하거나, service 로직을 확인해야 합니다.
+POST http://localhost:8080/api/location/verify
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjozLCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTUzMzQ2MjYsImV4cCI6MTc1NTMzNjQyNn0.ElIlcePFut2G_Hohck2jOPBmlAfl_S-pQtkHTVVnV_s
+
+{
+  "road_address": {
+    "address_name": "경기도 부천시 원미구 중동로279번길 22",
+    "region_1depth_name": "경기도",
+    "region_2depth_name": "부천시"
+  }
+}

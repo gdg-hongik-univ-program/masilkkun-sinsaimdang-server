@@ -5,11 +5,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
+@ToString
 public class VisitRequest {
 
     @JsonProperty("road_address")
@@ -19,6 +21,7 @@ public class VisitRequest {
     @Setter
     @NoArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
+    @ToString
     public static class RoadAddress {
 
         @JsonProperty("address_name")
