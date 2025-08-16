@@ -1,5 +1,7 @@
 package com.sinsaimdang.masilkkoon.masil.user.entity;
 
+import com.sinsaimdang.masilkkoon.masil.auth.dto.request.LoginRequest;
+import com.sinsaimdang.masilkkoon.masil.auth.dto.request.SignupRequest;
 import com.sinsaimdang.masilkkoon.masil.common.config.JpaAuditing;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -55,8 +57,8 @@ public class User {
      * - SignupRequest DTO 에서 이메일 형식 검증 수행<br>
      * - AuthService 에서 중복 여부 검증
      *
-     * @see com.sinsaimdang.masilkkoon.masil.auth.dto.SignupRequest
-     * @see com.sinsaimdang.masilkkoon.masil.auth.dto.LoginRequest
+     * @see SignupRequest
+     * @see LoginRequest
      */
     @Column(unique = true, nullable = false, length = 100)
     private String email;
@@ -78,7 +80,7 @@ public class User {
      * - 암호화되어 저장되므로 충분한 길이 확보 : 최대 길이 255 <br>
      * - API Response 에 포함 금지
      *
-     * @see com.sinsaimdang.masilkkoon.masil.auth.dto.SignupRequest
+     * @see SignupRequest
      * @see com.sinsaimdang.masilkkoon.masil.auth.service.AuthService
      */
     @Column(nullable = false)
@@ -91,7 +93,7 @@ public class User {
      * 제약조건<br>
      * - NOT_NULL
      * - SignUpRequest Dto 에서 길이 제약 : 최대 길이 10
-     * @see com.sinsaimdang.masilkkoon.masil.auth.dto.SignupRequest
+     * @see SignupRequest
      */
     @Column(nullable = false)
     private String name;
@@ -104,7 +106,7 @@ public class User {
      * 제약조건<br>
      * - NOT_NULL
      * - SignUpRequest Dto 에서 길이 제약 : 최대 길이 10
-     * @see com.sinsaimdang.masilkkoon.masil.auth.dto.SignupRequest
+     * @see SignupRequest
      */
     @Column
     private String nickname;
@@ -121,6 +123,17 @@ public class User {
     @Column(nullable = false)
     @Builder.Default
     private UserRole role = UserRole.USER;
+
+    @Column(nullable = false, columnDefinition = "int default 0")
+    @Builder.Default
+    private int followerCount = 0;
+
+    @Column(nullable = false, columnDefinition = "int default 0")
+    @Builder.Default
+    private int followingCount = 0;
+
+    @Column(length = 1000)
+    private String profileImageUrl;
 
     /**
      * 계정 생성 일시<br>
@@ -142,6 +155,8 @@ public class User {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
+    // =================================================================================================================
+
     public void updateNickname(String newNickname) {
         if (newNickname == null || newNickname.trim().isEmpty()) {
             throw new IllegalArgumentException("닉네임은 null 또는 empty 일 수 없습니다");
@@ -154,6 +169,26 @@ public class User {
             throw new IllegalArgumentException("닉네임은 null 또는 empty 일 수 없습니다");
         }
         this.password = newEncodedPassword.trim();
+    }
+
+    public void incrementFollowerCount() {
+        this.followerCount++;
+    }
+
+    public void decrementFollowerCount() {
+        this.followerCount--;
+    }
+
+    public void incrementFollowingCount() {
+        this.followingCount++;
+    }
+
+    public void decrementFollowingCount() {
+        this.followingCount--;
+    }
+
+    public void updateProfileImageUrl(String newProfileImageUrl) {
+        this.profileImageUrl = newProfileImageUrl;
     }
 
     @Override

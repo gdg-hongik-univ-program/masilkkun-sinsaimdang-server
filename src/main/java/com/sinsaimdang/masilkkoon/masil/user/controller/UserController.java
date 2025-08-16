@@ -2,10 +2,10 @@ package com.sinsaimdang.masilkkoon.masil.user.controller;
 
 import com.sinsaimdang.masilkkoon.masil.auth.dto.CurrentUser;
 import com.sinsaimdang.masilkkoon.masil.common.util.ApiResponseUtil;
-import com.sinsaimdang.masilkkoon.masil.user.dto.UpdateNicknameRequest;
-import com.sinsaimdang.masilkkoon.masil.user.dto.UpdatePasswordRequest;
+import com.sinsaimdang.masilkkoon.masil.user.dto.request.UpdateNicknameRequest;
+import com.sinsaimdang.masilkkoon.masil.user.dto.request.UpdatePasswordRequest;
+import com.sinsaimdang.masilkkoon.masil.user.dto.request.UpdateProfileImageRequest;
 import com.sinsaimdang.masilkkoon.masil.user.dto.UserDto;
-import com.sinsaimdang.masilkkoon.masil.user.entity.User;
 import com.sinsaimdang.masilkkoon.masil.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,8 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.servlet.http.HttpServletRequest;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -35,105 +33,126 @@ public class UserController {
 
     @GetMapping("/me")
     public ResponseEntity<Map<String, Object>> getCurrentUser(CurrentUser currentUser) {
-        log.info("현재 사용자 정보 조회 요청");
+        log.info("API REQ >> GET /api/user/me | 요청자 ID: {}", currentUser.getId());
 
-        try {
-            if(!currentUser.isAuthenticated())
-                return ApiResponseUtil.unauthorized("인증되지 않은 사용자 입니다");
-
-            log.info("사용자 정보 조회 성공 - ID = {}, 이메일 = {}", currentUser.getId(), currentUser.getName());
-            return ApiResponseUtil.success("사용자 정보 조회 성공", currentUser.toMap());
-        } catch (Exception e) {
-            log.error("사용자 정보 조회 중 내부 오류 발생", e);
-            return ApiResponseUtil.internalServerError("서버 내부 오류가 발생했습니다");
+        if (!currentUser.isAuthenticated()) {
+            return ApiResponseUtil.unauthorized("인증되지 않은 사용자 입니다");
         }
+
+        log.info("API RES >> GET /api/user/me | 요청자 ID: {}", currentUser.getId());
+        return ApiResponseUtil.success("사용자 정보 조회 성공", currentUser.toMap());
     }
 
     @GetMapping("/profile")
     public ResponseEntity<Map<String, Object>> getUserProfile(CurrentUser currentUser) {
-        log.info("사용자 프로필 조회 요청");
+        log.info("API REQ >> GET /api/user/profile | 요청자 ID: {}", currentUser.getId());
 
         if (!currentUser.isAuthenticated()) {
             return ApiResponseUtil.unauthorized("인증되지 않은 사용자입니다.");
         }
 
-        return ApiResponseUtil.success("프로필 조회 성공", currentUser.toMapWithoutRole());
+        UserDto userProfile = userService.findById(currentUser.getId())
+                .orElseThrow(() -> {
+                    log.warn("프로필 조회 실패 - 존재하지 않는 사용자 ID {}", currentUser.getId());
+                    return new IllegalArgumentException("사용자 정보를 찾을 수 없습니다");
+                });
+
+        log.info("API RES >> GET /api/user/profile | 요청자 ID: {}", currentUser.getId());
+
+        return ApiResponseUtil.success("프로필 조회 성공", userProfile);
     }
 
-    @PatchMapping("nickname")
+    @GetMapping("/{userId}/profile")
+    public ResponseEntity<Map<String, Object>> getUserProfileById(@PathVariable Long userId) {
+        log.info("API REQ >> GET /api/user/{}/profile", userId);
+
+        UserDto userProfile = userService.findById(userId)
+                .orElseThrow(() -> {
+                    log.warn("프로필 조회 실패 - 존재하지 않는 사용자 ID: {}", userId);
+                    return new IllegalArgumentException("사용자 정보를 찾을 수 없습니다.");
+                });
+
+        log.info("API RES >> GET /api/user/{}/profile", userId);
+
+        return ApiResponseUtil.success("프로필 조회 성공", userProfile);
+    }
+
+    @PatchMapping("/nickname")
     public ResponseEntity<Map<String, Object>> updateNickname(
             CurrentUser currentUser,
             @RequestBody @Valid UpdateNicknameRequest updateRequest) {
+        log.info("API REQ >> PATCH /api/user/nickname | 요청자 ID: {}", currentUser.getId());
 
-        log.info("닉네임 변경 요청");
-
-        try {
-            if(!currentUser.isAuthenticated()) {
-                return ApiResponseUtil.unauthorized("인증되지 않은 사용자입니다.");
-            }
-
-            UserDto updatedUser = userService.updateNickname(currentUser.getId(), updateRequest.getNickname());
-
-            log.info("닉네임 변경 성공 - ID = {}, 새로운 닉네임 = {}", updatedUser.getId(), updatedUser.getName());
-            return ApiResponseUtil.success("닉네임이 성공적으로 변경되었습니다", updatedUser);
-        } catch (IllegalArgumentException e) {
-            log.warn("닉네임 변경 실패 - 사유 = {}", e.getMessage());
-            return ApiResponseUtil.badRequest(e.getMessage());
-        } catch (Exception e) {
-            log.error("닉네임 변경 중 서버 오류");
-            return ApiResponseUtil.internalServerError("서버 내부 오류가 발생했습니다");
+        if (!currentUser.isAuthenticated()) {
+            return ApiResponseUtil.unauthorized("인증되지 않은 사용자입니다.");
         }
+
+        UserDto updatedUser = userService.updateNickname(currentUser.getId(), updateRequest.getNickname());
+
+        log.info("API RES >> PATCH /api/user/nickname | 요청자 ID: {}", currentUser.getId());
+        return ApiResponseUtil.success("닉네임이 성공적으로 변경되었습니다", updatedUser);
     }
 
     @PatchMapping("/password")
     public ResponseEntity<Map<String, Object>> updatePassword(
             CurrentUser currentUser,
             @RequestBody @Valid UpdatePasswordRequest updateRequest) {
+        log.info("API REQ >> PATCH /api/user/password | 요청자 ID: {}", currentUser.getId());
 
-        log.info("비밀번호 변경 요청");
-
-        try {
-            if (!currentUser.isAuthenticated()) {
-                return ApiResponseUtil.unauthorized("인증이 필요합니다.");
-            }
-
-            UserDto updatedUser = userService.updatePassword(currentUser.getId(), updateRequest.getNewPassword());
-
-            log.info("비밀번호 변경 성공 - ID: {}", currentUser.getId());
-            return ApiResponseUtil.success("비밀번호가 성공적으로 변경되었습니다.", updatedUser);
-
-        } catch (SecurityException | IllegalArgumentException e) {
-            log.warn("비밀번호 변경 실패 - 사유: {}", e.getMessage());
-            return ApiResponseUtil.badRequest(e.getMessage());
-
-        } catch (Exception e) {
-            log.error("비밀번호 변경 중 서버 오류", e);
-            return ApiResponseUtil.internalServerError("서버 내부 오류가 발생했습니다.");
+        if (!currentUser.isAuthenticated()) {
+            return ApiResponseUtil.unauthorized("인증이 필요합니다.");
         }
+
+        UserDto updatedUser = userService.updatePassword(currentUser.getId(), updateRequest.getNewPassword());
+
+        log.info("API RES >> PATCH /api/user/password | 요청자 ID: {}", currentUser.getId());
+        return ApiResponseUtil.success("비밀번호가 성공적으로 변경되었습니다.", updatedUser);
+    }
+
+    @PatchMapping("/profile-image")
+    public ResponseEntity<Map<String, Object>> updateProfileImage(
+            CurrentUser currentUser,
+            @RequestBody @Valid UpdateProfileImageRequest updateRequest) {
+        log.info("API REQ >> PATCH /api/user/profile-image | 요청자 ID: {}", currentUser.getId());
+
+        if(!currentUser.isAuthenticated()) {
+            return ApiResponseUtil.unauthorized("인증이 필요합니다.");
+        }
+
+        UserDto updatedUser = userService.updateProfileImage(
+                currentUser.getId(), updateRequest.getProfileImageUrl()
+        );
+
+        log.info("API RES >> PATCH /api/user/profile-image | 요청자 ID: {}", currentUser.getId());
+        return ApiResponseUtil.success("프로필 이미지가 성공적으로 업데이트 되었습니다.", updatedUser);
+    }
+
+    @DeleteMapping("/profile-image")
+    public ResponseEntity<Map<String, Object>> removeProfileImage(CurrentUser currentUser) {
+        log.info("API REQ >> DELETE /api/user/profile-image | 요청자 ID: {}", currentUser.getId());
+
+        if(!currentUser.isAuthenticated()) {
+            return ApiResponseUtil.unauthorized("인증이 필요합니다.");
+        }
+
+        UserDto updatedUser = userService.removeProfileImage(currentUser.getId());
+
+        log.info("API RES >> DELETE /api/user/profile-image | 요청자 ID: {}", currentUser.getId());
+        return ApiResponseUtil.success("프로필 이미지가 삭제되었습니다", updatedUser);
     }
 
     @DeleteMapping("/me")
     public ResponseEntity<Map<String, Object>> deleteUser(CurrentUser currentUser) {
-        log.info("회원 탈퇴 요청");
+        log.info("API REQ >> DELETE /api/user/me | 요청자 ID: {}", currentUser.getId());
 
-        try {
-            if (!currentUser.isAuthenticated()) {
-                return ApiResponseUtil.unauthorized("인증이 필요합니다.");
-            }
-
-            userService.deleteUser(currentUser.getId());
-
-            log.info("회원 탈퇴 성공 - ID: {}, Email: {}", currentUser.getId(), currentUser.getEmail());
-            return ApiResponseUtil.success("회원 탈퇴가 완료되었습니다.");
-
-        } catch (IllegalArgumentException e) {
-            log.warn("회원 탈퇴 실패 - 사유: {}", e.getMessage());
-            return ApiResponseUtil.badRequest(e.getMessage());
-
-        } catch (Exception e) {
-            log.error("회원 탈퇴 중 서버 오류", e);
-            return ApiResponseUtil.internalServerError("서버 내부 오류가 발생했습니다.");
+        if (!currentUser.isAuthenticated()) {
+            return ApiResponseUtil.unauthorized("인증이 필요합니다.");
         }
+
+        userService.deleteUser(currentUser.getId());
+
+        log.info("API RES >> DELETE /api/user/me | 요청자 ID: {}", currentUser.getId());
+        return ApiResponseUtil.success("회원 탈퇴가 완료되었습니다.");
     }
 
     @GetMapping("/test")

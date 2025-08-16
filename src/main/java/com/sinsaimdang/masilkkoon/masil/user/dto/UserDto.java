@@ -16,6 +16,9 @@ public class UserDto {
     private String password;
     private String name;
     private String nickname;
+    private String profileImageUrl;
+    private int followerCount;
+    private int followingCount;
 
     // password 제외 -> 노출 위험 있음
     public static UserDto from(User user){
@@ -24,6 +27,9 @@ public class UserDto {
                 .email(user.getEmail())
                 .name(user.getName())
                 .nickname(user.getNickname())
+                .profileImageUrl(user.getProfileImageUrl())
+                .followerCount(user.getFollowerCount())
+                .followingCount(user.getFollowingCount())
                 .build();
     }
 }

@@ -1,32 +1,31 @@
 package com.sinsaimdang.masilkkoon.masil.auth.controller;
 
-import com.sinsaimdang.masilkkoon.masil.auth.dto.AccessTokenRefreshRequest;
-import com.sinsaimdang.masilkkoon.masil.auth.dto.LoginRequest;
-import com.sinsaimdang.masilkkoon.masil.auth.dto.LogoutRequest;
-import com.sinsaimdang.masilkkoon.masil.auth.dto.SignupRequest;
+import com.sinsaimdang.masilkkoon.masil.auth.dto.request.AccessTokenRefreshRequest;
+import com.sinsaimdang.masilkkoon.masil.auth.dto.request.LoginRequest;
+import com.sinsaimdang.masilkkoon.masil.auth.dto.request.LogoutRequest;
+import com.sinsaimdang.masilkkoon.masil.auth.dto.request.SignupRequest;
+import com.sinsaimdang.masilkkoon.masil.auth.dto.response.SignupResponse;
 import com.sinsaimdang.masilkkoon.masil.auth.service.AuthService;
+import com.sinsaimdang.masilkkoon.masil.common.util.ApiResponseUtil;
 import com.sinsaimdang.masilkkoon.masil.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 
-
-import java.util.HashMap;
 import java.util.Map;
 
-/**
- * 인증 관련 엔드포인트
- * 1. 회원가입 : POST /api/auth/signup
- * 2. 로그인 : POST /api/auth/login
- * 3. 로그아웃 : POST /api/auth/logout
- * 4. Access Token 갱신 : POST /api/auth/refresh
- * 5. 이메일 중복 확인 : GET /api/auth/check-email
- * 6. 닉네임 중복 확인 : GET /api/auth/check-nickname
+/**<br>
+ * 인증 관련 엔드포인트<br>
+ * 1. 회원가입 : POST /api/auth/signup<br>
+ * 2. 로그인 : POST /api/auth/login<br>
+ * 3. 로그아웃 : POST /api/auth/logout<br>
+ * 4. Access Token 갱신 : POST /api/auth/refresh<br>
+ * 5. 이메일 중복 확인 : GET /api/auth/check-email<br>
+ * 6. 닉네임 중복 확인 : GET /api/auth/check-nickname<br>
  */
 @RestController
 @RequestMapping("api/auth")
@@ -52,48 +51,13 @@ public class AuthController {
      */
     @PostMapping("/signup")
     public ResponseEntity<Map<String, Object>> signup(@Valid @RequestBody SignupRequest request) {
-        log.info("회원가입 요청 : 이메일 = {}", request.getEmail());
+        log.info("API REQ >> POST /api/auth/signup | 요청 이메일: {}", request.getEmail());
 
-        try {
-            User user = authService.signup(
-                    request.getEmail(),
-                    request.getPassword(),
-                    request.getName(),
-                    request.getNickname()
-            );
+        User user = authService.signup(request.getEmail(), request.getPassword(), request.getName(), request.getNickname());
+        SignupResponse responseDto = SignupResponse.from(user);
 
-            // 회원가입 성공 Response 생성
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "회원가입에 성공하였습니다.");
-            response.put("data", Map.of(
-                    "id", user.getId(),
-                    "email", user.getEmail(),
-                    "name", user.getName(),
-                    "nickname", user.getNickname()
-            ));
-
-            log.info("회원가입 성공 - ID: {}, 이메일: {}", user.getId(), user.getEmail());
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-
-        } catch (IllegalArgumentException | SecurityException e) {
-            log.warn("회원가입 실패 : 이메일 = {}, 사유 = {}", request.getEmail(), e.getMessage());
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", e.getMessage());
-
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-
-        } catch (Exception e) {
-            log.error("회원가입 중 서버 오류 - 이메일: {}", request.getEmail(), e);
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", "서버 내부 오류가 발생했습니다.");
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
+        log.info("API RES >> POST /api/auth/signup | 요청 이메일: {}", request.getEmail());
+        return ApiResponseUtil.created("회원가입에 성공하였습니다.", responseDto);
     }
 
     /**
@@ -105,38 +69,13 @@ public class AuthController {
      * @see LoginRequest
      */
     @PostMapping("/login")
-    public ResponseEntity<Map<String, Object>> login(@RequestBody LoginRequest request) {
-        log.info("로그인 요청 : 이메일 = {}", request.getEmail());
+    public ResponseEntity<Map<String, Object>> login(@Valid @RequestBody LoginRequest request) {
+        log.info("API REQ >> POST /api/auth/login | 요청 이메일: {}", request.getEmail());
 
-        try {
-            Map<String, String> tokens = authService.login(request.getEmail(), request.getPassword());
+        Map<String, String> tokens = authService.login(request.getEmail(), request.getPassword());
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "로그인에 성공했습니다");
-            response.put("data", Map.of(
-                    "accessToken", tokens.get("accessToken"),
-                    "refreshToken", tokens.get("refreshToken")
-            ));
-
-            return ResponseEntity.ok(response);
-        } catch (IllegalArgumentException e) {
-            log.warn("로그인 실패 - 이메일: {}, 사유: {}", request.getEmail(), e.getMessage());
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", e.getMessage());
-
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-        } catch (Exception e) {
-            log.error("로그인 중 서버 오류 - 이메일: {}", request.getEmail(), e);
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", "서버 내부 오류가 발생했습니다.");
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
+        log.info("API RES >> POST /api/auth/login | 요청 이메일: {}", request.getEmail());
+        return ApiResponseUtil.success("로그인에 성공했습니다", tokens);
     }
 
     /**
@@ -149,58 +88,12 @@ public class AuthController {
      */
     @PostMapping("/logout")
     public ResponseEntity<Map<String, Object>> logout(@Valid @RequestBody LogoutRequest request) {
-        log.info("로그아웃 요청 - 이메일 = {}", request.getEmail());
+        log.info("API REQ >> POST /api/auth/logout | 요청 이메일: {}", request.getEmail());
 
-        try {
-            // 이메일 유효성 검증
-            if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
-                log.warn("로그아웃 실패 - 이메일이 비어있음");
+        authService.logout(request.getEmail());
 
-                Map<String, Object> response = new HashMap<>();
-                response.put("success", false);
-                response.put("message", "이메일은 필수 항목입니다.");
-
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-            }
-
-            // 이메일 존재 여부 확인 (선택사항 - 보안상 실제 존재 여부를 노출하지 않을 수도 있음)
-            if (!authService.isEmailExists(request.getEmail())) {
-                log.warn("로그아웃 실패 - 존재하지 않는 이메일: {}", request.getEmail());
-
-                Map<String, Object> response = new HashMap<>();
-                response.put("success", false);
-                response.put("message", "존재하지 않는 이메일입니다.");
-
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-            }
-
-            authService.logout(request.getEmail());
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "로그아웃에 성공했습니다");
-
-            log.info("로그아웃 성공 - 이메일: {}", request.getEmail());
-            return ResponseEntity.ok(response);
-
-        } catch (IllegalArgumentException e) {
-            log.warn("로그아웃 실패 - 이메일: {}, 사유: {}", request.getEmail(), e.getMessage());
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", e.getMessage());
-
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-
-        } catch (Exception e) {
-            log.error("로그아웃 중 서버 오류 - 이메일: {}", request.getEmail(), e);
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", "서버 내부 오류가 발생했습니다.");
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
+        log.info("API RES >> POST /api/auth/logout | 요청 이메일: {}", request.getEmail());
+        return ApiResponseUtil.success("로그아웃에 성공했습니다");
     }
 
     /**
@@ -212,94 +105,34 @@ public class AuthController {
      * @return 성공시 200 OK + 새로운 Access Token + Refresh Token
      */
     @PostMapping("/refresh")
-    public ResponseEntity<Map<String, Object>> refreshToken(@RequestBody AccessTokenRefreshRequest request) {
-        log.info("액세스 토큰 갱신 요청");
+    public ResponseEntity<Map<String, Object>> refreshToken(@Valid @RequestBody AccessTokenRefreshRequest request) {
+        log.info("API REQ >> POST /api/auth/refresh");
 
-        try {
-            Map<String, String> tokens = authService.refreshAccessToken(request.getRefreshToken());
+        Map<String, String> tokens = authService.refreshAccessToken(request.getRefreshToken());
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "토큰 갱신이 완료되었습니다.");
-            response.put("data", Map.of(
-                    "accessToken", tokens.get("accessToken"),
-                    "refreshToken", tokens.get("refreshToken")
-            ));
-
-            return ResponseEntity.ok(response);
-        } catch (IllegalArgumentException e) {
-            log.warn("토큰 갱신 실패 - 사유: {}", e.getMessage());
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", e.getMessage());
-
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-        } catch (Exception e) {
-            log.error("토큰 갱신 중 서버 오류", e);
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", "서버 내부 오류가 발생했습니다.");
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
+        log.info("API RES >> POST /api/auth/refresh");
+        return ApiResponseUtil.success("토큰 갱신이 완료되었습니다.", tokens);
     }
 
     // 이메일 중복 확인
     @GetMapping("/check-email")
     public ResponseEntity<Map<String, Object>> checkEmailDuplicate(@RequestParam String email) {
-        log.info("이메일 중복 확인 요청 - 이메일 = {}", email);
+        log.info("API REQ >> GET /api/auth/check-email | email={}", email);
 
-        try {
-            boolean exists = authService.isEmailExists(email);
+        boolean exists = authService.isEmailExists(email);
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("data", Map.of(
-                    "email", email,
-                    "exists", exists,
-                    "available", !exists
-            ));
-
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            log.error("이메일 중복 확인 중 서버 오류 - 이메일 = {}, 사유 = {}", email, e.getMessage());
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", "서버 내부 오류가 발생했습니다.");
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
+        log.info("API RES >> GET /api/auth/check-email | email={}", email);
+        return ApiResponseUtil.success("이메일 중복 확인 완료", Map.of("exists", exists, "available", !exists));
     }
 
     // 닉네임 중복 확인
     @GetMapping("/check-nickname")
     public ResponseEntity<Map<String, Object>> checkNicknameDuplicate(@RequestParam String nickname) {
-        log.info("닉네임 중복 확인 요청 - 닉네임 = {}", nickname);
+        log.info("API REQ >> GET /api/auth/check-nickname | nickname={}", nickname);
 
-        try {
-            boolean exists = authService.isNicknameExists(nickname);
+        boolean exists = authService.isNicknameExists(nickname);
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("data", Map.of(
-                    "nickname", nickname,
-                    "exists", exists,
-                    "available", !exists
-            ));
-
-            return ResponseEntity.ok(response);
-
-        } catch (Exception e) {
-            log.error("닉네임 중복 확인 중 서버 오류 - 닉네임: {}", nickname, e);
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", "서버 내부 오류가 발생했습니다.");
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
+        log.info("API RES >> GET /api/auth/check-nickname | nickname={}", nickname);
+        return ApiResponseUtil.success("닉네임 중복 확인 완료", Map.of("exists", exists, "available", !exists));
     }
 }
