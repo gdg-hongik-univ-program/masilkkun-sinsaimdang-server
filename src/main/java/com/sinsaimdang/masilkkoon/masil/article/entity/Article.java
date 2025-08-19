@@ -134,24 +134,21 @@ public class Article {
      * 게시글 수정 DTO를 기반으로 엔티티의 내용을 업데이트하는 메서드
      * @param request 수정 요청 DTO
      */
-    public void update(ArticleUpdateRequest request, Region region) {
+    public void update(ArticleUpdateRequest request, Region region, List<String> finalPhotoUrls) {
         this.title = request.getTitle();
         this.content = request.getContent();
         this.region = region;
 
-        // 기존 컬렉션들을 모두 비우고 새로운 데이터로 채워넣는 방식 (가장 간단하고 확실한 방법)
         this.articleTags.clear();
         this.articleTags.addAll(request.getTags());
-
-        this.photos.clear();
-        this.photos.addAll(request.getPlaces().stream()
-                .map(ArticleUpdateRequest.PlaceInfo::getPhotoUrl)
-                .collect(Collectors.toList()));
 
         this.articlePlaces.clear();
         Set<ArticlePlace> newPlaces = request.getPlaces().stream()
                 .map(p -> new ArticlePlace(p.getPlaceOrder(), p.getPlaceName(), p.getRoadAddress().getAddressName(), p.getDescription()))
                 .collect(Collectors.toSet());
         this.articlePlaces.addAll(newPlaces);
+
+        this.photos.clear();
+        this.photos.addAll(finalPhotoUrls);
     }
 }

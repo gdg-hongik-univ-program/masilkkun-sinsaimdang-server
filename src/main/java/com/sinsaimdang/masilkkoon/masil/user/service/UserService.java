@@ -1,5 +1,6 @@
 package com.sinsaimdang.masilkkoon.masil.user.service;
 
+import com.sinsaimdang.masilkkoon.masil.common.s3.Uploader;
 import com.sinsaimdang.masilkkoon.masil.user.dto.UserDto;
 import com.sinsaimdang.masilkkoon.masil.user.entity.User;
 import com.sinsaimdang.masilkkoon.masil.user.repository.UserRepository;
@@ -9,7 +10,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -23,6 +26,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final Uploader uploader;
 
     public Optional<UserDto> findById(Long id){
         log.debug("ID으로 사용자 조회: {}", id);
@@ -125,33 +129,89 @@ public class UserService {
         log.debug("비밀번호 보안 정책 검증 통과");
     }
 
+//    @Transactional
+//    public UserDto updateProfileImage(Long userId, String profileImageUrl) {
+//        log.info("프로필 이미지 업데이트 요청 - ID: {}", userId);
+//
+//        User user = getUserEntity(userId);
+//
+//        String normalizedProfileImageUrl = profileImageUrl != null ? profileImageUrl.trim() : null;
+//        if (normalizedProfileImageUrl != null && normalizedProfileImageUrl.trim().isEmpty()) {
+//            normalizedProfileImageUrl = null;
+//        }
+//
+//        user.updateProfileImageUrl(normalizedProfileImageUrl);
+//        User savedUser = userRepository.save(user);
+//
+//        log.info("프로필 이미지 업데이트 완료 - ID: {}", userId);
+//        return UserDto.from(savedUser);
+//    }
+
+    /**
+     * [수정] 프로필 이미지 업데이트 로직 변경
+     * @param userId 사용자 ID
+     * @param profileImageFile 업로드할 이미지 파일
+     * @return 수정된 사용자 정보 DTO
+     * @throws IOException 파일 업로드 중 발생할 수 있는 예외
+     */
     @Transactional
-    public UserDto updateProfileImage(Long userId, String profileImageUrl) {
+    public UserDto updateProfileImage(Long userId, MultipartFile profileImageFile) throws IOException {
         log.info("프로필 이미지 업데이트 요청 - ID: {}", userId);
 
         User user = getUserEntity(userId);
+        String oldImageUrl = user.getProfileImageUrl();
 
-        String normalizedProfileImageUrl = profileImageUrl != null ? profileImageUrl.trim() : null;
-        if (normalizedProfileImageUrl != null && normalizedProfileImageUrl.trim().isEmpty()) {
-            normalizedProfileImageUrl = null;
+        // 새 이미지 업로드
+        String newImageUrl = uploader.upload(profileImageFile, "profile-images");
+
+        // 기존 이미지가 기본 이미지가 아닐 경우에만 삭제
+        if (oldImageUrl != null && !oldImageUrl.equals(defaultProfileImageUrl)) {
+            uploader.delete(oldImageUrl);
+            log.info("기존 프로필 이미지 삭제 완료 - URL: {}", oldImageUrl);
         }
 
-        user.updateProfileImageUrl(normalizedProfileImageUrl);
+        user.updateProfileImageUrl(newImageUrl);
         User savedUser = userRepository.save(user);
 
         log.info("프로필 이미지 업데이트 완료 - ID: {}", userId);
         return UserDto.from(savedUser);
     }
 
+
+//    @Transactional
+//    public UserDto removeProfileImage(Long userId) {
+//        log.info("프로필 사진 삭제 요청 - ID: {}", userId);
+//
+//        User user = getUserEntity(userId);
+//        user.updateProfileImageUrl(defaultProfileImageUrl);
+//        User savedUser = userRepository.save(user);
+//
+//        log.info("프로필 이미지 삭제 요청 - ID: {}", userId);
+//        return UserDto.from(savedUser);
+//    }
+
+    /**
+     * [수정] 프로필 이미지 삭제 로직 변경
+     * @param userId 사용자 ID
+     * @return 수정된 사용자 정보 DTO
+     */
     @Transactional
     public UserDto removeProfileImage(Long userId) {
         log.info("프로필 사진 삭제 요청 - ID: {}", userId);
 
         User user = getUserEntity(userId);
-        user.updateProfileImageUrl(defaultProfileImageUrl);
+        String oldImageUrl = user.getProfileImageUrl();
+
+        // 기존 이미지가 기본 이미지가 아닐 경우에만 삭제
+        if (oldImageUrl != null && !oldImageUrl.equals(defaultProfileImageUrl)) {
+            uploader.delete(oldImageUrl);
+            log.info("기존 프로필 이미지 삭제 완료 - URL: {}", oldImageUrl);
+        }
+
+        user.updateProfileImageUrl(defaultProfileImageUrl); // 기본 이미지로 설정
         User savedUser = userRepository.save(user);
 
-        log.info("프로필 이미지 삭제 요청 - ID: {}", userId);
+        log.info("프로필 이미지 삭제 후 기본 이미지로 변경 완료 - ID: {}", userId);
         return UserDto.from(savedUser);
     }
 
@@ -162,6 +222,8 @@ public class UserService {
                     return new IllegalArgumentException("존재하지 않는 사용자입니다: " + userId);
                 });
     }
+
+
 
     @Transactional
     public void deleteUser(Long userId) {

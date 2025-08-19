@@ -327,3 +327,135 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlc
     }
   ]
 }
+
+
+### =================================================================
+### ✨ [최종] 게시글 사진 업로드/수정 테스트 ✨
+### =================================================================
+# [테스트 방법]
+# 1. 아래 '회원가입'과 '로그인'을 먼저 실행해서 테스트용 토큰을 발급받습니다.
+# 2. 로그인 응답으로 온 accessToken 값을 복사해서, 아래 '게시글 생성'과 '게시글 수정' 요청의
+#    'Authorization: Bearer ???' 부분에 붙여넣으세요.
+# 3. 'images'나 'newImages' 파라미터에는 실제 컴퓨터에 있는 이미지 파일의 경로를 적어주세요.
+#    (예: "C:/Users/username/Pictures/test_image.jpg")
+
+### [STEP 1] 테스트용 사용자 회원가입
+POST http://localhost:8080/api/auth/signup
+Content-Type: application/json
+
+{
+  "email": "photo-tester@example.com",
+  "password": "passWORD123!",
+  "name": "사진테스터",
+  "nickname": "찰칵맨"
+}
+
+### [STEP 2] 로그인하여 토큰 발급
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "photo-tester@example.com",
+  "password": "passWORD123!"
+}
+
+### [STEP 2.5] 지역인증
+POST http://localhost:8080/api/location/verify
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giLCJ1c2VyRW1haWwiOiJwaG90by10ZXN0ZXJAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6IuyCrOynhO2FjOyKpO2EsCIsInVzZXJSb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoicGhvdG8tdGVzdGVyQGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU2Mjc2NTUsImV4cCI6MTc1NTYyOTQ1NX0.a-AzD-ayCcOBL-PASt6KeBqMhc3THHFTImf5XEg2mHY
+
+{
+"road_address": {
+"address_name": "경기도 수원시 영통구 동수원로 538",
+"region_1depth_name": "경기도",
+"region_2depth_name": "수원시"
+}
+}
+
+### [STEP 3] 이미지와 함께 게시글 생성 테스트
+# Content-Type이 multipart/form-data로 변경된 것을 확인하세요.
+POST http://localhost:8080/api/articles
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giLCJ1c2VyRW1haWwiOiJwaG90by10ZXN0ZXJAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6IuyCrOynhO2FjOyKpO2EsCIsInVzZXJSb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoicGhvdG8tdGVzdGVyQGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU2MjY4OTQsImV4cCI6MTc1NTYyODY5NH0.XNoDCzvhE6DyDmjnLIS47_IGiwDGPPsIqdqUTHYw5W8
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="request"
+Content-Type: application/json
+
+{
+  "title": "사진과 함께 올리는 첫 게시글",
+  "content": "이 글에는 멋진 사진이 포함되어 있습니다.",
+  "tags": [
+    "TRAVEL_SPOT",
+    "CAFE"
+  ],
+  "places": [
+    {
+      "placeOrder": 1,
+      "placeName": "테스트 장소 1",
+      "description": "사진 테스트를 위한 첫 번째 장소입니다.",
+      "roadAddress": {
+        "address_name": "경기도 수원시 영통구 동수원로 538",
+        "region_1depth_name": "경기도",
+        "region_2depth_name": "수원시"
+      }
+    }
+  ]
+}
+
+--boundary
+Content-Disposition: form-data; name="images"; filename="image1.jpg"
+Content-Type: image/jpeg
+
+< C:\이미지테스트\슬기1.webp
+
+--boundary
+Content-Disposition: form-data; name="images"; filename="image2.png"
+Content-Type: image/png
+
+< C:\이미지테스트\슬기2.jpeg
+
+--boundary--
+
+
+### [STEP 4] 이미지 수정 및 삭제 테스트
+# [시나리오]
+# - 기존 이미지 중 image1.jpg는 유지하고, image2.png는 삭제합니다.
+# - 새로운 이미지 new_image.gif를 추가합니다.
+# 수정할 게시글 ID를 URL에 맞게 변경해주세요 (예: /api/articles/10)
+PUT http://localhost:8080/api/articles/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giLCJ1c2VyRW1haWwiOiJwaG90by10ZXN0ZXJAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6IuyCrOynhO2FjOyKpO2EsCIsInVzZXJSb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoicGhvdG8tdGVzdGVyQGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU2MjY4OTQsImV4cCI6MTc1NTYyODY5NH0.XNoDCzvhE6DyDmjnLIS47_IGiwDGPPsIqdqUTHYw5W8
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="request"
+Content-Type: application/json
+
+{
+  "title": "사진이 수정된 게시글",
+  "content": "기존 사진 하나는 지우고, 새 사진을 추가했습니다.",
+  "tags": ["RESTAURANT"],
+  "places": [
+    {
+      "placeOrder": 1,
+      "placeName": "수정된 테스트 장소",
+      "description": "수정 테스트!",
+      "roadAddress": {
+        "address_name": "경기도 부천시 길주로 210",
+        "region_1depth_name": "경기도",
+        "region_2depth_name": "부천시"
+      }
+    }
+  ],
+  "remainingPhotoUrls": [
+      "C:\\Users\\user\\masil-uploads\\article-images\\0d25285d-7f17-4707-b55a-70cfaf8cb6fd_image1.jpg"
+  ]
+}
+
+--boundary
+Content-Disposition: form-data; name="newImages"; filename="new_image.gif"
+Content-Type: image/gif
+
+< C:\이미지테스트\슬기3.jpg
+
+--boundary--

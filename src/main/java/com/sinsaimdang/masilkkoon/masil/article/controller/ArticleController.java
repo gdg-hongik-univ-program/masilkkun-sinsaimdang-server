@@ -5,7 +5,6 @@ import com.sinsaimdang.masilkkoon.masil.article.service.ArticleService; // Artic
 import com.sinsaimdang.masilkkoon.masil.article.dto.ArticleCreateRequest;
 import com.sinsaimdang.masilkkoon.masil.auth.dto.CurrentUser;
 import com.sinsaimdang.masilkkoon.masil.common.util.ApiResponseUtil;
-import com.sinsaimdang.masilkkoon.masil.user.entity.User;
 import com.sinsaimdang.masilkkoon.masil.user.repository.UserRepository;
 import com.sinsaimdang.masilkkoon.masil.article.dto.ArticleUpdateRequest;
 
@@ -14,13 +13,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus; // HTTP 상태 코드를 위한 HttpStatus 임포트
 import org.springframework.http.ResponseEntity; // ResponseEntity 임포트 (HTTP 응답을 유연하게 제어)
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 //import org.springframework.web.bind.annotation.GetMapping; // GET 요청 매핑 어노테이션
 //import org.springframework.web.bind.annotation.PathVariable; // URL 경로 변수 매핑 어노테이션
 //import org.springframework.web.bind.annotation.RequestMapping; // 요청 매핑 어노테이션
 //import org.springframework.web.bind.annotation.RestController; // REST Controller 어노테이션 (JSON 응답)
 import jakarta.servlet.http.HttpServletRequest; // HttpServletRequest 임포트
-
-//import java.util.List; // List 임포트
+import java.util.List; // List 임포트
 
 import com.sinsaimdang.masilkkoon.masil.article.dto.ArticleSearchCondition;
 import org.springframework.data.domain.Page;
@@ -29,6 +28,7 @@ import org.springframework.data.domain.Pageable;
 import jakarta.validation.Valid;
 import java.util.HashMap; // Map 응답을 위한 HashMap 임포트
 import java.util.Map;     // Map 응답을 위한 Map 임포트
+import java.io.IOException;
 
 @RestController // 이 클래스가 REST API를 처리하는 컨트롤러임을 명시 (JSON 응답 자동 변환)
 @RequiredArgsConstructor // final 필드를 이용한 생성자 자동 생성 (의존성 주입)
@@ -37,7 +37,6 @@ import java.util.Map;     // Map 응답을 위한 Map 임포트
 public class ArticleController {
 
     private final ArticleService articleService; // ArticleService 주입
-    private final UserRepository userRepository; // ✨ UserRepository 주입
 
 //    /**
 //     * 모든 게시글 목록을 조회하는 API
@@ -218,18 +217,16 @@ public class ArticleController {
      */
     @PostMapping
     public ResponseEntity<Map<String, Object>> createArticle(
-            @Valid @RequestBody ArticleCreateRequest request,
+            @Valid @RequestPart("request") ArticleCreateRequest request,
+            @RequestPart(value = "images", required = false) List<MultipartFile> images,
             CurrentUser currentUser) {
 
         // 요청 수신 및 받은 데이터(DTO) 전체를 기록
         log.info("=> 게시글 생성 요청 수신 - 요청자 ID: {}, 요청 내용: {}", currentUser.getId(), request);
 
         try {
-            // CurrentUser에 담긴 id로 실제 User 엔티티를 데이터베이스에서 조회합니다.
-            User user = userRepository.findById(currentUser.getId())
-                    .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. ID: " + currentUser.getId()));
 
-            ArticleResponse createdArticle = articleService.createArticle(request, user);
+            ArticleResponse createdArticle = articleService.createArticle(request, images, currentUser.getId());
 
             return ApiResponseUtil.created("게시글이 성공적으로 등록되었습니다.", createdArticle);
 
@@ -291,13 +288,14 @@ public class ArticleController {
     @PutMapping("/{articleId}")
     public ResponseEntity<Map<String, Object>> updateArticle(
             @PathVariable Long articleId,
-            @Valid @RequestBody ArticleUpdateRequest request,
+            @Valid @RequestPart("request") ArticleUpdateRequest request,
+            @RequestPart(value = "newImages", required = false) List<MultipartFile> newImages,
             CurrentUser currentUser) {
 
         log.info("게시글 수정 요청 - 게시글 ID: {}, 요청자 ID: {}", articleId, currentUser.getId());
 
         try {
-            ArticleResponse updatedArticle = articleService.updateArticle(articleId, request, currentUser.getId());
+            ArticleResponse updatedArticle = articleService.updateArticle(articleId, request, newImages, currentUser.getId());
             return ApiResponseUtil.success("게시글이 성공적으로 수정되었습니다.", updatedArticle);
 
         } catch (IllegalArgumentException e) {

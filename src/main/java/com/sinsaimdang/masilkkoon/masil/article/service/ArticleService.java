@@ -16,6 +16,7 @@ import com.sinsaimdang.masilkkoon.masil.article.repository.ArticleLikeRepository
 import com.sinsaimdang.masilkkoon.masil.user.repository.UserRepository;
 import com.sinsaimdang.masilkkoon.masil.article.entity.ArticleScrap;
 import com.sinsaimdang.masilkkoon.masil.article.repository.ArticleScrapRepository;
+import com.sinsaimdang.masilkkoon.masil.common.s3.Uploader;
 import com.sinsaimdang.masilkkoon.masil.visit.service.VisitService;
 
 
@@ -25,7 +26,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j; // Slf4j 임포트
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List; // 이 임포트는 더 이상 직접 사용되지 않지만, ArticleResponse의 반환 타입으로 사용될 수 있으므로 일단 유지
 import java.util.Set; // Set 임포트 추가 (findAllArticles()의 내부 변환에서 사용)
 import java.util.stream.Collectors; // Stream API를 위한 Collectors 임포트
@@ -45,6 +50,7 @@ public class ArticleService {
     private final UserRepository userRepository;
     private final ArticleScrapRepository articleScrapRepository;
     private final VisitService visitService;
+    private final Uploader uploader;
 
     /**
      * 모든 게시글 목록 조회 (N+1 문제 해결을 위해 Fetch Join 적용)
@@ -271,13 +277,14 @@ public class ArticleService {
 
     /**
      * 게시글을 생성하는 메서드
-     * @param request 게시글 생성에 필요한 데이터 DTO
-     * @param currentUser 현재 로그인한 사용자 정보
-     * @return 생성된 게시글 정보를 담은 DTO
      */
     @Transactional
-    public ArticleResponse createArticle(ArticleCreateRequest request, User currentUser) {
-        log.info("-> 게시글 생성 서비스 시작 - 작성자 ID: {}", currentUser.getId());
+    public ArticleResponse createArticle(ArticleCreateRequest request, List<MultipartFile> images, Long currentUserId) throws IOException {
+        log.info("-> 게시글 생성 서비스 시작 - 작성자 ID: {}", currentUserId);
+
+        // Controller에서 User 객체를 받아오는 대신, Service에서 직접 조회합니다.
+        User currentUser = userRepository.findById(currentUserId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. ID: " + currentUserId));
 
         // 1. private 메소드를 호출하여 요청 데이터로부터 Region 엔티티를 찾아옵니다.
         Region childRegion = findRegionFromRequest(request.getPlaces());
@@ -287,11 +294,21 @@ public class ArticleService {
             throw new IllegalArgumentException("해당 지역을 방문한 기록이 없어 게시글을 작성할 수 없습니다.");
         }
 
-        // 2. DTO를 Article 엔티티로 변환할 때, 찾아낸 Region 객체를 함께 전달합니다.
-        Article article = request.toEntity(currentUser, childRegion);
+        // 2. 전달받은 이미지 파일들을 S3에 업로드하고, 결과로 받은 URL들을 리스트에 저장합니다. ***
+        List<String> photoUrls = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(images)) {
+            for (MultipartFile image : images) {
+                String url = uploader.upload(image, "article-images");
+                photoUrls.add(url);
+            }
+        }
+        log.debug("게시글 이미지 S3 업로드 완료. URL 개수: {}", photoUrls.size());
+
+        // 3. DTO를 Article 엔티티로 변환할 때, 찾아낸 Region 객체를 함께 전달합니다.
+        Article article = request.toEntity(currentUser, childRegion, photoUrls);
         log.debug("Article 엔티티 생성 완료");
 
-        // 3. Article 엔티티를 데이터베이스에 저장합니다.
+        // 4. Article 엔티티를 데이터베이스에 저장합니다.
         Article savedArticle = articleRepository.save(article);
         log.info("게시글 저장 완료 - ID: {}, 제목: {}", savedArticle.getId(), savedArticle.getTitle());
 
@@ -319,6 +336,12 @@ public class ArticleService {
             throw new SecurityException("게시글을 삭제할 권한이 없습니다.");
         }
 
+        // S3에 업로드된 모든 이미지 파일을 삭제합니다.
+        for (String photoUrl : article.getPhotos()) {
+            uploader.delete(photoUrl);
+            log.info("S3 이미지 삭제: {}", photoUrl);
+        }
+
         // 3. 권한 확인이 통과되면 게시글을 삭제합니다.
         articleRepository.delete(article);
         log.info("게시글 삭제 완료 - ID: {}", articleId);
@@ -332,7 +355,7 @@ public class ArticleService {
      * @return 수정된 게시글 정보를 담은 DTO
      */
     @Transactional
-    public ArticleResponse updateArticle(Long articleId, ArticleUpdateRequest request, Long currentUserId) {
+    public ArticleResponse updateArticle(Long articleId, ArticleUpdateRequest request, List<MultipartFile> newImages, Long currentUserId) throws IOException {
         log.info("게시글 수정 서비스 호출 - 게시글 ID: {}, 요청자 ID: {}", articleId, currentUserId);
 
         Article article = articleRepository.findById(articleId)
@@ -342,11 +365,32 @@ public class ArticleService {
             throw new SecurityException("게시글을 수정할 권한이 없습니다.");
         }
 
+        // 기존 S3 이미지를 삭제
+        List<String> oldPhotoUrls = new ArrayList<>(article.getPhotos());
+        List<String> remainingPhotoUrls = request.getRemainingPhotoUrls();
+        oldPhotoUrls.removeAll(remainingPhotoUrls); // DB에 있던 전체 URL에서 유지할 URL을 빼서, 삭제할 URL만 남김.
+        for (String photoUrlToDelete : oldPhotoUrls) {
+            uploader.delete(photoUrlToDelete); // S3에서 파일 삭제
+            log.info("기존 이미지 삭제 완료: {}", photoUrlToDelete);
+        }
+
+        // 새로 첨부된 이미지들을 S3에 업로드합니다.
+        List<String> newPhotoUrls = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(newImages)) {
+            for (MultipartFile image : newImages) {
+                String url = uploader.upload(image, "article-images");
+                newPhotoUrls.add(url);
+            }
+        }
+
+        List<String> finalPhotoUrls = new ArrayList<>(remainingPhotoUrls);
+        finalPhotoUrls.addAll(newPhotoUrls);
+
         // 1. 수정 요청에서도 동일하게 Region 엔티티를 찾아옵니다.
         Region childRegion = findRegionFromRequest(request.getPlaces());
 
         // 2. Article 엔티티의 update 메소드를 호출할 때, 찾아낸 Region 객체를 함께 전달합니다.
-        article.update(request, childRegion);
+        article.update(request, childRegion, finalPhotoUrls);
         log.debug("게시글 내용 업데이트 완료 (Dirty Checking 대상) - ID: {}", articleId);
 
         log.info("<- 게시글 수정 서비스 완료 - ID: {}", articleId);

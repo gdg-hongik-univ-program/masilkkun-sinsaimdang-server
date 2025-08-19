@@ -28,6 +28,8 @@ public class ArticleUpdateRequest {
     @NotNull
     private List<PlaceInfo> places;
 
+    private List<String> remainingPhotoUrls;
+
     @Getter
     @NoArgsConstructor
     public static class PlaceInfo extends ArticleCreateRequest.PlaceInfo {
