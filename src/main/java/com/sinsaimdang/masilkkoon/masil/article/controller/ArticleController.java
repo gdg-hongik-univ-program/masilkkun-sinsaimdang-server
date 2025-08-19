@@ -159,4 +159,48 @@ public class ArticleController {
         log.info("API RES >> DELETE /api/articles/{}/likes | 요청자 ID: {}", articleId, currentUser.getId());
         return ApiResponseUtil.success("게시글 좋아요를 취소했습니다.");
     }
+
+    @PostMapping("/{articleId}/scraps")
+    public ResponseEntity<Map<String, Object>> addScrap(
+            @PathVariable Long articleId,
+            CurrentUser currentUser) {
+
+        log.info("API REQ >> POST /api/articles/{}/scraps | 요청자 ID: {}", articleId, currentUser.getId());
+
+        if (!currentUser.isAuthenticated()) {
+            return ApiResponseUtil.unauthorized("로그인이 필요합니다.");
+        }
+
+        try {
+            articleService.addScrap(currentUser.getId(), articleId);
+            log.info("API RES >> POST /api/articles/{}/scraps | 요청자 ID: {}", articleId, currentUser.getId());
+            return ApiResponseUtil.success("게시글 스크랩 완료");
+        } catch (IllegalArgumentException e) {
+            log.warn("게시글 스크랩 실패 - 게시글 ID: {}, 요청자 ID: {}, 사유: {}",
+                    articleId, currentUser.getId(), e.getMessage());
+            return ApiResponseUtil.badRequest(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{articleId}/scraps")
+    public ResponseEntity<Map<String, Object>> removeScrap(
+            @PathVariable Long articleId,
+            CurrentUser currentUser) {
+
+        log.info("API REQ >> DELETE /api/articles/{}/scraps | 요청자 ID: {}", articleId, currentUser.getId());
+
+        if (!currentUser.isAuthenticated()) {
+            return ApiResponseUtil.unauthorized("로그인이 필요합니다.");
+        }
+
+        try {
+            articleService.removeScrap(currentUser.getId(), articleId);
+            log.info("API RES >> DELETE /api/articles/{}/scraps | 요청자 ID: {}", articleId, currentUser.getId());
+            return ApiResponseUtil.success("게시글 스크랩을 취소했습니다.");
+        } catch (IllegalArgumentException e) {
+            log.warn("게시글 스크랩 취소 실패 - 게시글 ID: {}, 요청자 ID: {}, 사유: {}",
+                    articleId, currentUser.getId(), e.getMessage());
+            return ApiResponseUtil.badRequest(e.getMessage());
+        }
+    }
 }
