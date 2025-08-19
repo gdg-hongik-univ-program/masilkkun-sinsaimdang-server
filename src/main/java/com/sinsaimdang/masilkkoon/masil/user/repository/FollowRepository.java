@@ -64,4 +64,8 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
             "WHERE (f.follower.id = :userId1 AND f.following.id = :userId2) " +
             "OR (f.follower.id = :userId2 AND f.following.id = :userId1)")
     boolean existsMutualFollow(@Param("userId1") Long userId1, @Param("userId2") Long userId2);
+
+    @Modifying
+    @Query("DELETE FROM Follow f WHERE f.follower.id =:userId OR f.following.id =:userId")
+    void deleteAllByUserId(@Param("userId") Long userId);
 }

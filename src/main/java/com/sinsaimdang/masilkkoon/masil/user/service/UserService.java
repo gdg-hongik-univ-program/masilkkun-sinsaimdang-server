@@ -1,9 +1,15 @@
 package com.sinsaimdang.masilkkoon.masil.user.service;
 
+import com.sinsaimdang.masilkkoon.masil.article.entity.Article;
+import com.sinsaimdang.masilkkoon.masil.article.repository.ArticleLikeRepository;
+import com.sinsaimdang.masilkkoon.masil.article.repository.ArticleRepository;
+import com.sinsaimdang.masilkkoon.masil.article.repository.ArticleScrapRepository;
 import com.sinsaimdang.masilkkoon.masil.auth.validator.SignupValidator;
 import com.sinsaimdang.masilkkoon.masil.user.dto.UserDto;
 import com.sinsaimdang.masilkkoon.masil.user.entity.User;
+import com.sinsaimdang.masilkkoon.masil.user.repository.FollowRepository;
 import com.sinsaimdang.masilkkoon.masil.user.repository.UserRepository;
+import com.sinsaimdang.masilkkoon.masil.visit.repository.VisitRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -19,6 +26,11 @@ import java.util.Optional;
 @Slf4j // Lombok에서 제공하는 Logger 필드 자동 생성기 *** 공부 필요 ***
 public class UserService {
 
+    private final ArticleRepository articleRepository;
+    private final ArticleLikeRepository articleLikeRepository;
+    private final ArticleScrapRepository articleScrapRepository;
+    private final FollowRepository followRepository;
+    private final VisitRepository visitRepository;
     @Value("${user.default-profile-image-url}")
     private String defaultProfileImageUrl;
 
@@ -36,21 +48,6 @@ public class UserService {
         } else {
             log.debug("사용자 조회 실패 - 존재하지 않는 ID = {}", id);
         }
-        return result;
-    }
-
-    public Optional<UserDto> findByEmail(String email) {
-        String normalizedEmail = email.toLowerCase().trim();
-        log.debug("사용자 이메일로 조회 요청 - 이메일: {}", normalizedEmail);
-
-        Optional<UserDto> result = userRepository.findByEmail(normalizedEmail).map(UserDto::from);
-
-        if (result.isPresent()) {
-            log.debug("사용자 조회 성공 - 이메일: {}, ID: {}", normalizedEmail, result.get().getId());
-        } else {
-            log.debug("사용자 조회 실패 - 존재하지 않는 이메일: {}", normalizedEmail);
-        }
-
         return result;
     }
 
@@ -143,6 +140,22 @@ public class UserService {
             log.warn("존재하지 않는 사용자입니다 - ID = {}", userId);
             throw new IllegalArgumentException("존재하지 않는 사용자입니다");
         }
+
+        articleLikeRepository.deleteAllByUserId(userId);
+        log.info("사용자가 남긴 좋아요 삭제 - ID {}", userId);
+
+        articleScrapRepository.deleteAllByUserId(userId);
+        log.info("사용자가 남긴 스크랩 삭제 - ID {}", userId);
+
+        List<Article> articlesByUser = articleRepository.findAllByUserId(userId);
+        articleRepository.deleteAll(articlesByUser);
+        log.info("사용자가 작성한 게시글 삭제 - ID {}", userId);
+
+        followRepository.deleteAllByUserId(userId);
+        log.info("사용자의 팔로우/팔로잉 삭제 - ID {}", userId);
+
+        visitRepository.deleteAllByUserId(userId);
+        log.info("사용자의 지역 인증 기록 삭제 - ID {}", userId);
 
         userRepository.deleteById(userId);
         log.info("사용자 삭제 완료 - ID = {}", userId);

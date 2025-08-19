@@ -54,25 +54,6 @@ public class UserController {
         return ApiResponseUtil.success("사용자 정보 조회 성공", userProfile);
     }
 
-    @GetMapping("/profile")
-    public ResponseEntity<Map<String, Object>> getUserProfile(CurrentUser currentUser) {
-        log.info("API REQ >> GET /api/user/profile | 요청자 ID: {}", currentUser.getId());
-
-        if (!currentUser.isAuthenticated()) {
-            return ApiResponseUtil.unauthorized("인증되지 않은 사용자입니다.");
-        }
-
-        UserDto userProfile = userService.findById(currentUser.getId())
-                .orElseThrow(() -> {
-                    log.warn("프로필 조회 실패 - 존재하지 않는 사용자 ID {}", currentUser.getId());
-                    return new IllegalArgumentException("사용자 정보를 찾을 수 없습니다");
-                });
-
-        log.info("API RES >> GET /api/user/profile | 요청자 ID: {}", currentUser.getId());
-
-        return ApiResponseUtil.success("프로필 조회 성공", userProfile);
-    }
-
     @GetMapping("/{userId}/profile")
     public ResponseEntity<Map<String, Object>> getUserProfileById(@PathVariable Long userId) {
         log.info("API REQ >> GET /api/user/{}/profile", userId);

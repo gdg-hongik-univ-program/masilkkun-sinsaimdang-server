@@ -5,6 +5,7 @@ import com.sinsaimdang.masilkkoon.masil.article.entity.ArticleScrap;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -20,4 +21,8 @@ public interface ArticleScrapRepository extends JpaRepository<ArticleScrap, Long
             "WHERE s.user.id = :userId " +
             "ORDER BY s.createdAt DESC")
     Page<Article> findScrapedArticlesByUserId(@Param("userId") Long userId, Pageable pageable);
+
+    @Modifying
+    @Query("DELETE FROM ArticleScrap ascr WHERE ascr.user.id = :userId")
+    void deleteAllByUserId(@Param("userId") Long userId);
 }
