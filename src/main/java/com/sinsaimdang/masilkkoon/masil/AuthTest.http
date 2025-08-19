@@ -103,7 +103,7 @@ GET http://localhost:8080/api/articles?tags=CAFE,TRAVEL_SPOT
 # 2. 응답으로 온 accessToken 값을 복사해서 아래 'Bearer ???' 부분에 붙여넣으세요.
 POST http://localhost:8080/api/articles
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjoxLCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTUyNjAxMTYsImV4cCI6MTc1NTI2MTkxNn0.y9SMmHz8pA2kHXoLox3Ggz3-7k5bXIglrcsOoZz6RBA
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjo0LCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU2MTAxMTcsImV4cCI6MTc1NTYxMTkxN30.IQInTG_pwKrmaUbHTFO1g-WwfwAFekwQb8P0KpA69kI
 
 
 
@@ -231,3 +231,22 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlc
 ### [스크랩 목록 조회] 내가 스크랩한 게시글 목록 보기
 GET http://localhost:8080/api/user/scraps
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjozLCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU2MDA2NDUsImV4cCI6MTc1NTYwMjQ0NX0.gjrWCUAShj0__slwLMI3h2Nv0tW00eEJND41UfyVqJ0
+
+### =======================================
+### ✨ 작성한 게시글 목록 조회 테스트 ✨
+### =======================================
+# [테스트 방법]
+# 1. dummy.sql에 있는 사용자 ID (1번 또는 2번)를 사용해서 테스트하세요.
+# 2. 이 API는 다른 사람의 프로필에서도 사용되므로, 별도의 인증(토큰)이 필요 없습니다.
+
+### [작성글 조회] 1번 유저가 작성한 게시글 목록 조회
+GET http://localhost:8080/api/user/1/articles
+
+### [작성글 조회] 2번 유저가 작성한 게시글 목록 조회
+GET http://localhost:8080/api/user/2/articles
+
+### [팔로워 조회] 1번 유저의 팔로워 목록 조회
+GET http://localhost:8080/api/user/1/followers
+
+### [팔로잉 조회] 1번 유저의 팔로잉 목록 조회
+GET http://localhost:8080/api/user/1/followings

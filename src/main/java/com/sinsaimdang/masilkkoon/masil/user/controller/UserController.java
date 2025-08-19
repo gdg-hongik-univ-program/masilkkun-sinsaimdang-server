@@ -206,4 +206,33 @@ public class UserController {
             return ApiResponseUtil.badRequest(e.getMessage());
         }
     }
+
+    /**
+     * 특정 사용자가 작성한 게시글 목록 조회 API
+     * (내 게시글, 다른 사용자 게시글 조회 모두 처리)
+     * @param userId 조회할 사용자의 ID
+     * @param pageable 페이징 정보
+     * @return 해당 사용자가 작성한 게시글 DTO 목록
+     */
+    @GetMapping("/{userId}/articles")
+    public ResponseEntity<Map<String, Object>> getArticlesByUserId(
+            @PathVariable Long userId,
+            Pageable pageable) {
+
+        log.info("API REQ >> GET /api/user/{}/articles | 요청", userId);
+
+        try {
+            Page<ArticleResponse> userArticles = articleService.findArticlesByUserId(userId, pageable);
+
+            log.info("API RES >> GET /api/user/{}/articles | 조회된 게시글 수: {}",
+                    userId, userArticles.getContent().size());
+
+            return ApiResponseUtil.success("작성한 게시글 목록 조회 성공", userArticles);
+
+        } catch (IllegalArgumentException e) {
+            log.warn("작성한 게시글 목록 조회 실패 - 사용자 ID: {}, 사유: {}", userId, e.getMessage());
+            return ApiResponseUtil.badRequest(e.getMessage());
+        }
+    }
+
 }

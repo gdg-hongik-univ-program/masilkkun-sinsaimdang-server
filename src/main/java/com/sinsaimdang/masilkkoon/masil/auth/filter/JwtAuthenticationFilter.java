@@ -9,12 +9,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.util.regex.Pattern;
 
 @RequiredArgsConstructor
 @Slf4j
 public class JwtAuthenticationFilter implements Filter {
 
     private final JwtUtil jwtUtil;
+
+    // 다른 사람 프로필, 게시글 조회를 위한 정규식 패턴 추가
+    // 예: /api/users/1/profile, /api/users/123/articles 와 같은 주소를 허용합니다.
+    private static final Pattern USER_PUBLIC_URI_PATTERN =
+            Pattern.compile("^/api/user/\\d+/(profile|articles|followers|followings)$");
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -33,9 +39,16 @@ public class JwtAuthenticationFilter implements Filter {
 
         log.debug("JWT 필터 처리 시작 - {}, {}", method, requestURI);
 
-        // 0. 게시글 조회(GET) 요청은 인증 없이 허용
+        // 게시글 조회(GET) 요청은 인증 없이 허용
         if ("GET".equalsIgnoreCase(method) && requestURI.startsWith("/api/articles")) {
             log.debug("게시글 조회(GET) 요청 - 인증 절차를 건너뜁니다: {}", requestURI);
+            chain.doFilter(request, response);
+            return;
+        }
+
+        // 다른 사람 프로필, 게시글 조회(GET) 요청은 인증 없이 허용
+        if ("GET".equalsIgnoreCase(method) && USER_PUBLIC_URI_PATTERN.matcher(requestURI).matches()) {
+            log.debug("다른 사용자 정보 조회(GET) 요청 - 인증 절차를 건너뜁니다: {}", requestURI);
             chain.doFilter(request, response);
             return;
         }

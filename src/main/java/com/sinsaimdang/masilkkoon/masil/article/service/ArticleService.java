@@ -249,6 +249,25 @@ public class ArticleService {
     }
 
     /**
+     * 특정 사용자가 작성한 게시글 목록을 조회하는 메서드
+     * @param userId 조회할 사용자 ID
+     * @param pageable 페이징 정보
+     * @return 해당 사용자가 작성한 게시글 목록 (페이지네이션 포함)
+     */
+    @Transactional(readOnly = true)
+    public Page<ArticleResponse> findArticlesByUserId(Long userId, Pageable pageable) {
+        log.info("-> 특정 사용자 작성 게시글 목록 조회 서비스 시작 - 사용자 ID: {}", userId);
+
+        // Repository 메서드를 호출
+        Page<Article> articles = articleRepository.findByUser_Id(userId, pageable);
+
+        log.info("<- 특정 사용자 작성 게시글 목록 조회 서비스 완료 - 조회된 게시글 수: {}", articles.getContent().size());
+
+        // 조회된 결과를 ArticleResponse DTO 페이지로 변환하여 반환
+        return articles.map(ArticleResponse::new);
+    }
+
+    /**
      * 게시글을 생성하는 메서드
      * @param request 게시글 생성에 필요한 데이터 DTO
      * @param currentUser 현재 로그인한 사용자 정보

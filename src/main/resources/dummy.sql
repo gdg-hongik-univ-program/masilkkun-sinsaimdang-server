@@ -7,6 +7,11 @@ INSERT INTO users (id, email, password, name, nickname, role, created_at, update
 VALUES (2, 'user2@example.com', '$2a$10$y.CVG.xSnaRwv2gG.3eK/eY9Z9C.Y4G/2N2b2d.Y4G/2N2b2d.Y4', '박사진', '사진작가 제이', 'USER', NOW(), NOW())
     ON DUPLICATE KEY UPDATE name='박사진', nickname='사진작가 제이';
 
+-- 3번 사용자 추가
+INSERT INTO users (id, email, password, name, nickname, role, created_at, updated_at)
+VALUES (3, 'user3@example.com', '$2a$10$y.CVG.xSnaRwv2gG.3eK/eY9Z9C.Y4G/2N2b2d.Y4G/2N2b2d.Y4', '이팔십육', '팔이십육', 'USER', NOW(), NOW())
+    ON DUPLICATE KEY UPDATE name='이팔십육', nickname='팔이십육';
+
 
 -- 2. 게시글(ARTICLES) 및 관련 데이터 초기화
 SET FOREIGN_KEY_CHECKS = 0;
@@ -14,6 +19,7 @@ TRUNCATE TABLE article_places;
 TRUNCATE TABLE article_photos;
 TRUNCATE TABLE article_tags;
 TRUNCATE TABLE articles;
+TRUNCATE TABLE follow;
 SET FOREIGN_KEY_CHECKS = 1;
 
 
@@ -86,3 +92,21 @@ INSERT INTO article_photos (article_id, photo_url, photo_order) VALUES
 INSERT INTO article_places (article_id, place_order, place_name, address, description)
 VALUES (4, 1, '제주 맛집', '제주특별자치도 제주시 어딘가', '제주 전통의 맛'),
        (4, 2, '제주 맛집', '제주특별자치도 제주시 어딘가', '제주 특산물의 맛');
+
+
+-- 3. 팔로우(FOLLOW) 테스트 데이터
+-- =================================================================================================
+-- 1번 유저가 2번 유저를 팔로우
+INSERT INTO follow (follower_id, following_id, created_at) VALUES (1, 2, NOW());
+-- 2번 유저가 1번 유저를 팔로우 (맞팔)
+INSERT INTO follow (follower_id, following_id, created_at) VALUES (2, 1, NOW());
+-- 3번 유저가 1번 유저를 팔로우
+INSERT INTO follow (follower_id, following_id, created_at) VALUES (3, 1, NOW());
+
+-- users 테이블의 팔로우/팔로잉 카운트 업데이트
+-- 1번 유저: 팔로잉 1명, 팔로워 2명
+UPDATE users SET following_count = 1, follower_count = 2 WHERE id = 1;
+-- 2번 유저: 팔로잉 1명, 팔로워 1명
+UPDATE users SET following_count = 1, follower_count = 1 WHERE id = 2;
+-- 3번 유저: 팔로잉 1명, 팔로워 0명
+UPDATE users SET following_count = 1, follower_count = 0 WHERE id = 3;
