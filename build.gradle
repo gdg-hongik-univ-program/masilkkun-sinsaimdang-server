@@ -64,7 +64,7 @@ tasks.named('test') {
 }
 
 // Querydsl 설정 추가
-def querydslDir = "$buildDir/generated/querydsl"
+def querydslDir = layout.buildDirectory.dir("generated/querydsl")
 
 sourceSets {
 	main.java.srcDirs += [ querydslDir ]
