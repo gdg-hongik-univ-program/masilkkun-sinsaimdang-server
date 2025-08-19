@@ -27,4 +27,6 @@ public interface ArticleRepository extends JpaRepository<Article, Long>, Article
             "LEFT JOIN FETCH a.articlePlaces " +
             "WHERE a.id = :id")
     Optional<Article> findByIdWithCollections(Long id);
+
+    List<Article> findAllByUserId(Long userId);
 }

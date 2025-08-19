@@ -1,5 +1,7 @@
 package com.sinsaimdang.masilkkoon.masil.user.controller;
 
+import com.sinsaimdang.masilkkoon.masil.article.dto.ArticleResponse;
+import com.sinsaimdang.masilkkoon.masil.article.service.ArticleService;
 import com.sinsaimdang.masilkkoon.masil.auth.dto.CurrentUser;
 import com.sinsaimdang.masilkkoon.masil.common.util.ApiResponseUtil;
 import com.sinsaimdang.masilkkoon.masil.user.dto.request.UpdateNicknameRequest;
@@ -10,6 +12,8 @@ import com.sinsaimdang.masilkkoon.masil.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,6 +34,7 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
+    private final ArticleService articleService;
 
     @GetMapping("/me")
     public ResponseEntity<Map<String, Object>> getCurrentUser(CurrentUser currentUser) {
@@ -39,27 +44,14 @@ public class UserController {
             return ApiResponseUtil.unauthorized("인증되지 않은 사용자 입니다");
         }
 
-        log.info("API RES >> GET /api/user/me | 요청자 ID: {}", currentUser.getId());
-        return ApiResponseUtil.success("사용자 정보 조회 성공", currentUser.toMap());
-    }
-
-    @GetMapping("/profile")
-    public ResponseEntity<Map<String, Object>> getUserProfile(CurrentUser currentUser) {
-        log.info("API REQ >> GET /api/user/profile | 요청자 ID: {}", currentUser.getId());
-
-        if (!currentUser.isAuthenticated()) {
-            return ApiResponseUtil.unauthorized("인증되지 않은 사용자입니다.");
-        }
-
         UserDto userProfile = userService.findById(currentUser.getId())
-                .orElseThrow(() -> {
-                    log.warn("프로필 조회 실패 - 존재하지 않는 사용자 ID {}", currentUser.getId());
-                    return new IllegalArgumentException("사용자 정보를 찾을 수 없습니다");
-                });
+                        .orElseThrow(() -> {
+                            log.warn("사용자 정보 실패 - 존재하지 않는 사용자 ID : {}", currentUser.getId());
+                            return new IllegalArgumentException("사용자 정보를 찾을 수 없습니다");
+                        });
 
-        log.info("API RES >> GET /api/user/profile | 요청자 ID: {}", currentUser.getId());
-
-        return ApiResponseUtil.success("프로필 조회 성공", userProfile);
+        log.info("API RES >> GET /api/user/me | 요청자 ID: {}", currentUser.getId());
+        return ApiResponseUtil.success("사용자 정보 조회 성공", userProfile);
     }
 
     @GetMapping("/{userId}/profile")
@@ -170,5 +162,29 @@ public class UserController {
 
         log.info("JWT 인증 테스트 성공 - 사용자 ID: {}", currentUser.getId());
         return ApiResponseUtil.success("JWT 인증 성공!", testData);
+    }
+
+    @GetMapping("/scraps")
+    public ResponseEntity<Map<String, Object>> getMyScrapedArticles(
+            CurrentUser currentUser,
+            Pageable pageable) {
+
+        log.info("API REQ >> GET /api/user/scraps | 요청자 ID: {}", currentUser.getId());
+
+        if (!currentUser.isAuthenticated()) {
+            return ApiResponseUtil.unauthorized("로그인이 필요합니다.");
+        }
+
+        try {
+            Page<ArticleResponse> scrapedArticles = articleService.getScrapedArticles(currentUser.getId(), pageable);
+
+            log.info("API RES >> GET /api/user/scraps | 요청자 ID: {}, 조회된 게시글 수: {}",
+                    currentUser.getId(), scrapedArticles.getContent().size());
+
+            return ApiResponseUtil.success("스크랩 목록 조회 성공", scrapedArticles);
+        } catch (IllegalArgumentException e) {
+            log.warn("스크랩 목록 조회 실패 - 요청자 ID: {}, 사유: {}", currentUser.getId(), e.getMessage());
+            return ApiResponseUtil.badRequest(e.getMessage());
+        }
     }
 }

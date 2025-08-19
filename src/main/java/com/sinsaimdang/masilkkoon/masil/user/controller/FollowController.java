@@ -11,8 +11,8 @@ import com.sinsaimdang.masilkkoon.masil.user.entity.User;
 import com.sinsaimdang.masilkkoon.masil.user.service.FollowService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -21,10 +21,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/user")
 @RequiredArgsConstructor
 @Slf4j
-public class FollowController {
+public class
+FollowController {
 
     private final FollowService followService;
 
@@ -109,11 +110,11 @@ public class FollowController {
     @GetMapping("/{userId}/followers")
     public ResponseEntity<Map<String, Object>> getFollowers(
             @PathVariable Long userId,
-            @PageableDefault(size = 40, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         log.info("API REQ : GET api/users/{}/followers", userId);
 
-        Page<User> followers = followService.getFollowers(userId, pageable);
-        Page<UserDto> followerDtos = followers.map(UserDto::from);
+        Slice<User> followers = followService.getFollowers(userId, pageable);
+        Slice<UserDto> followerDtos = followers.map(UserDto::from);
 
         log.info("API RES : GET api/users/{}/followers", userId);
         return ApiResponseUtil.success("팔로워 목록 조회 성공", followerDtos);
@@ -122,10 +123,10 @@ public class FollowController {
     @GetMapping("/{userId}/followings")
     public ResponseEntity<Map<String, Object>> getFollowings(
             @PathVariable Long userId,
-            @PageableDefault(size = 40, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         log.info("API REQ : GET api/users/{}/followings", userId);
-        Page<User> followings = followService.getFollowing(userId, pageable);
-        Page<UserDto> followingDtos = followings.map(UserDto::from);
+        Slice<User> followings = followService.getFollowing(userId, pageable);
+        Slice<UserDto> followingDtos = followings.map(UserDto::from);
 
         log.info("API RES : GET api/users/{}/followings", userId);
         return ApiResponseUtil.success("팔로잉 목록 조회 성공", followingDtos);

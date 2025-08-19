@@ -1,8 +1,15 @@
 package com.sinsaimdang.masilkkoon.masil.user.service;
 
+import com.sinsaimdang.masilkkoon.masil.article.entity.Article;
+import com.sinsaimdang.masilkkoon.masil.article.repository.ArticleLikeRepository;
+import com.sinsaimdang.masilkkoon.masil.article.repository.ArticleRepository;
+import com.sinsaimdang.masilkkoon.masil.article.repository.ArticleScrapRepository;
+import com.sinsaimdang.masilkkoon.masil.auth.validator.SignupValidator;
 import com.sinsaimdang.masilkkoon.masil.user.dto.UserDto;
 import com.sinsaimdang.masilkkoon.masil.user.entity.User;
+import com.sinsaimdang.masilkkoon.masil.user.repository.FollowRepository;
 import com.sinsaimdang.masilkkoon.masil.user.repository.UserRepository;
+import com.sinsaimdang.masilkkoon.masil.visit.repository.VisitRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -18,11 +26,17 @@ import java.util.Optional;
 @Slf4j // Lombok에서 제공하는 Logger 필드 자동 생성기 *** 공부 필요 ***
 public class UserService {
 
+    private final ArticleRepository articleRepository;
+    private final ArticleLikeRepository articleLikeRepository;
+    private final ArticleScrapRepository articleScrapRepository;
+    private final FollowRepository followRepository;
+    private final VisitRepository visitRepository;
     @Value("${user.default-profile-image-url}")
     private String defaultProfileImageUrl;
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final SignupValidator signupValidator;
 
     public Optional<UserDto> findById(Long id){
         log.debug("ID으로 사용자 조회: {}", id);
@@ -37,24 +51,11 @@ public class UserService {
         return result;
     }
 
-    public Optional<UserDto> findByEmail(String email) {
-        String normalizedEmail = email.toLowerCase().trim();
-        log.debug("사용자 이메일로 조회 요청 - 이메일: {}", normalizedEmail);
-
-        Optional<UserDto> result = userRepository.findByEmail(normalizedEmail).map(UserDto::from);
-
-        if (result.isPresent()) {
-            log.debug("사용자 조회 성공 - 이메일: {}, ID: {}", normalizedEmail, result.get().getId());
-        } else {
-            log.debug("사용자 조회 실패 - 존재하지 않는 이메일: {}", normalizedEmail);
-        }
-
-        return result;
-    }
-
     @Transactional
     public UserDto updateNickname(Long id, String newNickname) {
         log.info("사용자 닉네임 수정 요청 - ID = {}, 새 닉네임 = {}", id, newNickname);
+
+        signupValidator.validateNickname(newNickname);
 
         User user = getUserEntity(id);
         String normalizedNickname = newNickname != null ? newNickname.trim() : null;
@@ -82,7 +83,7 @@ public class UserService {
 
         User user = getUserEntity(userId);
 
-        validatePasswordSecurity(newPassword);
+        signupValidator.validatePassword(newPassword);
 
         String encodedPassword = passwordEncoder.encode(newPassword);
 
@@ -91,38 +92,6 @@ public class UserService {
 
         log.info("사용자 비밀번호 변경 완료 - ID: {}", userId);
         return UserDto.from(savedUser);
-    }
-
-    private void validatePasswordSecurity(String password) {
-        if (password == null || password.trim().isEmpty()) {
-            throw new SecurityException("비밀번호는 필수 항목입니다.");
-        }
-
-        if (password.length() < 8 || password.length() > 20) {
-            throw new SecurityException("비밀번호는 8~20 자리이어야 합니다.");
-        }
-
-        if (!password.matches(".*[a-z].*")) {
-            throw new SecurityException("비밀번호에 영문 소문자를 포함해야 합니다.");
-        }
-
-        if (!password.matches(".*[A-Z].*")) {
-            throw new SecurityException("비밀번호에 영문 대문자를 포함해야 합니다.");
-        }
-
-        if (!password.matches(".*[0-9].*")) {
-            throw new SecurityException("비밀번호에 숫자를 포함해야 합니다.");
-        }
-
-        if (!password.matches(".*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?].*")) {
-            throw new SecurityException("비밀번호에 특수문자를 포함해야 합니다.");
-        }
-
-        if (!password.matches("^[a-zA-Z0-9!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]*$")) {
-            throw new SecurityException("비밀번호는 영문, 숫자, 특수문자만 사용할 수 있습니다.");
-        }
-
-        log.debug("비밀번호 보안 정책 검증 통과");
     }
 
     @Transactional
@@ -171,6 +140,22 @@ public class UserService {
             log.warn("존재하지 않는 사용자입니다 - ID = {}", userId);
             throw new IllegalArgumentException("존재하지 않는 사용자입니다");
         }
+
+        articleLikeRepository.deleteAllByUserId(userId);
+        log.info("사용자가 남긴 좋아요 삭제 - ID {}", userId);
+
+        articleScrapRepository.deleteAllByUserId(userId);
+        log.info("사용자가 남긴 스크랩 삭제 - ID {}", userId);
+
+        List<Article> articlesByUser = articleRepository.findAllByUserId(userId);
+        articleRepository.deleteAll(articlesByUser);
+        log.info("사용자가 작성한 게시글 삭제 - ID {}", userId);
+
+        followRepository.deleteAllByUserId(userId);
+        log.info("사용자의 팔로우/팔로잉 삭제 - ID {}", userId);
+
+        visitRepository.deleteAllByUserId(userId);
+        log.info("사용자의 지역 인증 기록 삭제 - ID {}", userId);
 
         userRepository.deleteById(userId);
         log.info("사용자 삭제 완료 - ID = {}", userId);

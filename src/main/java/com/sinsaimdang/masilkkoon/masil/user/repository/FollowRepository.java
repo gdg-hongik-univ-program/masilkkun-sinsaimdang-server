@@ -2,8 +2,8 @@ package com.sinsaimdang.masilkkoon.masil.user.repository;
 
 import com.sinsaimdang.masilkkoon.masil.user.entity.Follow;
 import com.sinsaimdang.masilkkoon.masil.user.entity.User;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -23,30 +23,30 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
     @Query("SELECT f.follower FROM Follow f " +
             "WHERE f.following.id = :followingId " +
             "ORDER BY f.createdAt DESC")
-    Page<Follow> findFollowersByFollowingId(@Param("followingId") Long followingId, Pageable pageable);
+    Slice<Follow> findFollowersByFollowingId(@Param("followingId") Long followingId, Pageable pageable);
 
     /**
      * 팔로워 User 목록 조회 (간단한 메서드명)
      */
     @Query("SELECT f.follower FROM Follow f WHERE f.following.id = ?1")
-    Page<User> getFollowers(Long followingId, Pageable pageable);
+    Slice<User> getFollowers(Long followingId, Pageable pageable);
 
     /**
      * 팔로잉 User 목록 조회 (간단한 메서드명)
      */
     @Query("SELECT f.following FROM Follow f WHERE f.follower.id = ?1")
-    Page<User> getFollowing(Long followerId, Pageable pageable);
+    Slice<User> getFollowing(Long followerId, Pageable pageable);
 
     @Query("SELECT f FROM Follow f " +
             "JOIN FETCH f.following " +
             "WHERE f.follower.id = :followerId " +
             "ORDER BY f.createdAt DESC")
-    Page<Follow> findFollowingsByFollowerId(@Param("followerId") Long followerId, Pageable pageable);
+    Slice<Follow> findFollowingsByFollowerId(@Param("followerId") Long followerId, Pageable pageable);
 
     @Query("SELECT f.following FROM Follow f " +
             "WHERE f.follower.id = :followerId " +
             "ORDER BY f.createdAt DESC")
-    Page<User> findFollowingUsersByFollowerId(@Param("followerId") Long followerId, Pageable pageable);
+    Slice<User> findFollowingUsersByFollowerId(@Param("followerId") Long followerId, Pageable pageable);
 
     long countByFollowingId(Long followingId);
 
@@ -64,4 +64,8 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
             "WHERE (f.follower.id = :userId1 AND f.following.id = :userId2) " +
             "OR (f.follower.id = :userId2 AND f.following.id = :userId1)")
     boolean existsMutualFollow(@Param("userId1") Long userId1, @Param("userId2") Long userId2);
+
+    @Modifying
+    @Query("DELETE FROM Follow f WHERE f.follower.id =:userId OR f.following.id =:userId")
+    void deleteAllByUserId(@Param("userId") Long userId);
 }
