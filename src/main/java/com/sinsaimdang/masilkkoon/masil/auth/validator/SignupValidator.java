@@ -62,6 +62,10 @@ public class SignupValidator {
             throw new SecurityException("닉네임은 필수 항목입니다.");
         }
 
+        if (nickname.length() > 10) {
+            throw new SecurityException("닉네임은 10자리를 초과할 수 없습니다.");
+        }
+
         // 패턴 검증
         if (!NICKNAME_PATTERN.matcher(nickname).matches()) {
             log.warn("잘못된 닉네임 형식: {}", nickname);
@@ -80,6 +84,10 @@ public class SignupValidator {
     public void validatePassword(String password) {
         if (password == null || password.trim().isEmpty()) {
             throw new SecurityException("비밀번호는 필수 항목입니다.");
+        }
+
+        if (password.length() < 8 || password.length() > 20) {
+            throw new SecurityException("비밀번호는 8-20자리 사이여야 합니다.");
         }
 
         // 1. 영문 소문자 포함 검증
