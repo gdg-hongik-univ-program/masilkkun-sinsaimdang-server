@@ -20,7 +20,6 @@ public class ArticleResponse {
     private final AuthorDto author; // 작성자 정보를 담는 내부 DTO
     private final String region;
     private final List<ArticleTag> tags;
-    private final List<String> photos;
     private final int scrapCount;
     private final int likeCount;
     private final int viewCount;
@@ -36,7 +35,6 @@ public class ArticleResponse {
         this.author = new AuthorDto(article.getUser()); // User 엔티티로 AuthorDto 생성
         this.region = article.getRegion().getName();
         this.tags = article.getArticleTags().stream().distinct().collect(Collectors.toList());
-        this.photos = article.getPhotos().stream().distinct().collect(Collectors.toList());
         this.scrapCount = article.getScrapCount();
         this.likeCount = article.getLikeCount();
         this.viewCount = article.getViewCount();

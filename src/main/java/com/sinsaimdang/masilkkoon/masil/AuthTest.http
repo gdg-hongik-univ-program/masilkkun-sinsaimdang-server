@@ -103,7 +103,7 @@ GET http://localhost:8080/api/articles?tags=CAFE,TRAVEL_SPOT
 # 2. 응답으로 온 accessToken 값을 복사해서 아래 'Bearer ???' 부분에 붙여넣으세요.
 POST http://localhost:8080/api/articles
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjo0LCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU2MTAxMTcsImV4cCI6MTc1NTYxMTkxN30.IQInTG_pwKrmaUbHTFO1g-WwfwAFekwQb8P0KpA69kI
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjo0LCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU2MzcwNTAsImV4cCI6MTc1NTYzODg1MH0.7EONAiIAQZ4VQQ4x9t_sbWLtoZGGV6U896U88MhJZwc
 
 
 
@@ -328,16 +328,13 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlc
   ]
 }
 
-
 ### =================================================================
-### ✨ [최종] 게시글 사진 업로드/수정 테스트 ✨
+### ✨ [최종] 프로필 및 게시글 사진 업로드/수정 테스트 ✨
 ### =================================================================
-# [테스트 방법]
-# 1. 아래 '회원가입'과 '로그인'을 먼저 실행해서 테스트용 토큰을 발급받습니다.
-# 2. 로그인 응답으로 온 accessToken 값을 복사해서, 아래 '게시글 생성'과 '게시글 수정' 요청의
-#    'Authorization: Bearer ???' 부분에 붙여넣으세요.
-# 3. 'images'나 'newImages' 파라미터에는 실제 컴퓨터에 있는 이미지 파일의 경로를 적어주세요.
-#    (예: "C:/Users/username/Pictures/test_image.jpg")
+# [테스트 순서]
+# 1. STEP 1, 2를 실행하여 테스트용 계정을 만들고 토큰을 발급받습니다.
+# 2. 발급받은 토큰을 복사하여 STEP 3, 4, 5의 'Authorization: Bearer ???' 부분에 붙여넣습니다.
+# 3. 각 테스트에 명시된 이미지 파일 경로를 실제 컴퓨터 경로로 수정하여 순서대로 실행합니다.
 
 ### [STEP 1] 테스트용 사용자 회원가입
 POST http://localhost:8080/api/auth/signup
@@ -359,23 +356,51 @@ Content-Type: application/json
   "password": "passWORD123!"
 }
 
-### [STEP 2.5] 지역인증
+### =======================================
+### ✨ 프로필 이미지 테스트 ✨
+### =======================================
+
+### [STEP 3] 프로필 이미지 업로드 (수정)
+# 'profileImage' 파트의 파일 경로를 실제 컴퓨터에 있는 이미지 경로로 수정하세요.
+POST http://localhost:8080/api/user/profile-image
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giLCJ1c2VyRW1haWwiOiJwaG90by10ZXN0ZXJAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6IuyCrOynhO2FjOyKpO2EsCIsInVzZXJSb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoicGhvdG8tdGVzdGVyQGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU2MzU1MjUsImV4cCI6MTc1NTYzNzMyNX0.z_Bwk0gcYhW5xtifl0qiOkQPQ9IR3vSUClMX1RT6ExI
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="profileImage"; filename="profile.jpg"
+Content-Type: image/jpeg
+
+< C:\이미지테스트\슬기1.webp
+--boundary--
+
+### [STEP 4] 프로필 이미지 삭제 (기본 이미지로 복원)
+DELETE http://localhost:8080/api/user/profile-image
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giLCJ1c2VyRW1haWwiOiJwaG90by10ZXN0ZXJAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6IuyCrOynhO2FjOyKpO2EsCIsInVzZXJSb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoicGhvdG8tdGVzdGVyQGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU2MzU1MjUsImV4cCI6MTc1NTYzNzMyNX0.z_Bwk0gcYhW5xtifl0qiOkQPQ9IR3vSUClMX1RT6ExI
+
+### =======================================
+### ✨ 게시글 (장소별 이미지) 테스트 ✨
+### =======================================
+
+### [STEP 5] 지역 방문 인증 (게시글 작성을 위해 필수)
+# 게시글을 작성할 '경기도 수원시'에 대한 방문 인증을 먼저 수행합니다.
 POST http://localhost:8080/api/location/verify
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giLCJ1c2VyRW1haWwiOiJwaG90by10ZXN0ZXJAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6IuyCrOynhO2FjOyKpO2EsCIsInVzZXJSb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoicGhvdG8tdGVzdGVyQGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU2Mjc2NTUsImV4cCI6MTc1NTYyOTQ1NX0.a-AzD-ayCcOBL-PASt6KeBqMhc3THHFTImf5XEg2mHY
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giLCJ1c2VyRW1haWwiOiJwaG90by10ZXN0ZXJAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6IuyCrOynhO2FjOyKpO2EsCIsInVzZXJSb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoicGhvdG8tdGVzdGVyQGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU2MzU1MjUsImV4cCI6MTc1NTYzNzMyNX0.z_Bwk0gcYhW5xtifl0qiOkQPQ9IR3vSUClMX1RT6ExI
 
 {
-"road_address": {
-"address_name": "경기도 수원시 영통구 동수원로 538",
-"region_1depth_name": "경기도",
-"region_2depth_name": "수원시"
-}
+  "road_address": {
+    "address_name": "경기도 수원시 영통구 동수원로 538",
+    "region_1depth_name": "경기도",
+    "region_2depth_name": "수원시"
+  }
 }
 
-### [STEP 3] 이미지와 함께 게시글 생성 테스트
-# Content-Type이 multipart/form-data로 변경된 것을 확인하세요.
+###
+
+### [STEP 6] 장소 2개와 각 장소의 이미지 2개로 게시글 생성
+# 'images' 파트의 파일 경로 2개를 모두 실제 컴퓨터 경로로 수정하세요.
 POST http://localhost:8080/api/articles
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giLCJ1c2VyRW1haWwiOiJwaG90by10ZXN0ZXJAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6IuyCrOynhO2FjOyKpO2EsCIsInVzZXJSb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoicGhvdG8tdGVzdGVyQGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU2MjY4OTQsImV4cCI6MTc1NTYyODY5NH0.XNoDCzvhE6DyDmjnLIS47_IGiwDGPPsIqdqUTHYw5W8
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giLCJ1c2VyRW1haWwiOiJwaG90by10ZXN0ZXJAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6IuyCrOynhO2FjOyKpO2EsCIsInVzZXJSb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoicGhvdG8tdGVzdGVyQGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU2MzU1MjUsImV4cCI6MTc1NTYzNzMyNX0.z_Bwk0gcYhW5xtifl0qiOkQPQ9IR3vSUClMX1RT6ExI
 Content-Type: multipart/form-data; boundary=boundary
 
 --boundary
@@ -383,48 +408,47 @@ Content-Disposition: form-data; name="request"
 Content-Type: application/json
 
 {
-  "title": "사진과 함께 올리는 첫 게시글",
-  "content": "이 글에는 멋진 사진이 포함되어 있습니다.",
-  "tags": [
-    "TRAVEL_SPOT",
-    "CAFE"
-  ],
+  "title": "장소별 사진 게시글 (생성)",
+  "content": "장소 2개와 각 장소의 사진입니다.",
+  "tags": ["RESTAURANT", "CAFE"],
   "places": [
     {
       "placeOrder": 1,
-      "placeName": "테스트 장소 1",
-      "description": "사진 테스트를 위한 첫 번째 장소입니다.",
-      "roadAddress": {
-        "address_name": "경기도 수원시 영통구 동수원로 538",
-        "region_1depth_name": "경기도",
-        "region_2depth_name": "수원시"
-      }
+      "placeName": "첫 번째 장소",
+      "description": "첫 번째 장소 설명",
+      "roadAddress": { "address_name": "경기도 수원시", "region_1depth_name": "경기도", "region_2depth_name": "수원시" }
+    },
+    {
+      "placeOrder": 2,
+      "placeName": "두 번째 장소",
+      "description": "두 번째 장소 설명",
+      "roadAddress": { "address_name": "경기도 수원시", "region_1depth_name": "경기도", "region_2depth_name": "수원시" }
     }
   ]
 }
 
 --boundary
-Content-Disposition: form-data; name="images"; filename="image1.jpg"
+# 첫 번째 장소(placeOrder: 1)에 매칭될 이미지
+Content-Disposition: form-data; name="images"; filename="place1_image.jpg"
 Content-Type: image/jpeg
 
 < C:\이미지테스트\슬기1.webp
 
 --boundary
-Content-Disposition: form-data; name="images"; filename="image2.png"
+# 두 번째 장소(placeOrder: 2)에 매칭될 이미지
+Content-Disposition: form-data; name="images"; filename="place2_image.png"
 Content-Type: image/png
 
 < C:\이미지테스트\슬기2.jpeg
-
 --boundary--
 
 
-### [STEP 4] 이미지 수정 및 삭제 테스트
-# [시나리오]
-# - 기존 이미지 중 image1.jpg는 유지하고, image2.png는 삭제합니다.
-# - 새로운 이미지 new_image.gif를 추가합니다.
-# 수정할 게시글 ID를 URL에 맞게 변경해주세요 (예: /api/articles/10)
-PUT http://localhost:8080/api/articles/1
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giLCJ1c2VyRW1haWwiOiJwaG90by10ZXN0ZXJAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6IuyCrOynhO2FjOyKpO2EsCIsInVzZXJSb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoicGhvdG8tdGVzdGVyQGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU2MjY4OTQsImV4cCI6MTc1NTYyODY5NH0.XNoDCzvhE6DyDmjnLIS47_IGiwDGPPsIqdqUTHYw5W8
+###
+
+### [STEP 7] 게시글 수정 (장소 1개 삭제, 1개 유지, 1개 추가)
+# **수정할 게시글 ID**를 URL에 맞게 변경해주세요 (예: /api/articles/1)
+PUT http://localhost:8080/api/articles/3
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giLCJ1c2VyRW1haWwiOiJwaG90by10ZXN0ZXJAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6IuyCrOynhO2FjOyKpO2EsCIsInVzZXJSb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoicGhvdG8tdGVzdGVyQGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU2MzU1MjUsImV4cCI6MTc1NTYzNzMyNX0.z_Bwk0gcYhW5xtifl0qiOkQPQ9IR3vSUClMX1RT6ExI
 Content-Type: multipart/form-data; boundary=boundary
 
 --boundary
@@ -432,30 +456,37 @@ Content-Disposition: form-data; name="request"
 Content-Type: application/json
 
 {
-  "title": "사진이 수정된 게시글",
-  "content": "기존 사진 하나는 지우고, 새 사진을 추가했습니다.",
-  "tags": ["RESTAURANT"],
+  "title": "장소별 사진 게시글 (수정)",
+  "content": "장소 구성이 변경되었습니다.",
+  "tags": ["TRAVEL_SPOT"],
   "places": [
     {
-      "placeOrder": 1,
-      "placeName": "수정된 테스트 장소",
-      "description": "수정 테스트!",
-      "roadAddress": {
-        "address_name": "경기도 부천시 길주로 210",
-        "region_1depth_name": "경기도",
-        "region_2depth_name": "부천시"
-      }
+      "placeOrder": 2,
+      "placeName": "유지되는 두 번째 장소 (사진만 교체)",
+      "description": "설명도 수정!",
+      "roadAddress": { "address_name": "경기도 수원시", "region_1depth_name": "경기도", "region_2depth_name": "수원시" }
+    },
+    {
+      "placeOrder": 3,
+      "placeName": "새로 추가된 세 번째 장소",
+      "description": "새로운 장소입니다.",
+      "roadAddress": { "address_name": "경기도 수원시", "region_1depth_name": "경기도", "region_2depth_name": "수원시" }
     }
   ],
-  "remainingPhotoUrls": [
-      "C:\\Users\\user\\masil-uploads\\article-images\\0d25285d-7f17-4707-b55a-70cfaf8cb6fd_image1.jpg"
-  ]
+  "remainingPhotoUrls": []
 }
 
 --boundary
-Content-Disposition: form-data; name="newImages"; filename="new_image.gif"
-Content-Type: image/gif
+# 수정되는 두 번째 장소(placeOrder: 2)의 새 이미지
+Content-Disposition: form-data; name="newImages"; filename="place2_new_image.webp"
+Content-Type: image/webp
 
 < C:\이미지테스트\슬기3.jpg
 
+--boundary
+# 새로 추가된 세 번째 장소(placeOrder: 3)의 이미지
+Content-Disposition: form-data; name="newImages"; filename="place3_image.gif"
+Content-Type: image/gif
+
+< C:\이미지테스트\슬기4.jpg
 --boundary--

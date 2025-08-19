@@ -14,12 +14,15 @@ public class ArticlePlaceResponse {
     private String address; // 장소 주소
     private String description; // 장소 설명
 
+    private String photoUrl;
+
     // ArticlePlace 엔티티를 ArticlePlaceResponse DTO로 변환하는 생성자
     public ArticlePlaceResponse(ArticlePlace articlePlace) {
         this.placeOrder = articlePlace.getPlaceOrder();
         this.placeName = articlePlace.getPlaceName();
         this.address = articlePlace.getAddress();
         this.description = articlePlace.getDescription();
+        this.photoUrl = articlePlace.getPhotoUrl();
     }
 
     // 기본 생성자 (필요시)

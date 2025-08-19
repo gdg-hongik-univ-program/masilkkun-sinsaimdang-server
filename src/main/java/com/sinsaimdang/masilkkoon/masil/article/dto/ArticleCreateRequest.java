@@ -9,6 +9,7 @@ import com.sinsaimdang.masilkkoon.masil.visit.dto.VisitRequest;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
@@ -33,21 +34,7 @@ public class ArticleCreateRequest {
     @NotNull
     private List<PlaceInfo> places;
 
-    public Article toEntity(User user, Region region, List<String> photoUrls) {
-        // places 리스트를 ArticlePlace 엔티티 Set으로 변환하는 로직 추가
-        Set<ArticlePlace> articlePlaces = this.places.stream()
-                .map(placeInfo -> new ArticlePlace(
-                        placeInfo.getPlaceOrder(),
-                        placeInfo.getPlaceName(),
-                        placeInfo.getRoadAddress().getAddressName(),
-                        placeInfo.getDescription()))
-                .collect(Collectors.toSet());
-
-//        // photos 리스트에서 URL만 추출하는 로직 추가
-//        List<String> photoUrls = this.places.stream()
-//                .map(PlaceInfo::getPhotoUrl)
-//                .collect(Collectors.toList());
-
+    public Article toEntity(User user, Region region, Set<ArticlePlace> articlePlaces) {
         // Article 엔티티 생성자에 맞게 수정
         return new Article(
                 this.title,
@@ -55,12 +42,12 @@ public class ArticleCreateRequest {
                 user,
                 region,
                 this.tags,
-                photoUrls,
                 articlePlaces
         );
     }
 
     @Getter
+    @Setter
     @NoArgsConstructor
     public static class PlaceInfo {
         @NotNull // 장소 순서 필수
@@ -71,7 +58,5 @@ public class ArticleCreateRequest {
         private VisitRequest.RoadAddress roadAddress;
         @NotBlank
         private String description;
-//        @NotBlank
-//        private String photoUrl;
     }
 }

@@ -47,13 +47,6 @@ public class Article {
     @Column(name = "tag") // 태그 값을 저장할 컬럼명
     private Set<ArticleTag> articleTags = new HashSet<>();
 
-    // 사진 URL: URL 문자열 Set으로 저장
-    @ElementCollection(fetch = FetchType.LAZY) // 지연 로딩
-    @CollectionTable(name = "article_photos", joinColumns = @JoinColumn(name = "article_id"))
-    @Column(name = "photo_url", length = 1000) // 사진 URL을 저장할 컬럼명 (URL이 길 수 있음)
-    @OrderColumn(name = "photo_order")
-    private List<String> photos = new ArrayList<>();
-
     @Column(nullable = false)
     private int scrapCount = 0; // 스크랩 수
 
@@ -116,14 +109,12 @@ public class Article {
     }
 
     public Article(String title, String content, User user, Region region,
-                   Set<ArticleTag> articleTags, List<String> photos,
-                   Set<ArticlePlace> articlePlaces) {
+                   Set<ArticleTag> articleTags, Set<ArticlePlace> articlePlaces) {
         this.title = title;
         this.content = content;
         this.user = user;
         this.region = region;
         this.articleTags = articleTags != null ? new HashSet<>(articleTags) : new HashSet<>();
-        this.photos = photos != null ? new ArrayList<>(photos) : new ArrayList<>();
         this.articlePlaces = articlePlaces != null ? new HashSet<>(articlePlaces) : new HashSet<>();
         this.scrapCount = 0;
         this.likeCount = 0;
@@ -134,7 +125,7 @@ public class Article {
      * 게시글 수정 DTO를 기반으로 엔티티의 내용을 업데이트하는 메서드
      * @param request 수정 요청 DTO
      */
-    public void update(ArticleUpdateRequest request, Region region, List<String> finalPhotoUrls) {
+    public void update(ArticleUpdateRequest request, Region region, Set<ArticlePlace> updatedArticlePlaces) {
         this.title = request.getTitle();
         this.content = request.getContent();
         this.region = region;
@@ -143,12 +134,6 @@ public class Article {
         this.articleTags.addAll(request.getTags());
 
         this.articlePlaces.clear();
-        Set<ArticlePlace> newPlaces = request.getPlaces().stream()
-                .map(p -> new ArticlePlace(p.getPlaceOrder(), p.getPlaceName(), p.getRoadAddress().getAddressName(), p.getDescription()))
-                .collect(Collectors.toSet());
-        this.articlePlaces.addAll(newPlaces);
-
-        this.photos.clear();
-        this.photos.addAll(finalPhotoUrls);
+        this.articlePlaces.addAll(updatedArticlePlaces);
     }
 }

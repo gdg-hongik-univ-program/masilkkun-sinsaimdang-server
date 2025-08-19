@@ -17,7 +17,6 @@ public interface ArticleRepository extends JpaRepository<Article, Long>, Article
     @Query("SELECT DISTINCT a FROM Article a " +
             "LEFT JOIN FETCH a.user u " +
             "LEFT JOIN FETCH a.articleTags " +
-            "LEFT JOIN FETCH a.photos " +
             "LEFT JOIN FETCH a.articlePlaces")
     List<Article> findAllWithCollections();
 
@@ -25,7 +24,6 @@ public interface ArticleRepository extends JpaRepository<Article, Long>, Article
     @Query("SELECT DISTINCT a FROM Article a " +
             "LEFT JOIN FETCH a.user u " +
             "LEFT JOIN FETCH a.articleTags " +
-            "LEFT JOIN FETCH a.photos " +
             "LEFT JOIN FETCH a.articlePlaces " +
             "WHERE a.id = :id")
     Optional<Article> findByIdWithCollections(Long id);

@@ -21,15 +21,19 @@ public class ArticlePlace {
     @Column(columnDefinition = "TEXT") // 장소 설명은 길 수 있으므로 TEXT 타입 권장
     private String description; // 장소 설명
 
+    @Column(name = "photo_url", length = 1000)
+    private String photoUrl;
+
     // JPA를 위한 기본 생성자 (protected 사용 권장)
     protected ArticlePlace() {
     }
 
     // 모든 필드를 받는 생성자 (객체 생성 시 초기화)
-    public ArticlePlace(int placeOrder, String placeName, String address, String description) {
+    public ArticlePlace(int placeOrder, String placeName, String address, String description, String photoUrl) {
         this.placeOrder = placeOrder;
         this.placeName = placeName;
         this.address = address;
         this.description = description;
+        this.photoUrl = photoUrl;
     }
 }
