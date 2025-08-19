@@ -7,8 +7,8 @@ import com.sinsaimdang.masilkkoon.masil.user.repository.FollowRepository;
 import com.sinsaimdang.masilkkoon.masil.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -83,7 +83,7 @@ public class FollowService {
         return UserDto.from(user);
     }
 
-    public Page<User> getFollowers(Long userId, Pageable pageable) {
+    public Slice<User> getFollowers(Long userId, Pageable pageable) {
         log.debug("팔로워 목록 조회 요청 처리 시작 - 사용자 : {}, 페이지 : {}", userId, pageable.getPageNumber());
 
         if(!userRepository.existsById(userId)) {
@@ -94,7 +94,7 @@ public class FollowService {
         return followRepository.getFollowers(userId, pageable);
     }
 
-    public Page<User> getFollowing(Long userId, Pageable pageable) {
+    public Slice<User> getFollowing(Long userId, Pageable pageable) {
         log.debug("팔로잉 목록 조회 요청 처리 시작 - 사용자 : {}, 페이지 : {}", userId, pageable.getPageNumber());
 
         if (!userRepository.existsById(userId)) {
