@@ -12,7 +12,7 @@ import java.util.Optional;
 
 public interface ArticleScrapRepository extends JpaRepository<ArticleScrap, Long> {
 
-    boolean existsByUserIdAAndArticleId(Long userId, Long articleId);
+    boolean existsByUserIdAndArticleId(Long userId, Long articleId);
 
     Optional<ArticleScrap> findByUserIdAndArticleId(Long userId, Long articleId);
 

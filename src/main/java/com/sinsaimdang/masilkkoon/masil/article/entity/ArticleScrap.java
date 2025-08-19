@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Table(name = "article_scrap", uniqueConstraints = {
         @UniqueConstraint(
                 name = "uk_article_scrap_user_article",
-                columnNames = {"user_id", "article+id"}
+                columnNames = {"user_id", "article_id"}
         )
 })
 @Entity

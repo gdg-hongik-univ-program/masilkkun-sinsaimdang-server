@@ -181,7 +181,7 @@ public class ArticleService {
                     return new IllegalArgumentException("게시글을 찾을 수 없습니다" + articleId);
                 });
 
-        if (articleScrapRepository.existsByUserIdAAndArticleId(userId, articleId)) {
+        if (articleScrapRepository.existsByUserIdAndArticleId(userId, articleId)) {
             log.warn("스크랩 추가 실패 - 이미 스크랩한 게시글 : 사용자 ID {}, 게시글 ID {}", userId, articleId);
             throw new IllegalArgumentException("이미 스크랩한 게시글입니다.");
         }
