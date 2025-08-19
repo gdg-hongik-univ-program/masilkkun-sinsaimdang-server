@@ -2,6 +2,8 @@ package com.sinsaimdang.masilkkoon.masil.article.controller;
 
 import com.sinsaimdang.masilkkoon.masil.article.dto.ArticleResponse; // ArticleResponse DTO 임포트
 import com.sinsaimdang.masilkkoon.masil.article.service.ArticleService; // ArticleService 임포트
+import com.sinsaimdang.masilkkoon.masil.auth.dto.CurrentUser;
+import com.sinsaimdang.masilkkoon.masil.common.util.ApiResponseUtil;
 import lombok.RequiredArgsConstructor; // Lombok RequiredArgsConstructor 임포트
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus; // HTTP 상태 코드를 위한 HttpStatus 임포트
@@ -62,6 +64,7 @@ public class ArticleController {
             // 서비스 계층 호출 시 userRole 전달
             ArticleResponse article = articleService.findArticleById(articleId, userRole);
 
+            log.info("게시글 단건 조회 요청 완료");
             // 표준 응답 형식에 맞춰 Map 생성 및 반환
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -105,6 +108,7 @@ public class ArticleController {
             // 서비스 계층 호출 시 userRole 전달
             Page<ArticleResponse> articlesPage = articleService.searchArticles(condition, pageable, userRole);
 
+            log.info("게시글 목록 조회 완료 - 조건: {}, 페이징: {}, 사용자 역할: {}", condition, pageable, userRole); // 요청 로깅
             // 표준 응답 형식에 맞춰 Map 생성 및 반환
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -121,4 +125,38 @@ public class ArticleController {
     }
 
     // TODO: 게시글 생성, 수정, 삭제 API는 나중에 추가 (Phase 1에서는 조회만 집중)
+
+    @PostMapping("/{articleId}/likes")
+    public ResponseEntity<Map<String, Object>> addlike(
+            @PathVariable Long articleId,
+            CurrentUser currentUser) {
+
+        log.info("API REQ >> POST /api/articles/{}/likes | 요청자 ID: {}", articleId, currentUser.getId());
+
+        if (!currentUser.isAuthenticated()) {
+            return ApiResponseUtil.unauthorized("로그인이 필요합니다.");
+        }
+
+        articleService.addLike(currentUser.getId(), articleId);
+
+        log.info("API RES >> POST /api/articles/{}/likes | 요청자 ID: {}", articleId, currentUser.getId());
+        return ApiResponseUtil.success("게시글 좋아요 완료");
+    }
+
+    @DeleteMapping("/{articleId}/likes")
+    public ResponseEntity<Map<String, Object>> removeLike(
+            @PathVariable Long articleId,
+            CurrentUser currentUser) {
+
+        log.info("API REQ >> DELETE /api/articles/{}/likes | 요청자 ID: {}", articleId, currentUser.getId());
+
+        if (!currentUser.isAuthenticated()) {
+            return ApiResponseUtil.unauthorized("로그인이 필요합니다.");
+        }
+
+        articleService.removeLike(currentUser.getId(), articleId);
+
+        log.info("API RES >> DELETE /api/articles/{}/likes | 요청자 ID: {}", articleId, currentUser.getId());
+        return ApiResponseUtil.success("게시글 좋아요를 취소했습니다.");
+    }
 }

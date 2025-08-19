@@ -1,9 +1,13 @@
 package com.sinsaimdang.masilkkoon.masil.article.service;
 
 import com.sinsaimdang.masilkkoon.masil.article.entity.Article;
+import com.sinsaimdang.masilkkoon.masil.article.entity.ArticleLike;
+import com.sinsaimdang.masilkkoon.masil.article.repository.ArticleLikeRepository;
 import com.sinsaimdang.masilkkoon.masil.article.repository.ArticleRepository;
 import com.sinsaimdang.masilkkoon.masil.article.dto.ArticleResponse;
+import com.sinsaimdang.masilkkoon.masil.user.entity.User;
 import com.sinsaimdang.masilkkoon.masil.user.entity.UserRole; // UserRole 임포트
+import com.sinsaimdang.masilkkoon.masil.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j; // Slf4j 임포트
 import org.springframework.stereotype.Service;
@@ -24,6 +28,8 @@ import org.springframework.data.domain.Pageable;
 public class ArticleService {
 
     private final ArticleRepository articleRepository; // ArticleRepository 주입
+    private final ArticleLikeRepository articleLikeRepository;
+    private final UserRepository userRepository;
 
     /**
      * 모든 게시글 목록 조회 (N+1 문제 해결을 위해 Fetch Join 적용)
@@ -118,5 +124,35 @@ public class ArticleService {
         // 지역 미선택 시 기본 동작(예: 모든 지역 조회 허용 또는 오류 반환)을 정의해야 합니다.
 
         return articleRepository.search(condition, pageable).map(ArticleResponse::new);
+    }
+
+    @Transactional
+    public void addLike(Long userId, Long articleId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다" + userId));
+        Article article = articleRepository.findById(articleId)
+                .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다" + articleId));
+
+        if (articleLikeRepository.existsByUserIdAndArticleId(userId, articleId)) {
+            throw new IllegalArgumentException("이미 좋아요를 누른 게시글입니다.");
+        }
+
+        ArticleLike articleLike = new ArticleLike(user, article);
+        articleLikeRepository.save(articleLike);
+
+        article.incrementLikeCount();
+    }
+
+    @Transactional
+    public void removeLike(Long userId, Long articleId) {
+        ArticleLike articleLike = articleLikeRepository.findByUserIdAndArticleId(userId, articleId)
+                .orElseThrow(() -> new IllegalArgumentException("좋아요를 누른 게시글이 아닙니다."));
+
+        Article article = articleRepository.findById(articleId)
+                .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
+
+        articleLikeRepository.delete(articleLike);
+
+        article.decrementLikeCount();
     }
 }
