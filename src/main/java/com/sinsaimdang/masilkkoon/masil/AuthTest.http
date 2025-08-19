@@ -250,3 +250,80 @@ GET http://localhost:8080/api/user/1/followers
 
 ### [팔로잉 조회] 1번 유저의 팔로잉 목록 조회
 GET http://localhost:8080/api/user/1/followings
+
+
+### =======================================
+### ✨ 게시글 작성 권한 테스트 (핵심) ✨
+### =======================================
+# [테스트 방법]
+# 1. 위 '로그인 테스트'를 먼저 실행해서 토큰을 발급받으세요.
+# 2. 아래 3개의 테스트를 순서대로 실행하며 결과를 확인합니다.
+#    (IntelliJ IDEA Ultimate에서는 각 요청의 accessToken을 자동으로 변수처럼 사용할 수 있습니다.)
+#    토큰 변수: {{login.response.body.data.accessToken}}
+
+### [STEP 1] '경기도 부천시' 지역 방문 인증하기
+POST http://localhost:8080/api/location/verify
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjo0LCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU2MTMzNTYsImV4cCI6MTc1NTYxNTE1Nn0.sBp34iaBplSjIh6DdoU-b1JwTx4YIiQjZokAe2utbkI
+
+{
+  "road_address": {
+    "address_name": "경기도 부천시 원미구 중동로279번길 22",
+    "region_1depth_name": "경기도",
+    "region_2depth_name": "부천시"
+  }
+}
+
+###
+
+### [STEP 2] (성공 테스트) 인증된 '경기도 부천시'에 게시글 작성하기
+# 예상 결과: 200 OK, 게시글이 성공적으로 생성됩니다.
+POST http://localhost:8080/api/articles
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjo0LCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU2MTMzNTYsImV4cCI6MTc1NTYxNTE1Nn0.sBp34iaBplSjIh6DdoU-b1JwTx4YIiQjZokAe2utbkI
+
+{
+  "title": "[성공] 부천 방문 후 작성하는 글",
+  "content": "부천에 방문했기 때문에 이 글은 작성되어야 합니다.",
+  "tags": ["CAFE"],
+  "places": [
+    {
+      "placeOrder": 1,
+      "placeName": "부천시청역 카페",
+      "description": "방문 인증을 한 부천시에 작성하는 글입니다.",
+      "photoUrl": "https://...",
+      "roadAddress": {
+        "address_name": "경기도 부천시 길주로 210",
+        "region_1depth_name": "경기도",
+        "region_2depth_name": "부천시"
+      }
+    }
+  ]
+}
+
+###
+
+### [STEP 3] (실패 테스트) 인증하지 않은 '경기도 수원시'에 게시글 작성하기
+# 예상 결과: 4xx 에러와 함께 "해당 지역을 방문한 기록이 없어 게시글을 작성할 수 없습니다." 메시지가 반환됩니다.
+POST http://localhost:8080/api/articles
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjo0LCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU2MTMzNTYsImV4cCI6MTc1NTYxNTE1Nn0.sBp34iaBplSjIh6DdoU-b1JwTx4YIiQjZokAe2utbkI
+
+{
+  "title": "[실패] 수원 방문 없이 작성하는 글",
+  "content": "수원에 방문한 적이 없기 때문에 이 글은 작성되면 안 됩니다.",
+  "tags": ["RESTAURANT"],
+  "places": [
+    {
+      "placeOrder": 1,
+      "placeName": "수원역 맛집",
+      "description": "방문 인증을 하지 않은 수원시에 작성하는 글입니다.",
+      "photoUrl": "https://...",
+      "roadAddress": {
+        "address_name": "경기도 수원시 팔달구 덕영대로 924",
+        "region_1depth_name": "경기도",
+        "region_2depth_name": "수원시"
+      }
+    }
+  ]
+}

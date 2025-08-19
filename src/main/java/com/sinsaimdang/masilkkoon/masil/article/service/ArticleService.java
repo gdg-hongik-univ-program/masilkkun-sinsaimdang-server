@@ -16,6 +16,7 @@ import com.sinsaimdang.masilkkoon.masil.article.repository.ArticleLikeRepository
 import com.sinsaimdang.masilkkoon.masil.user.repository.UserRepository;
 import com.sinsaimdang.masilkkoon.masil.article.entity.ArticleScrap;
 import com.sinsaimdang.masilkkoon.masil.article.repository.ArticleScrapRepository;
+import com.sinsaimdang.masilkkoon.masil.visit.service.VisitService;
 
 
 
@@ -43,6 +44,7 @@ public class ArticleService {
     private final ArticleLikeRepository articleLikeRepository;
     private final UserRepository userRepository;
     private final ArticleScrapRepository articleScrapRepository;
+    private final VisitService visitService;
 
     /**
      * 모든 게시글 목록 조회 (N+1 문제 해결을 위해 Fetch Join 적용)
@@ -279,6 +281,11 @@ public class ArticleService {
 
         // 1. private 메소드를 호출하여 요청 데이터로부터 Region 엔티티를 찾아옵니다.
         Region childRegion = findRegionFromRequest(request.getPlaces());
+
+        // 게시글 작성 전, 해당 지역 방문 여부 확인
+        if (!visitService.hasUserVisitedRegion(currentUser.getId(), childRegion.getId())) {
+            throw new IllegalArgumentException("해당 지역을 방문한 기록이 없어 게시글을 작성할 수 없습니다.");
+        }
 
         // 2. DTO를 Article 엔티티로 변환할 때, 찾아낸 Region 객체를 함께 전달합니다.
         Article article = request.toEntity(currentUser, childRegion);

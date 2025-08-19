@@ -10,4 +10,12 @@ import java.util.Optional;
 public interface VisitRepository extends JpaRepository<Visit, Long> {
 
     Optional<Visit> findByUserIdAndRegionId(Long userId, Long regionId);
+
+    /**
+     * 특정 사용자가 특정 지역을 방문한 기록이 있는지 확인하는 메서드
+     * @param userId 사용자 ID
+     * @param regionId 지역 ID
+     * @return 방문 기록이 있으면 true, 없으면 false
+     */
+    boolean existsByUser_IdAndRegion_Id(Long userId, Long regionId);
 }
