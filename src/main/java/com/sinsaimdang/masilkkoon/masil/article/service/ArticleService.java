@@ -11,6 +11,15 @@ import com.sinsaimdang.masilkkoon.masil.article.dto.ArticleSearchCondition;
 import com.sinsaimdang.masilkkoon.masil.region.entity.Region;
 import com.sinsaimdang.masilkkoon.masil.region.repository.RegionRepository;
 import com.sinsaimdang.masilkkoon.masil.visit.dto.VisitRequest;
+import com.sinsaimdang.masilkkoon.masil.article.entity.ArticleLike;
+import com.sinsaimdang.masilkkoon.masil.article.repository.ArticleLikeRepository;
+import com.sinsaimdang.masilkkoon.masil.user.repository.UserRepository;
+import com.sinsaimdang.masilkkoon.masil.article.entity.ArticleScrap;
+import com.sinsaimdang.masilkkoon.masil.article.repository.ArticleScrapRepository;
+
+
+
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j; // Slf4j 임포트
 import org.springframework.stereotype.Service;
@@ -31,6 +40,9 @@ public class ArticleService {
 
     private final ArticleRepository articleRepository; // ArticleRepository 주입
     private final RegionRepository regionRepository;
+    private final ArticleLikeRepository articleLikeRepository;
+    private final UserRepository userRepository;
+    private final ArticleScrapRepository articleScrapRepository;
 
     /**
      * 모든 게시글 목록 조회 (N+1 문제 해결을 위해 Fetch Join 적용)
@@ -130,6 +142,112 @@ public class ArticleService {
         log.info("<- 게시글 목록 조회 서비스 완료");
         return articleRepository.search(condition, pageable).map(ArticleResponse::new);
     }
+
+    @Transactional
+    public void addLike(Long userId, Long articleId) {
+        log.info("좋아요 처리 시작 - 사용자 ID :{}, 게시글 ID {}",userId, articleId);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다" + userId));
+        Article article = articleRepository.findById(articleId)
+                .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다" + articleId));
+
+        if (articleLikeRepository.existsByUserIdAndArticleId(userId, articleId)) {
+            throw new IllegalArgumentException("이미 좋아요를 누른 게시글입니다.");
+        }
+
+        ArticleLike articleLike = new ArticleLike(user, article);
+        articleLikeRepository.save(articleLike);
+
+        article.incrementLikeCount();
+        log.info("좋아요 처리 완료 - 사용자 ID :{}, 게시글 ID {}",userId, articleId);
+    }
+
+    @Transactional
+    public void removeLike(Long userId, Long articleId) {
+        log.info("좋아요 취소 처리 시작 - 사용자 ID :{}, 게시글 ID {}",userId, articleId);
+
+        ArticleLike articleLike = articleLikeRepository.findByUserIdAndArticleId(userId, articleId)
+                .orElseThrow(() -> new IllegalArgumentException("좋아요를 누른 게시글이 아닙니다."));
+
+        Article article = articleRepository.findById(articleId)
+                .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
+
+        articleLikeRepository.delete(articleLike);
+
+        article.decrementLikeCount();
+        log.info("좋아요 취소 처리 완료 - 사용자 ID :{}, 게시글 ID {}",userId, articleId);
+    }
+
+    @Transactional
+    public void addScrap(Long userId, Long articleId) {
+        log.info("스크랩 처리 시작 - 사용자 ID :{}, 게시글 ID {}",userId, articleId);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> {
+                    log.warn("스크랩 추가 실패 : 존재하지 않는 사용자 ID {}", userId);
+                    return new IllegalArgumentException("사용자를 찾을 수 없습니다" + userId);
+                });
+
+        Article article = articleRepository.findById(articleId)
+                .orElseThrow(() -> {
+                    log.warn("스크랩 추가 실패 : 존재하지 않는 게시글 ID {}", articleId);
+                    return new IllegalArgumentException("게시글을 찾을 수 없습니다" + articleId);
+                });
+
+        if (articleScrapRepository.existsByUserIdAndArticleId(userId, articleId)) {
+            log.warn("스크랩 추가 실패 - 이미 스크랩한 게시글 : 사용자 ID {}, 게시글 ID {}", userId, articleId);
+            throw new IllegalArgumentException("이미 스크랩한 게시글입니다.");
+        }
+
+        ArticleScrap articleScrap = new ArticleScrap(user, article);
+        articleScrapRepository.save(articleScrap);
+
+        article.incrementScrapCount();
+
+        log.info("게시글 스크랩 추가 완료 - 사용자 ID:{}, 게시글 ID:{}");
+    }
+
+    @Transactional
+    public void removeScrap(Long userId, Long articleId) {
+        log.info("게시글 스크랩 삭제 시작 - 사용자 ID: {}, 게시글 ID: {}", userId, articleId);
+
+        ArticleScrap articleScrap = articleScrapRepository.findByUserIdAndArticleId(userId, articleId)
+                .orElseThrow(() -> {
+                    log.warn("스크랩 삭제 실패 - 스크랩하지 않은 게시글: 사용자 ID {}, 게시글 ID {}", userId, articleId);
+                    return new IllegalArgumentException("스크랩하지 않은 게시글입니다.");
+                });
+
+        Article article = articleRepository.findById(articleId)
+                .orElseThrow(() -> {
+                    log.warn("스크랩 삭제 실패 - 존재하지 않는 게시글: {}", articleId);
+                    return new IllegalArgumentException("게시글을 찾을 수 없습니다: " + articleId);
+                });
+
+        articleScrapRepository.delete(articleScrap);
+        article.decrementScrapCount();
+
+        log.info("게시글 스크랩 삭제 완료 - 사용자 ID: {}, 게시글 ID: {}", userId, articleId);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ArticleResponse> getScrapedArticles(Long userId, Pageable pageable) {
+        log.info("사용자 스크랩 목록 조회 시작 - 사용자 ID: {}, 페이지: {}", userId, pageable.getPageNumber());
+
+        // 사용자 존재 여부 확인
+        if (!userRepository.existsById(userId)) {
+            log.warn("스크랩 목록 조회 실패 - 존재하지 않는 사용자: {}", userId);
+            throw new IllegalArgumentException("존재하지 않는 사용자입니다: " + userId);
+        }
+
+        Page<Article> scrapedArticles = articleScrapRepository.findScrapedArticlesByUserId(userId, pageable);
+
+        log.info("사용자 스크랩 목록 조회 완료 - 사용자 ID: {}, 조회된 게시글 수: {}",
+                userId, scrapedArticles.getContent().size());
+
+        return scrapedArticles.map(ArticleResponse::new);
+    }
+
     /**
      * 게시글을 생성하는 메서드
      * @param request 게시글 생성에 필요한 데이터 DTO
