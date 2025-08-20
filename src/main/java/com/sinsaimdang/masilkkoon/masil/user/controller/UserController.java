@@ -1,6 +1,7 @@
 package com.sinsaimdang.masilkkoon.masil.user.controller;
 
 import com.sinsaimdang.masilkkoon.masil.article.dto.ArticleResponse;
+import com.sinsaimdang.masilkkoon.masil.article.dto.ArticleSearchCondition;
 import com.sinsaimdang.masilkkoon.masil.article.service.ArticleService;
 import com.sinsaimdang.masilkkoon.masil.auth.dto.CurrentUser;
 import com.sinsaimdang.masilkkoon.masil.common.util.ApiResponseUtil;
@@ -167,6 +168,7 @@ public class UserController {
     @GetMapping("/scraps")
     public ResponseEntity<Map<String, Object>> getMyScrapedArticles(
             CurrentUser currentUser,
+            ArticleSearchCondition condition,
             Pageable pageable) {
 
         log.info("API REQ >> GET /api/user/scraps | 요청자 ID: {}", currentUser.getId());
@@ -176,7 +178,7 @@ public class UserController {
         }
 
         try {
-            Page<ArticleResponse> scrapedArticles = articleService.getScrapedArticles(currentUser.getId(), pageable);
+            Page<ArticleResponse> scrapedArticles = articleService.getScrapedArticles(currentUser.getId(), condition, pageable);
 
             log.info("API RES >> GET /api/user/scraps | 요청자 ID: {}, 조회된 게시글 수: {}",
                     currentUser.getId(), scrapedArticles.getContent().size());

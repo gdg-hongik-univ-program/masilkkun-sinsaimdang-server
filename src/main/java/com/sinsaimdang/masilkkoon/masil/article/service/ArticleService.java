@@ -191,7 +191,7 @@ public class ArticleService {
 
         article.incrementScrapCount();
 
-        log.info("게시글 스크랩 추가 완료 - 사용자 ID:{}, 게시글 ID:{}");
+        log.info("게시글 스크랩 추가 완료 - 사용자 ID:{}, 게시글 ID:{}", userId, articleId);
     }
 
     @Transactional
@@ -217,8 +217,8 @@ public class ArticleService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ArticleResponse> getScrapedArticles(Long userId, Pageable pageable) {
-        log.info("사용자 스크랩 목록 조회 시작 - 사용자 ID: {}, 페이지: {}", userId, pageable.getPageNumber());
+    public Page<ArticleResponse> getScrapedArticles(Long userId, ArticleSearchCondition condition, Pageable pageable) {
+        log.info("사용자 스크랩 목록 조회 시작 - 사용자 ID: {}, 검색 조건 {}, 페이지: {}", userId, condition, pageable.getPageNumber());
 
         // 사용자 존재 여부 확인
         if (!userRepository.existsById(userId)) {
@@ -226,7 +226,7 @@ public class ArticleService {
             throw new IllegalArgumentException("존재하지 않는 사용자입니다: " + userId);
         }
 
-        Page<Article> scrapedArticles = articleScrapRepository.findScrapedArticlesByUserId(userId, pageable);
+        Page<Article> scrapedArticles = articleRepository.searchScrapedArticles(userId, condition, pageable);
 
         log.info("사용자 스크랩 목록 조회 완료 - 사용자 ID: {}, 조회된 게시글 수: {}",
                 userId, scrapedArticles.getContent().size());
