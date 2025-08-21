@@ -22,7 +22,7 @@ public interface ArticleScrapRepository extends JpaRepository<ArticleScrap, Long
             "JOIN s.article a " +
             "WHERE s.user.id = :userId " +
             "AND (:#{#condition.region} IS NULL OR a.region = :#{#condition.region}) " +
-            "AND (:#{#condition.tags} IS NULL OR :#{#condition.tags} IS EMPTY OR " +
+            "AND (:#{#condition.tags} IS NULL OR " +
             "     (SELECT COUNT(tag) FROM a.articleTags tag WHERE tag IN :#{#condition.tags}) = :#{#condition.tags?.size()}) " +
             "ORDER BY s.createdAt DESC")
     Page<Article> findScrapedArticlesByUserId(@Param("userId") Long userId,

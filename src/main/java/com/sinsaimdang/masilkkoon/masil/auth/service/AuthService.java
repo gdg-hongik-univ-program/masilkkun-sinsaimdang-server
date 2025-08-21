@@ -71,7 +71,6 @@ public class AuthService {
                 normalizedData.getNickname()
         );
 
-
         // 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(password);
 
@@ -208,7 +207,7 @@ public class AuthService {
                     return new IllegalArgumentException("존재하지 않는 이메일입니다");
                 });
 
-        // 새로운 토큰 생성
+        // 새로운 Access Token 생성
         String newAccessToken = jwtUtil.generateAccessToken(
                 user.getId(),
                 user.getEmail(),
@@ -216,11 +215,15 @@ public class AuthService {
                 user.getNickname(),
                 UserRole.USER.name());
 
-        log.info("액세스 토큰 갱신 성공 : ID = {}, Email = {}", user.getId(), user.getEmail());
+        String newRefreshToken = jwtUtil.generateRefreshToken(user.getEmail());
+        refreshTokenRepository.deleteByToken(refreshToken);
+        saveRefreshToken(user.getEmail(), newRefreshToken);
 
         Map<String, String> tokens = new HashMap<>();
         tokens.put("accessToken", newAccessToken);
-        tokens.put("refreshToken", refreshToken);
+        tokens.put("refreshToken", newRefreshToken);
+
+        log.info("액세스 토큰 갱신 성공 : ID = {}, Email = {}", user.getId(), user.getEmail());
         return tokens;
     }
 

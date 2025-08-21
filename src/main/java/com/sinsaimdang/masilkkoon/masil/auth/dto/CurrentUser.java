@@ -19,25 +19,6 @@ public class CurrentUser {
     private String nickname;
     private String role;
 
-    public Map<String, Object> toMap() {
-        Map<String, Object> userMap = new HashMap<>();
-        userMap.put("id", id);
-        userMap.put("email", email);
-        userMap.put("name", name);
-        userMap.put("nickname", nickname);
-        userMap.put("role", role);
-        return userMap;
-    }
-
-    public Map<String, Object> toMapWithoutRole() {
-        Map<String, Object> userMap = new HashMap<>();
-        userMap.put("id", id);
-        userMap.put("email", email);
-        userMap.put("name", name);
-        userMap.put("nickname", nickname);
-        return userMap;
-    }
-
     public boolean isAuthenticated() {
         return id != null && email != null;
     }
