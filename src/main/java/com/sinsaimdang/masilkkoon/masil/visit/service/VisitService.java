@@ -71,4 +71,15 @@ public class VisitService {
         }
         userVisitRepository.save(visit);
     }
+
+    /**
+     * 사용자가 특정 지역을 방문했는지 확인하는 서비스 메서드
+     * @param userId 확인할 사용자 ID
+     * @param regionId 확인할 지역 ID
+     * @return 방문 기록 존재 여부 (true/false)
+     */
+    @Transactional(readOnly = true)
+    public boolean hasUserVisitedRegion(Long userId, Long regionId) {
+        return userVisitRepository.existsByUser_IdAndRegion_Id(userId, regionId);
+    }
 }

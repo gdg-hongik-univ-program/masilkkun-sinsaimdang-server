@@ -17,7 +17,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -102,21 +104,48 @@ public class UserController {
         return ApiResponseUtil.success("비밀번호가 성공적으로 변경되었습니다.", updatedUser);
     }
 
-    @PatchMapping("/profile-image")
+//    @PatchMapping("/profile-image")
+//    public ResponseEntity<Map<String, Object>> updateProfileImage(
+//            CurrentUser currentUser,
+//            @RequestBody @Valid UpdateProfileImageRequest updateRequest) {
+//        log.info("API REQ >> PATCH /api/user/profile-image | 요청자 ID: {}", currentUser.getId());
+//
+//        if(!currentUser.isAuthenticated()) {
+//            return ApiResponseUtil.unauthorized("인증이 필요합니다.");
+//        }
+//
+//        UserDto updatedUser = userService.updateProfileImage(
+//                currentUser.getId(), updateRequest.getProfileImageUrl()
+//        );
+//
+//        log.info("API RES >> PATCH /api/user/profile-image | 요청자 ID: {}", currentUser.getId());
+//        return ApiResponseUtil.success("프로필 이미지가 성공적으로 업데이트 되었습니다.", updatedUser);
+//    }
+
+    /**
+     * [수정] 프로필 이미지 업로드 API 변경
+     * @param currentUser 현재 사용자 정보
+     * @param profileImageFile 업로드할 이미지 파일
+     * @return 수정된 사용자 정보 DTO
+     * @throws IOException 파일 처리 중 발생할 수 있는 예외
+     */
+    @PostMapping("/profile-image")
     public ResponseEntity<Map<String, Object>> updateProfileImage(
             CurrentUser currentUser,
-            @RequestBody @Valid UpdateProfileImageRequest updateRequest) {
-        log.info("API REQ >> PATCH /api/user/profile-image | 요청자 ID: {}", currentUser.getId());
+            @RequestParam("profileImage") MultipartFile profileImageFile) throws IOException {
+        log.info("API REQ >> POST /api/user/profile-image | 요청자 ID: {}", currentUser.getId());
 
         if(!currentUser.isAuthenticated()) {
             return ApiResponseUtil.unauthorized("인증이 필요합니다.");
         }
 
-        UserDto updatedUser = userService.updateProfileImage(
-                currentUser.getId(), updateRequest.getProfileImageUrl()
-        );
+        if (profileImageFile.isEmpty()) {
+            return ApiResponseUtil.badRequest("업로드할 이미지를 선택해주세요.");
+        }
 
-        log.info("API RES >> PATCH /api/user/profile-image | 요청자 ID: {}", currentUser.getId());
+        UserDto updatedUser = userService.updateProfileImage(currentUser.getId(), profileImageFile);
+
+        log.info("API RES >> POST /api/user/profile-image | 요청자 ID: {}", currentUser.getId());
         return ApiResponseUtil.success("프로필 이미지가 성공적으로 업데이트 되었습니다.", updatedUser);
     }
 
@@ -189,4 +218,33 @@ public class UserController {
             return ApiResponseUtil.badRequest(e.getMessage());
         }
     }
+
+    /**
+     * 특정 사용자가 작성한 게시글 목록 조회 API
+     * (내 게시글, 다른 사용자 게시글 조회 모두 처리)
+     * @param userId 조회할 사용자의 ID
+     * @param pageable 페이징 정보
+     * @return 해당 사용자가 작성한 게시글 DTO 목록
+     */
+    @GetMapping("/{userId}/articles")
+    public ResponseEntity<Map<String, Object>> getArticlesByUserId(
+            @PathVariable Long userId,
+            Pageable pageable) {
+
+        log.info("API REQ >> GET /api/user/{}/articles | 요청", userId);
+
+        try {
+            Page<ArticleResponse> userArticles = articleService.findArticlesByUserId(userId, pageable);
+
+            log.info("API RES >> GET /api/user/{}/articles | 조회된 게시글 수: {}",
+                    userId, userArticles.getContent().size());
+
+            return ApiResponseUtil.success("작성한 게시글 목록 조회 성공", userArticles);
+
+        } catch (IllegalArgumentException e) {
+            log.warn("작성한 게시글 목록 조회 실패 - 사용자 ID: {}, 사유: {}", userId, e.getMessage());
+            return ApiResponseUtil.badRequest(e.getMessage());
+        }
+    }
+
 }

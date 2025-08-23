@@ -20,22 +20,13 @@ import java.util.HashMap;
 import static com.sinsaimdang.masilkkoon.masil.article.entity.QArticle.article;
 import static com.sinsaimdang.masilkkoon.masil.article.entity.QArticleScrap.articleScrap;
 import static com.sinsaimdang.masilkkoon.masil.user.entity.QUser.user;
+import static com.sinsaimdang.masilkkoon.masil.region.entity.QRegion.region;
 
 import com.querydsl.core.types.OrderSpecifier;
 
 public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
-
-    // 지역 그룹핑 정의 (예시 데이터)
-    // 실제 요구사항에 맞춰 부산과 경남의 포함 관계를 명확히 정의해야 합니다.
-    // 여기서는 '경남' 선택 시 '부산'과 경상남도 내의 주요 도시들을 함께 조회하는 것으로 가정합니다.
-    private static final Map<String, List<String>> REGION_GROUPS = new HashMap<>();
-    static {
-        REGION_GROUPS.put("경남", Arrays.asList("부산", "창원", "진주", "김해", "양산", "거제", "통영", "사천", "밀양"));
-        // 필요시 다른 지역 그룹도 여기에 추가할 수 있습니다.
-        // REGION_GROUPS.put("수도권", Arrays.asList("서울", "인천", "경기"));
-    }
 
     public ArticleRepositoryImpl(EntityManager em) {
         this.queryFactory = new JPAQueryFactory(em);
@@ -44,26 +35,32 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
     @Override
     public Page<Article> search(ArticleSearchCondition condition, Pageable pageable) {
         List<Article> content = queryFactory
-                .selectFrom(article)
+                .selectFrom(article).distinct()
+                .from(article)
                 .leftJoin(article.user, user).fetchJoin()
+                .leftJoin(article.region, region).fetchJoin()
+//                .leftJoin(article.articleTags).fetchJoin()
+//                .leftJoin(article.articlePlaces).fetchJoin()
                 .where(
                         tagsAllPresent(condition.getTags()),
                         regionFilter(condition.getRegion())
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .orderBy(articleSort(condition.getSortOrder()))
+                .orderBy(articleSort(condition.getSortOrder()), article.createdAt.desc(), article.id.desc())
                 .fetch();
 
-        long total = queryFactory
-                .selectFrom(article)
+        Long total = queryFactory
+                .select(article.count())
+                .from(article)
+                .leftJoin(article.region, region)
                 .where(
                         tagsAllPresent(condition.getTags()),
                         regionFilter(condition.getRegion())
                 )
-                .fetchCount();
+                .fetchOne();
 
-        return new PageImpl<>(content, pageable, total);
+        return new PageImpl<>(content, pageable, total != null ? total : 0L);
     }
 
     private BooleanExpression tagsAllPresent(List<ArticleTag> tags) {
@@ -84,22 +81,15 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
         return predicate;
     }
 
-
-    // 지역 그룹핑을 고려한 필터링 메서드
-    private BooleanExpression regionFilter(String selectedRegion) {
-        if (!StringUtils.hasText(selectedRegion)) {
-            return null; // 선택된 지역이 없으면 조건 적용 안 함
+    // 지역 필터링을 Region 엔티티 기준으로 변경
+    private BooleanExpression regionFilter(String selectedRegionName) {
+        if (!StringUtils.hasText(selectedRegionName)) {
+            return null;
         }
-
-        // 선택된 지역이 그룹(예: '경남')에 해당하는지 확인
-        if (REGION_GROUPS.containsKey(selectedRegion)) {
-            List<String> regionsInGroup = REGION_GROUPS.get(selectedRegion);
-            // 해당 그룹에 속하는 모든 지역을 포함하는 게시글 조회 (IN 조건)
-            return article.region.in(regionsInGroup);
-        } else {
-            // 그룹이 아니면 정확히 일치하는 지역만 조회
-            return article.region.eq(selectedRegion);
-        }
+        // '서울'을 선택하면, '종로구', '강남구' 등 하위 지역에 속한 게시글도 찾아야 함.
+        // article.region은 '종로구'이고, 그 부모(parent)의 이름이 '서울특별시'인 경우를 찾으면 됨.
+        return article.region.name.eq(selectedRegionName) // '종로구' 자체를 검색한 경우
+                .or(article.region.parent.name.eq(selectedRegionName)); // '서울특별시'로 검색한 경우
     }
 
     // 정렬 기준에 따라 OrderSpecifier를 반환하는 메서드

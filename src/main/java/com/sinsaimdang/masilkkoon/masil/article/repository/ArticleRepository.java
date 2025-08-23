@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository; // @Repository 어노테이션은 생략 가능하지만, 명시적으로 유지
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Repository // 스프링 빈으로 등록 (생략 가능하지만, 명시적으로 유지)
 public interface ArticleRepository extends JpaRepository<Article, Long>, ArticleRepositoryCustom {
@@ -15,7 +17,6 @@ public interface ArticleRepository extends JpaRepository<Article, Long>, Article
     @Query("SELECT DISTINCT a FROM Article a " +
             "LEFT JOIN FETCH a.user u " +
             "LEFT JOIN FETCH a.articleTags " +
-            "LEFT JOIN FETCH a.photos " +
             "LEFT JOIN FETCH a.articlePlaces")
     List<Article> findAllWithCollections();
 
@@ -23,10 +24,11 @@ public interface ArticleRepository extends JpaRepository<Article, Long>, Article
     @Query("SELECT DISTINCT a FROM Article a " +
             "LEFT JOIN FETCH a.user u " +
             "LEFT JOIN FETCH a.articleTags " +
-            "LEFT JOIN FETCH a.photos " +
             "LEFT JOIN FETCH a.articlePlaces " +
             "WHERE a.id = :id")
     Optional<Article> findByIdWithCollections(Long id);
 
     List<Article> findAllByUserId(Long userId);
+
+    Page<Article> findByUser_Id(Long userId, Pageable pageable);
 }
