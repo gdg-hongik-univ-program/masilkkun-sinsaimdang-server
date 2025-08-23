@@ -294,6 +294,17 @@ public class ArticleService {
         // private 메소드를 호출하여 요청 데이터로부터 Region 엔티티를 찾아옵니다.
         Region childRegion = findRegionFromRequest(request.getPlaces());
 
+        // 모든 장소가 대표 지역과 일치하는지 검증
+        boolean allPlacesAreInSameRegion = request.getPlaces().stream()
+                .allMatch(place -> {
+                    String placeRegionName = place.getRoadAddress().getRegion2DepthName(); // 각 장소의 '시/군/구' 이름
+                    return childRegion.getName().equals(placeRegionName);
+                });
+
+        if (!allPlacesAreInSameRegion) {
+            throw new IllegalArgumentException("모든 장소는 동일한 시/군/구에 속해야 합니다.");
+        }
+
         // 게시글 작성 전, 해당 지역 방문 여부 확인
         if (!visitService.hasUserVisitedRegion(currentUser.getId(), childRegion.getId())) {
             throw new IllegalArgumentException("해당 지역을 방문한 기록이 없어 게시글을 작성할 수 없습니다.");
@@ -304,7 +315,7 @@ public class ArticleService {
                 .sorted(Comparator.comparingInt(ArticleCreateRequest.PlaceInfo::getPlaceOrder))
                 .collect(Collectors.toList());
 
-        Set<ArticlePlace> articlePlaces = new HashSet<>();
+        List<ArticlePlace> articlePlaces = new ArrayList<>();
         for (int i = 0; i < sortedPlaces.size(); i++) {
             ArticleCreateRequest.PlaceInfo placeInfo = sortedPlaces.get(i);
             MultipartFile imageFile = images.get(i); // 정렬된 순서에 맞는 이미지 파일
@@ -344,7 +355,7 @@ public class ArticleService {
         log.info("게시글 삭제 서비스 호출 - 게시글 ID: {}, 요청자 ID: {}", articleId, currentUserId);
 
         // 1. articleId로 게시글을 DB에서 조회합니다. 없으면 예외를 발생시킵니다.
-        Article article = articleRepository.findById(articleId)
+        Article article = articleRepository.findByIdWithCollections(articleId)
                 .orElseThrow(() -> new IllegalArgumentException("ID " + articleId + "에 해당하는 게시글을 찾을 수 없습니다."));
         log.debug("게시글 조회 성공 - ID: {}", articleId);
 
@@ -379,7 +390,7 @@ public class ArticleService {
     public ArticleResponse updateArticle(Long articleId, ArticleUpdateRequest request, List<MultipartFile> newImages, Long currentUserId) throws IOException {
         log.info("게시글 수정 서비스 호출 - 게시글 ID: {}, 요청자 ID: {}", articleId, currentUserId);
 
-        Article article = articleRepository.findById(articleId)
+        Article article = articleRepository.findByIdWithCollections(articleId)
                 .orElseThrow(() -> new IllegalArgumentException("ID " + articleId + "에 해당하는 게시글을 찾을 수 없습니다."));
 
         if (!article.getUser().getId().equals(currentUserId)) {
@@ -387,68 +398,146 @@ public class ArticleService {
             throw new SecurityException("게시글을 수정할 권한이 없습니다.");
         }
 
-        // 1. 기존 장소(ArticlePlace)들을 Map 형태로 바꿔서 쉽게 찾을 수 있도록 준비합니다.
-        Map<Integer, ArticlePlace> oldPlacesMap = article.getArticlePlaces().stream()
-                .collect(Collectors.toMap(ArticlePlace::getPlaceOrder, Function.identity()));
+//        // 1. 기존 장소(ArticlePlace)들을 Map 형태로 바꿔서 쉽게 찾을 수 있도록 준비합니다.
+//        Map<Integer, ArticlePlace> oldPlacesMap = article.getArticlePlaces().stream()
+//                .collect(Collectors.toMap(ArticlePlace::getPlaceOrder, Function.identity()));
+//
+//        // 2. 요청으로 들어온 새로운 장소 정보 목록을 placeOrder 순으로 정렬합니다.
+//        List<ArticleUpdateRequest.PlaceInfo> newPlaceInfos = request.getPlaces().stream()
+//                .sorted(Comparator.comparingInt(ArticleUpdateRequest.PlaceInfo::getPlaceOrder))
+//                .collect(Collectors.toList());
+//
+//        List<ArticlePlace> updatedArticlePlaces = new ArrayList<>();
+//        int newImageIndex = 0;
+//
+//        // 3. 요청으로 들어온 장소 목록을 하나씩 확인하며 업데이트/추가 작업을 수행합니다.
+//        for (ArticleUpdateRequest.PlaceInfo placeInfo : newPlaceInfos) {
+//            String photoUrl;
+//            // Case A: 기존에 있던 장소 (placeOrder가 동일)
+//            if (oldPlacesMap.containsKey(placeInfo.getPlaceOrder())) {
+//                ArticlePlace oldPlace = oldPlacesMap.get(placeInfo.getPlaceOrder());
+//                // Case A-1: 사진이 변경되지 않고 유지됨 (remainingPhotoUrls에 포함)
+//                if (request.getRemainingPhotoUrls() != null && request.getRemainingPhotoUrls().contains(oldPlace.getPhotoUrl())) {
+//                    photoUrl = oldPlace.getPhotoUrl(); // 기존 URL 사용
+//                }
+//                // Case A-2: 사진이 변경됨 (새 이미지 파일로 교체)
+//                else {
+//                    uploader.delete(oldPlace.getPhotoUrl()); // 기존 이미지 삭제
+//                    photoUrl = uploader.upload(newImages.get(newImageIndex++), "article-images"); // 새 이미지 업로드
+//                }
+//            }
+//            // Case B: 새로 추가된 장소
+//            else {
+//                photoUrl = uploader.upload(newImages.get(newImageIndex++), "article-images"); // 새 이미지 업로드
+//            }
+//
+//            ArticlePlace updatedPlace = new ArticlePlace(
+//                    placeInfo.getPlaceOrder(),
+//                    placeInfo.getPlaceName(),
+//                    placeInfo.getRoadAddress().getAddressName(),
+//                    placeInfo.getDescription(),
+//                    photoUrl
+//            );
+//            updatedArticlePlaces.add(updatedPlace);
+//        }
+//
+//        // 4. 삭제된 장소를 찾아서 S3의 이미지를 삭제합니다.
+//        Set<Integer> newPlaceOrders = newPlaceInfos.stream()
+//                .map(ArticleCreateRequest.PlaceInfo::getPlaceOrder)
+//                .collect(Collectors.toSet());
+//
+//        for (ArticlePlace oldPlace : article.getArticlePlaces()) {
+//            if (!newPlaceOrders.contains(oldPlace.getPlaceOrder())) {
+//                uploader.delete(oldPlace.getPhotoUrl());
+//            }
+//        }
+//        // 수정 요청에서도 동일하게 Region 엔티티를 찾아옵니다.
+//        Region childRegion = findRegionFromRequest(request.getPlaces());
+//
+//        // Article 엔티티의 update 메소드를 호출할 때, 찾아낸 Region 객체를 함께 전달합니다.
+//        article.update(request, childRegion, updatedArticlePlaces);
+//        log.debug("게시글 내용 업데이트 완료 (Dirty Checking 대상) - ID: {}", articleId);
+//
+//        log.info("<- 게시글 수정 서비스 완료 - ID: {}", articleId);
+//        return new ArticleResponse(article);
+//    }
 
-        // 2. 요청으로 들어온 새로운 장소 정보 목록을 placeOrder 순으로 정렬합니다.
-        List<ArticleUpdateRequest.PlaceInfo> newPlaceInfos = request.getPlaces().stream()
-                .sorted(Comparator.comparingInt(ArticleUpdateRequest.PlaceInfo::getPlaceOrder))
-                .collect(Collectors.toList());
+        // --- 이미지 및 장소 정보 처리 ---
 
-        Set<ArticlePlace> updatedArticlePlaces = new HashSet<>();
-        int newImageIndex = 0;
+        // 1. 기존 이미지 URL들을 Set으로 만들어 쉽게 검색할 수 있도록 준비합니다.
+        Set<String> oldImageUrls = article.getArticlePlaces().stream()
+                .map(ArticlePlace::getPhotoUrl)
+                .filter(url -> url != null && !url.isEmpty())
+                .collect(Collectors.toSet());
 
-        // 3. 요청으로 들어온 장소 목록을 하나씩 확인하며 업데이트/추가 작업을 수행합니다.
-        for (ArticleUpdateRequest.PlaceInfo placeInfo : newPlaceInfos) {
-            String photoUrl;
-            // Case A: 기존에 있던 장소 (placeOrder가 동일)
-            if (oldPlacesMap.containsKey(placeInfo.getPlaceOrder())) {
-                ArticlePlace oldPlace = oldPlacesMap.get(placeInfo.getPlaceOrder());
-                // Case A-1: 사진이 변경되지 않고 유지됨 (remainingPhotoUrls에 포함)
-                if (request.getRemainingPhotoUrls() != null && request.getRemainingPhotoUrls().contains(oldPlace.getPhotoUrl())) {
-                    photoUrl = oldPlace.getPhotoUrl(); // 기존 URL 사용
-                }
-                // Case A-2: 사진이 변경됨 (새 이미지 파일로 교체)
-                else {
-                    uploader.delete(oldPlace.getPhotoUrl()); // 기존 이미지 삭제
-                    photoUrl = uploader.upload(newImages.get(newImageIndex++), "article-images"); // 새 이미지 업로드
-                }
+        // 2. 프론트에서 "유지하겠다"고 보낸 이미지 URL 목록입니다.
+        Set<String> remainingImageUrls = new HashSet<>(request.getRemainingPhotoUrls() != null ? request.getRemainingPhotoUrls() : List.of());
+
+        // 3. DB에 최종적으로 저장될 새로운 장소 목록을 담을 리스트입니다.
+        List<ArticlePlace> updatedArticlePlaces = new ArrayList<>();
+        int newImageIndex = 0; // 새로 업로드된 이미지 파일의 인덱스
+
+        // 4. 요청으로 들어온 장소 목록(수정 후의 최종 목록)을 순회합니다.
+        for (ArticleUpdateRequest.PlaceInfo placeInfo : request.getPlaces()) {
+            String finalPhotoUrl = null;
+
+            // 프론트엔드에서 유지할 사진의 URL을 직접 보내주는 것이 가장 이상적이지만,
+            // 현재 DTO 구조상 placeInfo에 기존 URL이 없으므로, 기존 장소 목록에서 찾아 매칭합니다.
+            String existingUrlToKeep = findMatchingUrl(placeInfo, article.getArticlePlaces(), remainingImageUrls);
+
+            // Case A: 이 장소의 사진을 '유지'하는 경우
+            if (existingUrlToKeep != null) {
+                finalPhotoUrl = existingUrlToKeep;
             }
-            // Case B: 새로 추가된 장소
-            else {
-                photoUrl = uploader.upload(newImages.get(newImageIndex++), "article-images"); // 새 이미지 업로드
+            // Case B: 사진을 '교체'하거나 '새로 추가'하는 경우
+            else if (newImages != null && newImageIndex < newImages.size()) {
+                finalPhotoUrl = uploader.upload(newImages.get(newImageIndex++), "article-images");
             }
 
-            ArticlePlace updatedPlace = new ArticlePlace(
+            updatedArticlePlaces.add(new ArticlePlace(
                     placeInfo.getPlaceOrder(),
                     placeInfo.getPlaceName(),
                     placeInfo.getRoadAddress().getAddressName(),
                     placeInfo.getDescription(),
-                    photoUrl
-            );
-            updatedArticlePlaces.add(updatedPlace);
+                    finalPhotoUrl
+            ));
         }
 
-        // 4. 삭제된 장소를 찾아서 S3의 이미지를 삭제합니다.
-        Set<Integer> newPlaceOrders = newPlaceInfos.stream()
-                .map(ArticleCreateRequest.PlaceInfo::getPlaceOrder)
-                .collect(Collectors.toSet());
-
-        for (ArticlePlace oldPlace : article.getArticlePlaces()) {
-            if (!newPlaceOrders.contains(oldPlace.getPlaceOrder())) {
-                uploader.delete(oldPlace.getPhotoUrl());
-            }
+        // 5. 삭제되어야 할 이미지들을 S3에서 실제로 제거합니다. (기존 이미지 전체 - 유지할 이미지)
+        oldImageUrls.removeAll(remainingImageUrls);
+        for (String imageUrlToDelete : oldImageUrls) {
+            uploader.delete(imageUrlToDelete);
         }
-        // 수정 요청에서도 동일하게 Region 엔티티를 찾아옵니다.
+
+        // 6. Article 엔티티를 업데이트합니다.
         Region childRegion = findRegionFromRequest(request.getPlaces());
 
-        // Article 엔티티의 update 메소드를 호출할 때, 찾아낸 Region 객체를 함께 전달합니다.
-        article.update(request, childRegion, updatedArticlePlaces);
-        log.debug("게시글 내용 업데이트 완료 (Dirty Checking 대상) - ID: {}", articleId);
+        // 모든 장소가 대표 지역과 일치하는지 검증
+        boolean allPlacesAreInSameRegion = request.getPlaces().stream()
+                .allMatch(place -> {
+                    String placeRegionName = place.getRoadAddress().getRegion2DepthName(); // 각 장소의 '시/군/구' 이름
+                    return childRegion.getName().equals(placeRegionName);
+                });
+
+        if (!allPlacesAreInSameRegion) {
+            throw new IllegalArgumentException("모든 장소는 동일한 시/군/구에 속해야 합니다.");
+        }
+
+        article.update(request, childRegion, updatedArticlePlaces); // Article 엔티티의 update 메서드 호출
 
         log.info("<- 게시글 수정 서비스 완료 - ID: {}", articleId);
         return new ArticleResponse(article);
+    }
+
+    // updateArticle 내부에서 사용할 헬퍼 메서드
+    private String findMatchingUrl(ArticleUpdateRequest.PlaceInfo newPlace, List<ArticlePlace> oldPlaces, Set<String> remainingUrls) {
+        // 기존 장소 목록에서 이름과 주소가 같은 것을 찾아
+        return oldPlaces.stream()
+                .filter(oldPlace -> oldPlace.getPlaceName().equals(newPlace.getPlaceName()) && oldPlace.getAddress().equals(newPlace.getRoadAddress().getAddressName()))
+                .map(ArticlePlace::getPhotoUrl) // 그 장소의 기존 URL을 가져온 뒤
+                .filter(remainingUrls::contains) // 그 URL이 "유지할 목록"에 있는지 확인
+                .findFirst()
+                .orElse(null);
     }
 
     // 요청 DTO에서 Region을 찾는 중복 로직 추출

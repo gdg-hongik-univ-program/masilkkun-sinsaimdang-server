@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
+import org.springframework.util.AntPathMatcher;
+
 @RequiredArgsConstructor
 @Slf4j
 public class JwtAuthenticationFilter implements Filter {
@@ -109,6 +111,7 @@ public class JwtAuthenticationFilter implements Filter {
                 "/api/auth/check-email",
                 "/api/auth/check-nickname",
 //                "/api/articles",
+
         };
 
         for (String publicPath : publicPaths) {

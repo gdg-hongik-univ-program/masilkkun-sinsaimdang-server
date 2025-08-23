@@ -35,9 +35,12 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
     @Override
     public Page<Article> search(ArticleSearchCondition condition, Pageable pageable) {
         List<Article> content = queryFactory
-                .selectFrom(article)
+                .selectFrom(article).distinct()
+                .from(article)
                 .leftJoin(article.user, user).fetchJoin()
                 .leftJoin(article.region, region).fetchJoin()
+//                .leftJoin(article.articleTags).fetchJoin()
+//                .leftJoin(article.articlePlaces).fetchJoin()
                 .where(
                         tagsAllPresent(condition.getTags()),
                         regionFilter(condition.getRegion())

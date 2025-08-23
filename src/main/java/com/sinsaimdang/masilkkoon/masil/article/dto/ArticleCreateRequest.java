@@ -34,7 +34,7 @@ public class ArticleCreateRequest {
     @NotNull
     private List<PlaceInfo> places;
 
-    public Article toEntity(User user, Region region, Set<ArticlePlace> articlePlaces) {
+    public Article toEntity(User user, Region region, List<ArticlePlace> articlePlaces) {
         // Article 엔티티 생성자에 맞게 수정
         return new Article(
                 this.title,

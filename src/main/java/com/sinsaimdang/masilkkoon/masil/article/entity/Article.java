@@ -56,10 +56,15 @@ public class Article {
     @Column(nullable = false)
     private int viewCount = 0; // 조회수
 
-    // 장소 경로: ArticlePlace 임베디드 타입의 Set으로 저장
-    @ElementCollection(fetch = FetchType.LAZY) // 지연 로딩
+//    // 장소 경로: ArticlePlace 임베디드 타입의 Set으로 저장
+//    @ElementCollection(fetch = FetchType.LAZY) // 지연 로딩
+//    @CollectionTable(name = "article_places", joinColumns = @JoinColumn(name = "article_id"))
+//    private Set<ArticlePlace> articlePlaces = new HashSet<>();
+
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "article_places", joinColumns = @JoinColumn(name = "article_id"))
-    private Set<ArticlePlace> articlePlaces = new HashSet<>();
+    @OrderBy("placeOrder ASC") // placeOrder 필드 기준으로 항상 오름차순 정렬
+    private List<ArticlePlace> articlePlaces = new ArrayList<>();
 
     @Column(name = "created_at", updatable = false, nullable = false)
     private LocalDateTime createdAt; // 게시글 생성 시간
@@ -109,13 +114,13 @@ public class Article {
     }
 
     public Article(String title, String content, User user, Region region,
-                   Set<ArticleTag> articleTags, Set<ArticlePlace> articlePlaces) {
+                   Set<ArticleTag> articleTags, List<ArticlePlace> articlePlaces) {
         this.title = title;
         this.content = content;
         this.user = user;
         this.region = region;
         this.articleTags = articleTags != null ? new HashSet<>(articleTags) : new HashSet<>();
-        this.articlePlaces = articlePlaces != null ? new HashSet<>(articlePlaces) : new HashSet<>();
+        this.articlePlaces = articlePlaces != null ? new ArrayList<>(articlePlaces) : new ArrayList<>();
         this.scrapCount = 0;
         this.likeCount = 0;
         this.viewCount = 0;
@@ -125,13 +130,20 @@ public class Article {
      * 게시글 수정 DTO를 기반으로 엔티티의 내용을 업데이트하는 메서드
      * @param request 수정 요청 DTO
      */
-    public void update(ArticleUpdateRequest request, Region region, Set<ArticlePlace> updatedArticlePlaces) {
+    public void update(ArticleUpdateRequest request, Region region, List<ArticlePlace> updatedArticlePlaces) {
         this.title = request.getTitle();
         this.content = request.getContent();
         this.region = region;
 
         this.articleTags.clear();
         this.articleTags.addAll(request.getTags());
+
+//        // 1. 기존 장소 목록에서, 새로운 목록에 없는 장소들을 제거한다.
+//        this.articlePlaces.retainAll(updatedArticlePlaces);
+
+//        // 2. 새로운 목록에서, 기존 목록에 이미 있는 장소들을 제외하고, '새로운' 장소들만 추가한다.
+//        updatedArticlePlaces.removeAll(this.articlePlaces);
+//        this.articlePlaces.addAll(updatedArticlePlaces);
 
         this.articlePlaces.clear();
         this.articlePlaces.addAll(updatedArticlePlaces);

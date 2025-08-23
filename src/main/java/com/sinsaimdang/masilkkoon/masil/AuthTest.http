@@ -385,7 +385,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giL
 # 게시글을 작성할 '경기도 수원시'에 대한 방문 인증을 먼저 수행합니다.
 POST http://localhost:8080/api/location/verify
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giLCJ1c2VyRW1haWwiOiJwaG90by10ZXN0ZXJAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6IuyCrOynhO2FjOyKpO2EsCIsInVzZXJSb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoicGhvdG8tdGVzdGVyQGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU2MzU1MjUsImV4cCI6MTc1NTYzNzMyNX0.z_Bwk0gcYhW5xtifl0qiOkQPQ9IR3vSUClMX1RT6ExI
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giLCJ1c2VyRW1haWwiOiJwaG90by10ZXN0ZXJAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6IuyCrOynhO2FjOyKpO2EsCIsInVzZXJSb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoicGhvdG8tdGVzdGVyQGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU5NTEyMzQsImV4cCI6MTc1NTk1MzAzNH0.mbT2b3J6z4_5ZmfM0JxN1pc_inGtwl-ZThXi-jOI6Tk
 
 {
   "road_address": {
@@ -400,7 +400,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giL
 ### [STEP 6] 장소 2개와 각 장소의 이미지 2개로 게시글 생성
 # 'images' 파트의 파일 경로 2개를 모두 실제 컴퓨터 경로로 수정하세요.
 POST http://localhost:8080/api/articles
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giLCJ1c2VyRW1haWwiOiJwaG90by10ZXN0ZXJAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6IuyCrOynhO2FjOyKpO2EsCIsInVzZXJSb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoicGhvdG8tdGVzdGVyQGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU2MzU1MjUsImV4cCI6MTc1NTYzNzMyNX0.z_Bwk0gcYhW5xtifl0qiOkQPQ9IR3vSUClMX1RT6ExI
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giLCJ1c2VyRW1haWwiOiJwaG90by10ZXN0ZXJAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6IuyCrOynhO2FjOyKpO2EsCIsInVzZXJSb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoicGhvdG8tdGVzdGVyQGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU5NTEyMzQsImV4cCI6MTc1NTk1MzAzNH0.mbT2b3J6z4_5ZmfM0JxN1pc_inGtwl-ZThXi-jOI6Tk
 Content-Type: multipart/form-data; boundary=boundary
 
 --boundary
@@ -432,14 +432,14 @@ Content-Type: application/json
 Content-Disposition: form-data; name="images"; filename="place1_image.jpg"
 Content-Type: image/jpeg
 
-< C:\이미지테스트\슬기1.webp
+< C:\이미지테스트\seulgi1.webp
 
 --boundary
 # 두 번째 장소(placeOrder: 2)에 매칭될 이미지
 Content-Disposition: form-data; name="images"; filename="place2_image.png"
 Content-Type: image/png
 
-< C:\이미지테스트\슬기2.jpeg
+< C:\이미지테스트\seulgi2.jpeg
 --boundary--
 
 
@@ -447,8 +447,8 @@ Content-Type: image/png
 
 ### [STEP 7] 게시글 수정 (장소 1개 삭제, 1개 유지, 1개 추가)
 # **수정할 게시글 ID**를 URL에 맞게 변경해주세요 (예: /api/articles/1)
-PUT http://localhost:8080/api/articles/3
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giLCJ1c2VyRW1haWwiOiJwaG90by10ZXN0ZXJAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6IuyCrOynhO2FjOyKpO2EsCIsInVzZXJSb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoicGhvdG8tdGVzdGVyQGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU2MzU1MjUsImV4cCI6MTc1NTYzNzMyNX0.z_Bwk0gcYhW5xtifl0qiOkQPQ9IR3vSUClMX1RT6ExI
+PUT http://localhost:8080/api/articles/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giLCJ1c2VyRW1haWwiOiJwaG90by10ZXN0ZXJAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6IuyCrOynhO2FjOyKpO2EsCIsInVzZXJSb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoicGhvdG8tdGVzdGVyQGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU5NTEyMzQsImV4cCI6MTc1NTk1MzAzNH0.mbT2b3J6z4_5ZmfM0JxN1pc_inGtwl-ZThXi-jOI6Tk
 Content-Type: multipart/form-data; boundary=boundary
 
 --boundary

@@ -80,7 +80,7 @@ public class S3Uploader implements Uploader {
             // 1. S3 버킷 URL을 기반으로 파일 키(경로+이름)를 추출합니다.
             // 예: https://버킷이름.s3.ap-northeast-2.amazonaws.com/profile-images/uuid_파일명.jpg
             // -> profile-images/uuid_파일명.jpg
-            String key = fileUrl.substring(fileUrl.indexOf(bucket + "/") + bucket.length() + 1);
+            final String key = fileUrl.substring(fileUrl.indexOf(".com/") + 5);
 
             // 2. S3 클라이언트를 사용하여 객체 삭제를 요청합니다.
             amazonS3Client.deleteObject(bucket, key);
