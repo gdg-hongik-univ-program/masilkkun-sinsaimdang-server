@@ -176,7 +176,7 @@ public class UserService {
         String oldImageUrl = user.getProfileImageUrl();
 
         // 기존 이미지가 기본 이미지가 아닐 경우에만 삭제
-        if (oldImageUrl != null && !oldImageUrl.equals(defaultProfileImageUrl)) {
+        if (oldImageUrl != null && !defaultProfileImageUrl.equals(oldImageUrl)) {
             uploader.delete(oldImageUrl);
             log.info("기존 프로필 이미지 삭제 완료 - URL: {}", oldImageUrl);
         }

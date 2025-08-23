@@ -363,7 +363,7 @@ Content-Type: application/json
 ### [STEP 3] 프로필 이미지 업로드 (수정)
 # 'profileImage' 파트의 파일 경로를 실제 컴퓨터에 있는 이미지 경로로 수정하세요.
 POST http://localhost:8080/api/user/profile-image
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giLCJ1c2VyRW1haWwiOiJwaG90by10ZXN0ZXJAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6IuyCrOynhO2FjOyKpO2EsCIsInVzZXJSb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoicGhvdG8tdGVzdGVyQGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU5NTU2NjMsImV4cCI6MTc1NTk1NzQ2M30.G1MQtRqebGbyFvkRuerA0QWOCsXtpYl6yYJR37Lg_CQ
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giLCJ1c2VyRW1haWwiOiJwaG90by10ZXN0ZXJAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6IuyCrOynhO2FjOyKpO2EsCIsInVzZXJSb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoicGhvdG8tdGVzdGVyQGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU5NTcxNzksImV4cCI6MTc1NTk1ODk3OX0.glL-A0reEYIPc7wtGg6rdw0reHs42vrK00onUs0Wpi4
 Content-Type: multipart/form-data; boundary=boundary
 
 --boundary
@@ -375,7 +375,7 @@ Content-Type: image/jpeg
 
 ### [STEP 4] 프로필 이미지 삭제 (기본 이미지로 복원)
 DELETE http://localhost:8080/api/user/profile-image
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giLCJ1c2VyRW1haWwiOiJwaG90by10ZXN0ZXJAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6IuyCrOynhO2FjOyKpO2EsCIsInVzZXJSb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoicGhvdG8tdGVzdGVyQGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU5NTU2NjMsImV4cCI6MTc1NTk1NzQ2M30.G1MQtRqebGbyFvkRuerA0QWOCsXtpYl6yYJR37Lg_CQ
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giLCJ1c2VyRW1haWwiOiJwaG90by10ZXN0ZXJAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6IuyCrOynhO2FjOyKpO2EsCIsInVzZXJSb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoicGhvdG8tdGVzdGVyQGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU5NTcxNzksImV4cCI6MTc1NTk1ODk3OX0.glL-A0reEYIPc7wtGg6rdw0reHs42vrK00onUs0Wpi4
 
 ### =======================================
 ### ✨ 게시글 (장소별 이미지) 테스트 ✨
