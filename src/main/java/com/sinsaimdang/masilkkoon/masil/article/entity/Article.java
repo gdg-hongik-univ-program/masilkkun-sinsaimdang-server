@@ -47,13 +47,13 @@ public class Article {
     @Column(name = "tag") // 태그 값을 저장할 컬럼명
     private Set<ArticleTag> articleTags = new HashSet<>();
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "int default 0")
     private int scrapCount = 0; // 스크랩 수
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "int default 0")
     private int likeCount = 0; // 좋아요 수
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "int default 0")
     private int viewCount = 0; // 조회수
 
 //    // 장소 경로: ArticlePlace 임베디드 타입의 Set으로 저장
