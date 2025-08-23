@@ -221,7 +221,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlc
 ### [스크랩] 2번 게시글 스크랩하기
 POST http://localhost:8080/api/articles/2/scraps
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjozLCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU2MDA2NDUsImV4cCI6MTc1NTYwMjQ0NX0.gjrWCUAShj0__slwLMI3h2Nv0tW00eEJND41UfyVqJ0
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjo0LCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU5NjE2NzAsImV4cCI6MTc1NTk2MzQ3MH0.xWJlMkiJ76_z1CUM_1JY0p4Mk6UiFQIqCR48503hl58
 
 ### [스크랩 취소] 2번 게시글 스크랩 취소하기
 DELETE http://localhost:8080/api/articles/2/scraps
@@ -230,7 +230,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlc
 
 ### [스크랩 목록 조회] 내가 스크랩한 게시글 목록 보기
 GET http://localhost:8080/api/user/scraps
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjozLCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU2MDA2NDUsImV4cCI6MTc1NTYwMjQ0NX0.gjrWCUAShj0__slwLMI3h2Nv0tW00eEJND41UfyVqJ0
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjo0LCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU5NjE2NzAsImV4cCI6MTc1NTk2MzQ3MH0.xWJlMkiJ76_z1CUM_1JY0p4Mk6UiFQIqCR48503hl58
 
 ### =======================================
 ### ✨ 작성한 게시글 목록 조회 테스트 ✨
@@ -490,3 +490,38 @@ Content-Type: image/gif
 
 < C:\이미지테스트\슬기4.jpg
 --boundary--
+
+
+
+### ✨ 스크랩 목록 조회 및 필터링 테스트 ✨
+# [테스트 방법]
+# 1. '로그인 테스트'를 실행해서 1번 사용자('test@example.com')의 토큰을 발급받으세요.
+# 2. 발급받은 accessToken을 아래 'Bearer ???' 부분에 붙여넣으세요.
+# 3. dummy.sql에 따라 1번 유저는 2번, 3번, 4번 게시글을 스크랩한 상태입니다.
+
+### [스크랩 목록 조회] 내가 스크랩한 모든 게시글 목록 보기 (기본)
+# 예상 결과: 200 OK, 스크랩한 3개의 게시글(ID: 2, 3, 4)이 최신순으로 조회됩니다.
+GET http://localhost:8080/api/user/scraps
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjo0LCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU5NjE0MTEsImV4cCI6MTc1NTk2MzIxMX0.3CAa9YL46nP15BQGZw-z6Y39lvfAvLwelasINXvqjZA
+
+###
+
+### [스크랩 필터링] 스크랩한 글 중에서 '부산광역시' 게시글만 보기
+# 예상 결과: 200 OK, 2번 게시글("부산 해변 기차 여행") 1개만 조회됩니다.
+GET http://localhost:8080/api/user/scraps?region=부산광역시
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjo0LCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU5NjE0MTEsImV4cCI6MTc1NTk2MzIxMX0.3CAa9YL46nP15BQGZw-z6Y39lvfAvLwelasINXvqjZA
+
+###
+
+### [스크랩 필터링] 스크랩한 글 중에서 'CAFE' 태그가 있는 글만 보기
+# 예상 결과: 200 OK, 4번 게시글("제주의 맛집과 카페") 1개만 조회됩니다.
+GET http://localhost:8080/api/user/scraps?tags=CAFE
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjo0LCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU5NjE0MTEsImV4cCI6MTc1NTk2MzIxMX0.3CAa9YL46nP15BQGZw-z6Y39lvfAvLwelasINXvqjZA
+
+###
+
+### [스크랩 필터링] 스크랩한 글 중에서 'RESTAURANT' 태그와 'TRAVEL_SPOT' 태그를 모두 가진 글만 보기
+# 예상 결과: 200 OK, 4번 게시글은 두 태그를 모두 만족하지 않으므로, 아무것도 조회되지 않아야 정상입니다.
+# (dummy.sql에 RESTAURANT와 TRAVEL_SPOT을 모두 가진 게시글은 없음)
+GET http://localhost:8080/api/user/scraps?tags=RESTAURANT,TRAVEL_SPOT
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjo0LCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU5NjE0MTEsImV4cCI6MTc1NTk2MzIxMX0.3CAa9YL46nP15BQGZw-z6Y39lvfAvLwelasINXvqjZA
