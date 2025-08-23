@@ -92,3 +92,17 @@ UPDATE users SET following_count = 1, follower_count = 2 WHERE id = 1;
 UPDATE users SET following_count = 1, follower_count = 1 WHERE id = 2;
 -- 3번 유저: 팔로잉 1명, 팔로워 0명
 UPDATE users SET following_count = 1, follower_count = 0 WHERE id = 3;
+
+-- =================================================================================================
+-- 4. 스크랩(ARTICLE_SCRAP) 테스트 데이터
+-- =================================================================================================
+-- 기존 스크랩 데이터가 있다면 초기화합니다.
+TRUNCATE TABLE article_scrap;
+
+-- 1번 유저가 2번, 3번, 4번 게시글을 스크랩합니다.
+INSERT INTO article_scrap (user_id, article_id, created_at) VALUES (1, 2, NOW());
+INSERT INTO article_scrap (user_id, article_id, created_at) VALUES (1, 3, NOW());
+INSERT INTO article_scrap (user_id, article_id, created_at) VALUES (1, 4, NOW());
+
+-- 2번 유저가 1번 게시글을 스크랩합니다.
+INSERT INTO article_scrap (user_id, article_id, created_at) VALUES (2, 1, NOW());

@@ -116,10 +116,11 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
     @Override
     public Page<Article> searchScrapedArticles(Long userId, ArticleSearchCondition condition, Pageable pageable) {
         List<Article> content = queryFactory
-                .select(articleScrap.article)
+                .select(article)
                 .from(articleScrap)
-                .leftJoin(articleScrap.article, article).fetchJoin()
+                .join(articleScrap.article, article)
                 .leftJoin(article.user, user).fetchJoin()
+                .leftJoin(article.region, region).fetchJoin()
                 .where(
                         articleScrap.user.id.eq(userId),
                         regionFilter(condition.getRegion()),
@@ -127,20 +128,20 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .orderBy(articleSort(condition.getSortOrder())) // 기존 정렬 로직도 재사용!
+                .orderBy(articleSort(condition.getSortOrder()), articleScrap.createdAt.desc()) // 기존 정렬 로직도 재사용!
                 .fetch();
 
-        long total = queryFactory
-                .select(articleScrap.article)
+        Long total = queryFactory
+                .select(articleScrap.count())
                 .from(articleScrap)
-                .leftJoin(articleScrap.article, article)
+                .join(articleScrap.article, article)
                 .where(
                         articleScrap.user.id.eq(userId),
                         regionFilter(condition.getRegion()),
                         tagsAllPresent(condition.getTags())
                 )
-                .fetchCount();
+                .fetchOne();
 
-        return new PageImpl<>(content, pageable, total);
+        return new PageImpl<>(content, pageable, total != null ? total : 0L);
     }
 }
