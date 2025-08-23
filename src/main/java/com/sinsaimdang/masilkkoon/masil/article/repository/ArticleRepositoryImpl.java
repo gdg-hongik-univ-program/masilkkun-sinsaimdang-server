@@ -18,10 +18,10 @@ import java.util.Map;
 import java.util.HashMap;
 
 import static com.sinsaimdang.masilkkoon.masil.article.entity.QArticle.article;
+import static com.sinsaimdang.masilkkoon.masil.article.entity.QArticleScrap.articleScrap;
 import static com.sinsaimdang.masilkkoon.masil.user.entity.QUser.user;
 import static com.sinsaimdang.masilkkoon.masil.region.entity.QRegion.region;
 
-import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 
 public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
@@ -111,5 +111,36 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
             default:
                 return article.createdAt.desc(); // 기본 정렬: 최신순
         }
+    }
+
+    @Override
+    public Page<Article> searchScrapedArticles(Long userId, ArticleSearchCondition condition, Pageable pageable) {
+        List<Article> content = queryFactory
+                .select(articleScrap.article)
+                .from(articleScrap)
+                .leftJoin(articleScrap.article, article).fetchJoin()
+                .leftJoin(article.user, user).fetchJoin()
+                .where(
+                        articleScrap.user.id.eq(userId),
+                        regionFilter(condition.getRegion()),
+                        tagsAllPresent(condition.getTags())
+                )
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(articleSort(condition.getSortOrder())) // 기존 정렬 로직도 재사용!
+                .fetch();
+
+        long total = queryFactory
+                .select(articleScrap.article)
+                .from(articleScrap)
+                .leftJoin(articleScrap.article, article)
+                .where(
+                        articleScrap.user.id.eq(userId),
+                        regionFilter(condition.getRegion()),
+                        tagsAllPresent(condition.getTags())
+                )
+                .fetchCount();
+
+        return new PageImpl<>(content, pageable, total);
     }
 }

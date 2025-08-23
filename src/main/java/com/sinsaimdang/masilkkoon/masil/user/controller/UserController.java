@@ -1,6 +1,7 @@
 package com.sinsaimdang.masilkkoon.masil.user.controller;
 
 import com.sinsaimdang.masilkkoon.masil.article.dto.ArticleResponse;
+import com.sinsaimdang.masilkkoon.masil.article.dto.ArticleSearchCondition;
 import com.sinsaimdang.masilkkoon.masil.article.service.ArticleService;
 import com.sinsaimdang.masilkkoon.masil.auth.dto.CurrentUser;
 import com.sinsaimdang.masilkkoon.masil.common.util.ApiResponseUtil;
@@ -54,25 +55,6 @@ public class UserController {
 
         log.info("API RES >> GET /api/user/me | 요청자 ID: {}", currentUser.getId());
         return ApiResponseUtil.success("사용자 정보 조회 성공", userProfile);
-    }
-
-    @GetMapping("/profile")
-    public ResponseEntity<Map<String, Object>> getUserProfile(CurrentUser currentUser) {
-        log.info("API REQ >> GET /api/user/profile | 요청자 ID: {}", currentUser.getId());
-
-        if (!currentUser.isAuthenticated()) {
-            return ApiResponseUtil.unauthorized("인증되지 않은 사용자입니다.");
-        }
-
-        UserDto userProfile = userService.findById(currentUser.getId())
-                .orElseThrow(() -> {
-                    log.warn("프로필 조회 실패 - 존재하지 않는 사용자 ID {}", currentUser.getId());
-                    return new IllegalArgumentException("사용자 정보를 찾을 수 없습니다");
-                });
-
-        log.info("API RES >> GET /api/user/profile | 요청자 ID: {}", currentUser.getId());
-
-        return ApiResponseUtil.success("프로필 조회 성공", userProfile);
     }
 
     @GetMapping("/{userId}/profile")
@@ -215,6 +197,7 @@ public class UserController {
     @GetMapping("/scraps")
     public ResponseEntity<Map<String, Object>> getMyScrapedArticles(
             CurrentUser currentUser,
+            ArticleSearchCondition condition,
             Pageable pageable) {
 
         log.info("API REQ >> GET /api/user/scraps | 요청자 ID: {}", currentUser.getId());
@@ -224,7 +207,7 @@ public class UserController {
         }
 
         try {
-            Page<ArticleResponse> scrapedArticles = articleService.getScrapedArticles(currentUser.getId(), pageable);
+            Page<ArticleResponse> scrapedArticles = articleService.getScrapedArticles(currentUser.getId(), condition, pageable);
 
             log.info("API RES >> GET /api/user/scraps | 요청자 ID: {}, 조회된 게시글 수: {}",
                     currentUser.getId(), scrapedArticles.getContent().size());

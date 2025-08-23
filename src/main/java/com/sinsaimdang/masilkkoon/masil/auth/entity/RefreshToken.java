@@ -46,10 +46,4 @@ public class RefreshToken {
     public boolean isExpired() {
         return LocalDateTime.now().isAfter(expiresAt);
     }
-
-    // Refresh Token 토큰 값과 만료 시간 업데이트 (새로운 Token을 생성하는 대신 기존 Token 값 변경)
-    public void updateToken(String newToken, LocalDateTime newExpiresAt) {
-        this.token = newToken;
-        this.expiresAt = newExpiresAt;
-    }
 }

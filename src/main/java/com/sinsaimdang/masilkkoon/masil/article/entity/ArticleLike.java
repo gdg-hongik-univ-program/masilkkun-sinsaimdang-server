@@ -42,6 +42,4 @@ public class ArticleLike {
         this.user = user;
         this.article = article;
     }
-
-
 }

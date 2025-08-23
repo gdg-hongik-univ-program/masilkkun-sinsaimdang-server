@@ -2,6 +2,9 @@ package com.sinsaimdang.masilkkoon.masil.visit.repository;
 
 import com.sinsaimdang.masilkkoon.masil.visit.entity.Visit;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -10,6 +13,10 @@ import java.util.Optional;
 public interface VisitRepository extends JpaRepository<Visit, Long> {
 
     Optional<Visit> findByUserIdAndRegionId(Long userId, Long regionId);
+
+    @Modifying
+    @Query("DELETE FROM Visit v WHERE v.user.id = :userId")
+    void deleteAllByUserId(@Param("userId") Long userId);
 
     /**
      * 특정 사용자가 특정 지역을 방문한 기록이 있는지 확인하는 메서드
