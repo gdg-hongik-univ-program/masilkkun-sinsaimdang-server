@@ -53,11 +53,13 @@ public class ArticleResponse {
         private final Long id;
         private final String nickname;
         private final UserRole role;
+        private final String profileImageUrl;
 
         public AuthorDto(User user) {
             this.id = user.getId();
             this.nickname = user.getNickname();
             this.role = user.getRole();
+            this.profileImageUrl = user.getProfileImageUrl();
         }
     }
 }
