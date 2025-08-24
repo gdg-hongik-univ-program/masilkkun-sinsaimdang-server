@@ -359,14 +359,14 @@ public class ArticleService {
                 .orElseThrow(() -> new IllegalArgumentException("ID " + articleId + "에 해당하는 게시글을 찾을 수 없습니다."));
         log.debug("게시글 조회 성공 - ID: {}", articleId);
 
-        // 2. (핵심) 게시글의 작성자 ID와 현재 요청한 사용자의 ID가 일치하는지 확인합니다.
+        // 2.게시글의 작성자 ID와 현재 요청한 사용자의 ID가 일치하는지 확인합니다.
         if (!article.getUser().getId().equals(currentUserId)) {
             log.warn("게시글 삭제 권한 없음 - 게시글 작성자: {}, 요청자: {}", article.getUser().getId(), currentUserId);
             // 일치하지 않으면 SecurityException 예외를 발생시켜 삭제를 막습니다.
             throw new SecurityException("게시글을 삭제할 권한이 없습니다.");
         }
 
-        // 각 장소(ArticlePlace)에 포함된 모든 이미지 URL을 찾아서 S3에서 삭제합니다.
+        // 3. 각 장소(ArticlePlace)에 포함된 모든 이미지 URL을 찾아서 S3에서 삭제합니다.
         for (ArticlePlace place : article.getArticlePlaces()) {
             if (place.getPhotoUrl() != null && !place.getPhotoUrl().isEmpty()) {
                 uploader.delete(place.getPhotoUrl());
@@ -374,7 +374,11 @@ public class ArticleService {
             }
         }
 
-        // 3. 권한 확인이 통과되면 게시글을 삭제합니다.
+        // 4. 연관된 '좋아요'와 '스크랩' 데이터 먼저 삭제
+        articleLikeRepository.deleteAllByArticleId(articleId);
+        articleScrapRepository.deleteAllByArticleId(articleId);
+
+        // 5. 권한 확인이 통과되면 게시글을 삭제합니다.
         articleRepository.delete(article);
         log.info("게시글 삭제 완료 - ID: {}", articleId);
     }

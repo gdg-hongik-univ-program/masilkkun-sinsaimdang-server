@@ -32,4 +32,8 @@ public interface ArticleScrapRepository extends JpaRepository<ArticleScrap, Long
     @Modifying
     @Query("DELETE FROM ArticleScrap ascr WHERE ascr.user.id = :userId")
     void deleteAllByUserId(@Param("userId") Long userId);
+
+    @Modifying
+    @Query("DELETE FROM ArticleScrap ascr WHERE ascr.article.id = :articleId")
+    void deleteAllByArticleId(@Param("articleId") Long articleId);
 }
