@@ -525,3 +525,19 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlc
 # (dummy.sql에 RESTAURANT와 TRAVEL_SPOT을 모두 가진 게시글은 없음)
 GET http://localhost:8080/api/user/scraps?tags=RESTAURANT,TRAVEL_SPOT
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjo0LCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU5NjE0MTEsImV4cCI6MTc1NTk2MzIxMX0.3CAa9YL46nP15BQGZw-z6Y39lvfAvLwelasINXvqjZA
+
+
+### =======================================
+### ✨ 길찾기 API 테스트 ✨
+### =======================================
+
+# [테스트 방법]
+# 1. 아래 GET 요청을 실행합니다.
+# 2. 응답(Response)으로 200 OK와 함께 JSON 데이터가 오면 성공입니다.
+
+### [길찾기] 판교역 -> 카카오판교아지트 (경유지 없음)
+GET http://localhost:8080/api/directions?origin=127.111202,37.394912&destination=127.108621,37.402111
+
+
+### [길찾기] 판교역 -> 운중동 (경유지 1개 추가)
+GET http://localhost:8080/api/directions?origin=127.111202,37.394912&destination=127.093226,37.405397&waypoints=127.108621,37.402111

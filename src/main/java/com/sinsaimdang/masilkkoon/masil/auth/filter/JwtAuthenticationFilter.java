@@ -110,8 +110,7 @@ public class JwtAuthenticationFilter implements Filter {
                 "/api/auth/refresh",
                 "/api/auth/check-email",
                 "/api/auth/check-nickname",
-//                "/api/articles",
-
+                "/api/directions"
         };
 
         for (String publicPath : publicPaths) {
