@@ -33,7 +33,7 @@ FollowController {
     public ResponseEntity<Map<String, Object>> followUser(
             @PathVariable Long userId, CurrentUser currentUser) {
 
-        log.info("API REQ : POST api/users/{}/follow | 요청자 ID {}", userId, currentUser.getId());
+        log.info("API REQ : POST api/user/{}/follow | 요청자 ID {}", userId, currentUser.getId());
 
         if (!currentUser.isAuthenticated()) {
             return ApiResponseUtil.unauthorized("로그인이 필요합니다.");
@@ -48,7 +48,7 @@ FollowController {
                 follow.getCreatedAt()
         );
 
-        log.info("API RES : POST api/users/{}/follow | 요청자 ID {}", userId, currentUser.getId());
+        log.info("API RES : POST api/user/{}/follow | 요청자 ID {}", userId, currentUser.getId());
         return ApiResponseUtil.success("팔로우가 완료되었습니다", responseDto);
     }
 
@@ -56,7 +56,7 @@ FollowController {
     public ResponseEntity<Map<String, Object>> unfollowUser(
             @PathVariable Long userId, CurrentUser currentUser) {
 
-        log.info("API REQ : DELETE api/users/{}/follow | 요청자 ID {}", userId, currentUser.getId());
+        log.info("API REQ : DELETE api/user/{}/follow | 요청자 ID {}", userId, currentUser.getId());
 
         if(!currentUser.isAuthenticated()) {
             return ApiResponseUtil.unauthorized("로그인이 필요합니다");
@@ -69,7 +69,7 @@ FollowController {
                 userId
         );
 
-        log.info("API RES : DELETE api/users/{}/follow | 요청자 ID {}", userId, currentUser.getId());
+        log.info("API RES : DELETE api/user/{}/follow | 요청자 ID {}", userId, currentUser.getId());
         return ApiResponseUtil.success("언팔로우가 완료되었습니다", responseDto);
     }
 
@@ -77,7 +77,7 @@ FollowController {
     public ResponseEntity<Map<String, Object>> getFollowStatus(
             @PathVariable Long userId, CurrentUser currentUser) {
 
-        log.info("API REQ : GET api/users/{}/follow-status | 요청자 ID {}", userId, currentUser.getId());
+        log.info("API REQ : GET api/user/{}/follow-status | 요청자 ID {}", userId, currentUser.getId());
 
         if(!currentUser.isAuthenticated()) {
             return ApiResponseUtil.unauthorized("로그인이 필요합니다");
@@ -93,17 +93,17 @@ FollowController {
                 isMutualFollow
         );
 
-        log.info("API RES : GET api/users/{}/follow-status | 요청자 ID {}", userId, currentUser.getId());
+        log.info("API RES : GET api/user/{}/follow-status | 요청자 ID {}", userId, currentUser.getId());
         return ApiResponseUtil.success("팔로우 상태 조회 성공", responseDto);
     }
 
     @GetMapping("/{userId}/follow-info")
     public ResponseEntity<Map<String, Object>> getFollowInfo(@PathVariable Long userId) {
-        log.info("API REQ : GET api/users/{}/follow-info", userId);
+        log.info("API REQ : GET api/user/{}/follow-info", userId);
 
         UserDto responseDto = followService.getFollowStatus(userId);
 
-        log.info("API RES : GET api/users/{}/follow-info", userId);
+        log.info("API RES : GET api/user/{}/follow-info", userId);
         return ApiResponseUtil.success("팔로우 통계 조회 성공", responseDto);
     }
 
@@ -111,12 +111,12 @@ FollowController {
     public ResponseEntity<Map<String, Object>> getFollowers(
             @PathVariable Long userId,
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        log.info("API REQ : GET api/users/{}/followers", userId);
+        log.info("API REQ : GET api/user/{}/followers", userId);
 
         Slice<User> followers = followService.getFollowers(userId, pageable);
         Slice<UserDto> followerDtos = followers.map(UserDto::from);
 
-        log.info("API RES : GET api/users/{}/followers", userId);
+        log.info("API RES : GET api/user/{}/followers", userId);
         return ApiResponseUtil.success("팔로워 목록 조회 성공", followerDtos);
     }
 
@@ -124,11 +124,11 @@ FollowController {
     public ResponseEntity<Map<String, Object>> getFollowings(
             @PathVariable Long userId,
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        log.info("API REQ : GET api/users/{}/followings", userId);
+        log.info("API REQ : GET api/user/{}/followings", userId);
         Slice<User> followings = followService.getFollowing(userId, pageable);
         Slice<UserDto> followingDtos = followings.map(UserDto::from);
 
-        log.info("API RES : GET api/users/{}/followings", userId);
+        log.info("API RES : GET api/user/{}/followings", userId);
         return ApiResponseUtil.success("팔로잉 목록 조회 성공", followingDtos);
     }
 }

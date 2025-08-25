@@ -5,6 +5,7 @@ import com.sinsaimdang.masilkkoon.masil.article.repository.ArticleLikeRepository
 import com.sinsaimdang.masilkkoon.masil.article.repository.ArticleRepository;
 import com.sinsaimdang.masilkkoon.masil.article.repository.ArticleScrapRepository;
 import com.sinsaimdang.masilkkoon.masil.auth.validator.SignupValidator;
+import com.sinsaimdang.masilkkoon.masil.common.s3.Uploader;
 import com.sinsaimdang.masilkkoon.masil.user.dto.UserDto;
 import com.sinsaimdang.masilkkoon.masil.user.entity.User;
 import com.sinsaimdang.masilkkoon.masil.user.repository.FollowRepository;
@@ -16,8 +17,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -36,6 +39,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final Uploader uploader;
     private final SignupValidator signupValidator;
 
     public Optional<UserDto> findById(Long id){
@@ -48,6 +52,21 @@ public class UserService {
         } else {
             log.debug("사용자 조회 실패 - 존재하지 않는 ID = {}", id);
         }
+        return result;
+    }
+
+    public Optional<UserDto> findByEmail(String email) {
+        String normalizedEmail = email.toLowerCase().trim();
+        log.debug("사용자 이메일로 조회 요청 - 이메일: {}", normalizedEmail);
+
+        Optional<UserDto> result = userRepository.findByEmail(normalizedEmail).map(UserDto::from);
+
+        if (result.isPresent()) {
+            log.debug("사용자 조회 성공 - 이메일: {}, ID: {}", normalizedEmail, result.get().getId());
+        } else {
+            log.debug("사용자 조회 실패 - 존재하지 않는 이메일: {}", normalizedEmail);
+        }
+
         return result;
     }
 
@@ -94,18 +113,55 @@ public class UserService {
         return UserDto.from(savedUser);
     }
 
+    private void validatePasswordSecurity(String password) {
+        if (password == null || password.trim().isEmpty()) {
+            throw new SecurityException("비밀번호는 필수 항목입니다.");
+        }
+
+        if (password.length() < 8 || password.length() > 20) {
+            throw new SecurityException("비밀번호는 8~20 자리이어야 합니다.");
+        }
+
+        if (!password.matches(".*[a-z].*")) {
+            throw new SecurityException("비밀번호에 영문 소문자를 포함해야 합니다.");
+        }
+
+        if (!password.matches(".*[A-Z].*")) {
+            throw new SecurityException("비밀번호에 영문 대문자를 포함해야 합니다.");
+        }
+
+        if (!password.matches(".*[0-9].*")) {
+            throw new SecurityException("비밀번호에 숫자를 포함해야 합니다.");
+        }
+
+        if (!password.matches(".*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?].*")) {
+            throw new SecurityException("비밀번호에 특수문자를 포함해야 합니다.");
+        }
+
+        if (!password.matches("^[a-zA-Z0-9!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]*$")) {
+            throw new SecurityException("비밀번호는 영문, 숫자, 특수문자만 사용할 수 있습니다.");
+        }
+
+        log.debug("비밀번호 보안 정책 검증 통과");
+    }
+
     @Transactional
-    public UserDto updateProfileImage(Long userId, String profileImageUrl) {
+    public UserDto updateProfileImage(Long userId, MultipartFile profileImageFile) throws IOException {
         log.info("프로필 이미지 업데이트 요청 - ID: {}", userId);
 
         User user = getUserEntity(userId);
+        String oldImageUrl = user.getProfileImageUrl();
 
-        String normalizedProfileImageUrl = profileImageUrl != null ? profileImageUrl.trim() : null;
-        if (normalizedProfileImageUrl != null && normalizedProfileImageUrl.trim().isEmpty()) {
-            normalizedProfileImageUrl = null;
+        // 새 이미지 업로드
+        String newImageUrl = uploader.upload(profileImageFile, "profile-images");
+
+        // 기존 이미지가 기본 이미지가 아닐 경우에만 삭제
+        if (oldImageUrl != null && !oldImageUrl.equals(defaultProfileImageUrl)) {
+            uploader.delete(oldImageUrl);
+            log.info("기존 프로필 이미지 삭제 완료 - URL: {}", oldImageUrl);
         }
 
-        user.updateProfileImageUrl(normalizedProfileImageUrl);
+        user.updateProfileImageUrl(newImageUrl);
         User savedUser = userRepository.save(user);
 
         log.info("프로필 이미지 업데이트 완료 - ID: {}", userId);
@@ -117,10 +173,18 @@ public class UserService {
         log.info("프로필 사진 삭제 요청 - ID: {}", userId);
 
         User user = getUserEntity(userId);
-        user.updateProfileImageUrl(defaultProfileImageUrl);
+        String oldImageUrl = user.getProfileImageUrl();
+
+        // 기존 이미지가 기본 이미지가 아닐 경우에만 삭제
+        if (oldImageUrl != null && !defaultProfileImageUrl.equals(oldImageUrl)) {
+            uploader.delete(oldImageUrl);
+            log.info("기존 프로필 이미지 삭제 완료 - URL: {}", oldImageUrl);
+        }
+
+        user.updateProfileImageUrl(defaultProfileImageUrl); // 기본 이미지로 설정
         User savedUser = userRepository.save(user);
 
-        log.info("프로필 이미지 삭제 요청 - ID: {}", userId);
+        log.info("프로필 이미지 삭제 후 기본 이미지로 변경 완료 - ID: {}", userId);
         return UserDto.from(savedUser);
     }
 

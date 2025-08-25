@@ -5,9 +5,9 @@ Content-Type: application/json
 {
 
   "email": "test@example.com",
-  "password": "password123",
-  "name": "테스트 사용자",
-  "nickname": "testuser"
+  "password": "passWORD123!",
+  "name": "테스터",
+  "nickname": "king"
 }
 
 ### 로그인 테스트
@@ -15,8 +15,8 @@ POST http://localhost:8080/api/auth/login
 Content-Type: application/json
 
 {
-  "email": "250725@example.com",
-  "password": "password123"
+  "email": "test@example.com",
+  "password": "passWORD123!"
 }
 
 ### 이메일 중복 확인 테스트
@@ -60,17 +60,19 @@ Content-Type: application/json
 
 ### [인증 O] 게시글 목록 조회 (200 OK 예상)
 GET http://localhost:8080/api/articles
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiIyNTA3MjUiLCJ1c2VyRW1haWwiOiIyNTA3MjVAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6Iu2FjOyKpO2KuCDsgqzsmqnsnpAiLCJ1c2VyUm9sZSI6IlVTRVIiLCJ1c2VySWQiOjMsInN1YiI6IjI1MDcyNUBleGFtcGxlLmNvbSIsImlzcyI6Im1hc2lsIiwiaWF0IjoxNzUzNjczMDI0LCJleHAiOjE3NTM2NzQ4MjR9.Xu5iQdBo4Fq0B_OyCnv7FObDthvxKV6TU0lLGuadCok
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjoxLCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTUyNDg4MzMsImV4cCI6MTc1NTI1MDYzM30.3VrEi4On8BTBu3tXOxvZDT6ZtHMgiuAL18bmZew7axw
 
-### [인증 X] 게시글 목록 조회 (401 Unauthorized 예상)
+### [인증 X] 게시글 목록 조회 (200 OK 예상)
 GET http://localhost:8080/api/articles
 
 ### [인증 O] 게시글 단건 조회 (200 OK 예상)
 GET http://localhost:8080/api/articles/1
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiIyNTA3MjUiLCJ1c2VyRW1haWwiOiIyNTA3MjVAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6Iu2FjOyKpO2KuCDsgqzsmqnsnpAiLCJ1c2VyUm9sZSI6IlVTRVIiLCJ1c2VySWQiOjQsInN1YiI6IjI1MDcyNUBleGFtcGxlLmNvbSIsImlzcyI6Im1hc2lsIiwiaWF0IjoxNzUzNzU2MDk3LCJleHAiOjE3NTM3NTc4OTd9.dcHJvjfM0E_15gNmFLc3aAs_UfFtmJFDt4xnO4JGsNk
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjoxLCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTUyNDg4MzMsImV4cCI6MTc1NTI1MDYzM30.3VrEi4On8BTBu3tXOxvZDT6ZtHMgiuAL18bmZew7axw
 
-### [인증 X] 게시글 단건 조회 (401 Unauthorized 예상)
+### [인증 X] 게시글 단건 조회 (200 OK 예상)
 GET http://localhost:8080/api/articles/1
+
+
 
 
 
@@ -79,18 +81,463 @@ GET http://localhost:8080/api/articles/1
 ### 필터링 API 테스트
 ### =======================================
 
-### [필터링] 지역으로 검색 (서울)
-GET http://localhost:8080/api/articles?region=서울
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiIyNTA3MjUiLCJ1c2VyRW1haWwiOiIyNTA3MjVAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6Iu2FjOyKpO2KuCDsgqzsmqnsnpAiLCJ1c2VyUm9sZSI6IlVTRVIiLCJ1c2VySWQiOjMsInN1YiI6IjI1MDcyNUBleGFtcGxlLmNvbSIsImlzcyI6Im1hc2lsIiwiaWF0IjoxNzUzNjczMDI0LCJleHAiOjE3NTM2NzQ4MjR9.Xu5iQdBo4Fq0B_OyCnv7FObDthvxKV6TU0lLGuadCok
+### [필터링] 지역으로 검색 (서울특별시)
+GET http://localhost:8080/api/articles?region=서울특별시
 
 ### [필터링] 태그로 검색 (RESTAURANT)
 GET http://localhost:8080/api/articles?tags=RESTAURANT
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiIyNTA3MjUiLCJ1c2VyRW1haWwiOiIyNTA3MjVAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6Iu2FjOyKpO2KuCDsgqzsmqnsnpAiLCJ1c2VyUm9sZSI6IlVTRVIiLCJ1c2VySWQiOjMsInN1YiI6IjI1MDcyNUBleGFtcGxlLmNvbSIsImlzcyI6Im1hc2lsIiwiaWF0IjoxNzUzNjczMDI0LCJleHAiOjE3NTM2NzQ4MjR9.Xu5iQdBo4Fq0B_OyCnv7FObDthvxKV6TU0lLGuadCok
 
-### [필터링] 지역과 태그로 검색 (부산, TRAVEL_SPOT)
-GET http://localhost:8080/api/articles?region=부산&tags=TRAVEL_SPOT
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiIyNTA3MjUiLCJ1c2VyRW1haWwiOiIyNTA3MjVAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6Iu2FjOyKpO2KuCDsgqzsmqnsnpAiLCJ1c2VyUm9sZSI6IlVTRVIiLCJ1c2VySWQiOjMsInN1YiI6IjI1MDcyNUBleGFtcGxlLmNvbSIsImlzcyI6Im1hc2lsIiwiaWF0IjoxNzUzNjczMDI0LCJleHAiOjE3NTM2NzQ4MjR9.Xu5iQdBo4Fq0B_OyCnv7FObDthvxKV6TU0lLGuadCok
+### [필터링] 지역과 태그로 검색 (부산광역시, TRAVEL_SPOT)
+GET http://localhost:8080/api/articles?region=부산광역시&tags=TRAVEL_SPOT
 
 ### [필터링] 다중 태그로 검색 (CAFE, TRAVEL_SPOT)
 GET http://localhost:8080/api/articles?tags=CAFE,TRAVEL_SPOT
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiIyNTA3MjUiLCJ1c2VyRW1haWwiOiIyNTA3MjVAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6Iu2FjOyKpO2KuCDsgqzsmqnsnpAiLCJ1c2VyUm9sZSI6IlVTRVIiLCJ1c2VySWQiOjMsInN1YiI6IjI1MDcyNUBleGFtcGxlLmNvbSIsImlzcyI6Im1hc2lsIiwiaWF0IjoxNzUzNjczMDI0LCJleHAiOjE3NTM2NzQ4MjR9.Xu5iQdBo4Fq0B_OyCnv7FObDthvxKV6TU0lLGuadCok
+
+
+
+### =======================================
+### ✨ 게시글 작성 테스트 ✨
+### =======================================
+# [테스트 방법]
+# 1. 위에 있는 '로그인 테스트'를 실행해서 토큰을 발급받으세요.
+# 2. 응답으로 온 accessToken 값을 복사해서 아래 'Bearer ???' 부분에 붙여넣으세요.
+POST http://localhost:8080/api/articles
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjo0LCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU2MzcwNTAsImV4cCI6MTc1NTYzODg1MH0.7EONAiIAQZ4VQQ4x9t_sbWLtoZGGV6U896U88MhJZwc
+
+
+
+{
+  "title": "새로운 테스트 게시글",
+  "content": "테스트 내용입니다.",
+  "tags": [
+    "RESTAURANT",
+    "CAFE"
+  ],
+  "places": [
+    {
+      "placeOrder": 1,
+      "placeName": "첫 번째 장소 (신라갈비)",
+      "description": "수원 3대 갈비 맛집",
+      "photoUrl": "https://www.esquirekorea.co.kr/resources_old/online/org_online_image/eq/afcd68be-5e61-4ec0-832f-b572c13634c0.jpg",
+      "roadAddress": {
+        "address_name": "경기도 수원시 영통구 동수원로 538",
+        "region_1depth_name": "경기도",
+        "region_2depth_name": "수원시"
+      }
+    },
+    {
+      "placeOrder": 2,
+      "placeName": "두 번째 장소 (누크녹)",
+      "description": "골목에 위치한 감성 카페",
+      "photoUrl": "https://d12zq4w4guyljn.cloudfront.net/750_750_20250603084601_photo1_66362ea9f767.webp",
+      "roadAddress": {
+        "address_name": "경기도 수원시 팔달구 화서문로31번길 14-32",
+        "region_1depth_name": "경기도",
+        "region_2depth_name": "수원시"
+      }
+    }
+  ]
+}
+
+### =======================================
+### ✨ 게시글 수정 테스트 ✨
+### =======================================
+# [테스트 방법]
+# 1. 수정할 게시글의 ID를 아래 URL의 {articleId}에 입력하세요.
+# 2. 로그인 토큰을 복사해서 'Bearer ???' 부분에 붙여넣으세요.
+PUT http://localhost:8080/api/articles/5
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjoxLCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTUyNjAxMTYsImV4cCI6MTc1NTI2MTkxNn0.y9SMmHz8pA2kHXoLox3Ggz3-7k5bXIglrcsOoZz6RBA
+
+{
+  "title": "수정된 테스트 게시글 제목입니다",
+  "content": "내용도 이렇게 멋지게 수정되었습니다.",
+  "tags": [
+    "TRAVEL_SPOT"
+  ],
+  "places": [
+    {
+      "placeOrder": 1,
+      "placeName": "수정된 첫 번째 장소: 해운대",
+      "description": "부산하면 역시 해운대죠!",
+      "photoUrl": "https://www.visitbusan.net/uploadImgs/files/cntnts/20191227195613061_oen",
+      "roadAddress": {
+        "address_name": "부산광역시 해운대구 우동",
+        "region_1depth_name": "부산광역시",
+        "region_2depth_name": "해운대구"
+      }
+    }
+  ]
+}
+
+### =======================================
+### ✨ 게시글 삭제 테스트 ✨
+### =======================================
+# [테스트 방법]
+# 1. 삭제할 게시글의 ID를 아래 URL 경로의 {articleId} 부분에 입력하세요. (예: 5)
+# 2. '로그인 테스트'를 실행해서 받은 accessToken을 아래 'Bearer ???' 부분에 붙여넣으세요.
+DELETE http://localhost:8080/api/articles/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giLCJ1c2VyRW1haWwiOiJwaG90by10ZXN0ZXJAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6IuyCrOynhO2FjOyKpO2EsCIsInVzZXJSb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoicGhvdG8tdGVzdGVyQGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTYwMzQ4NTQsImV4cCI6MTc1NjAzNjY1NH0.r-VlKQqGe-ct-lBoSgqu_yQDOzoXX-0cUc9T57UWack
+
+
+### =======================================
+### ✨ 지역 방문 인증 테스트 ✨
+### =======================================
+# [테스트 방법]
+# 1. '로그인 테스트'를 실행해서 받은 accessToken을 아래 'Bearer ???' 부분에 붙여넣으세요.
+# 2. 아래 body를 그대로 보내서 성공 여부를 확인합니다.
+# 3. 만약 400 에러가 난다면, DTO 필드명과 JSON 키가 다른지 확인하거나, service 로직을 확인해야 합니다.
+POST http://localhost:8080/api/location/verify
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjoxLCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTYwMTUyODAsImV4cCI6MTc1NjAxNzA4MH0.XmGiv9QzvdR1Lg0Kn3zkWcrNY8U1zntXnYBjzNRrK74
+
+{
+  "road_address": {
+    "address_name": "경기도 부천시 원미구 중동로279번길 22",
+    "region_1depth_name": "경기도",
+    "region_2depth_name": "부천시"
+  }
+}
+
+### =======================================
+### ✨ 좋아요 & 스크랩 API 테스트 ✨
+### =======================================
+# [테스트 방법]
+# 1. 위에 있는 '로그인 테스트'를 실행해서 토큰을 발급받으세요.
+# 2. 응답으로 온 accessToken 값을 복사해서 아래 'Bearer ???' 부분에 모두 붙여넣으세요.
+# 3. dummy.sql에 있는 게시글 ID (1번 또는 2번)를 사용해서 테스트하세요.
+
+### [좋아요] 1번 게시글에 좋아요 누르기
+POST http://localhost:8080/api/articles/1/likes
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjozLCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU2MDA2NDUsImV4cCI6MTc1NTYwMjQ0NX0.gjrWCUAShj0__slwLMI3h2Nv0tW00eEJND41UfyVqJ0
+
+### [좋아요 취소] 1번 게시글에 좋아요 취소하기
+DELETE http://localhost:8080/api/articles/1/likes
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjozLCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU2MDA2NDUsImV4cCI6MTc1NTYwMjQ0NX0.gjrWCUAShj0__slwLMI3h2Nv0tW00eEJND41UfyVqJ0
+
+### [스크랩] 2번 게시글 스크랩하기
+POST http://localhost:8080/api/articles/2/scraps
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjo0LCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU5NjE2NzAsImV4cCI6MTc1NTk2MzQ3MH0.xWJlMkiJ76_z1CUM_1JY0p4Mk6UiFQIqCR48503hl58
+
+### [스크랩 취소] 2번 게시글 스크랩 취소하기
+DELETE http://localhost:8080/api/articles/2/scraps
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjozLCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU2MDA2NDUsImV4cCI6MTc1NTYwMjQ0NX0.gjrWCUAShj0__slwLMI3h2Nv0tW00eEJND41UfyVqJ0
+
+### [스크랩 목록 조회] 내가 스크랩한 게시글 목록 보기
+GET http://localhost:8080/api/user/scraps
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjo0LCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU5NjE2NzAsImV4cCI6MTc1NTk2MzQ3MH0.xWJlMkiJ76_z1CUM_1JY0p4Mk6UiFQIqCR48503hl58
+
+### =======================================
+### ✨ 작성한 게시글 목록 조회 테스트 ✨
+### =======================================
+# [테스트 방법]
+# 1. dummy.sql에 있는 사용자 ID (1번 또는 2번)를 사용해서 테스트하세요.
+# 2. 이 API는 다른 사람의 프로필에서도 사용되므로, 별도의 인증(토큰)이 필요 없습니다.
+
+### [작성글 조회] 1번 유저가 작성한 게시글 목록 조회
+GET http://localhost:8080/api/user/1/articles
+
+### [작성글 조회] 2번 유저가 작성한 게시글 목록 조회
+GET http://localhost:8080/api/user/2/articles
+
+### [팔로워 조회] 1번 유저의 팔로워 목록 조회
+GET http://localhost:8080/api/user/1/followers
+
+### [팔로잉 조회] 1번 유저의 팔로잉 목록 조회
+GET http://localhost:8080/api/user/1/followings
+
+
+### =======================================
+### ✨ 게시글 작성 권한 테스트 (핵심) ✨
+### =======================================
+# [테스트 방법]
+# 1. 위 '로그인 테스트'를 먼저 실행해서 토큰을 발급받으세요.
+# 2. 아래 3개의 테스트를 순서대로 실행하며 결과를 확인합니다.
+#    (IntelliJ IDEA Ultimate에서는 각 요청의 accessToken을 자동으로 변수처럼 사용할 수 있습니다.)
+#    토큰 변수: {{login.response.body.data.accessToken}}
+
+### [STEP 1] '경기도 부천시' 지역 방문 인증하기
+POST http://localhost:8080/api/location/verify
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjo0LCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU2MTMzNTYsImV4cCI6MTc1NTYxNTE1Nn0.sBp34iaBplSjIh6DdoU-b1JwTx4YIiQjZokAe2utbkI
+
+{
+  "road_address": {
+    "address_name": "경기도 부천시 원미구 중동로279번길 22",
+    "region_1depth_name": "경기도",
+    "region_2depth_name": "부천시"
+  }
+}
+
+###
+
+### [STEP 2] (성공 테스트) 인증된 '경기도 부천시'에 게시글 작성하기
+# 예상 결과: 200 OK, 게시글이 성공적으로 생성됩니다.
+POST http://localhost:8080/api/articles
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjo0LCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU2MTMzNTYsImV4cCI6MTc1NTYxNTE1Nn0.sBp34iaBplSjIh6DdoU-b1JwTx4YIiQjZokAe2utbkI
+
+{
+  "title": "[성공] 부천 방문 후 작성하는 글",
+  "content": "부천에 방문했기 때문에 이 글은 작성되어야 합니다.",
+  "tags": ["CAFE"],
+  "places": [
+    {
+      "placeOrder": 1,
+      "placeName": "부천시청역 카페",
+      "description": "방문 인증을 한 부천시에 작성하는 글입니다.",
+      "photoUrl": "https://...",
+      "roadAddress": {
+        "address_name": "경기도 부천시 길주로 210",
+        "region_1depth_name": "경기도",
+        "region_2depth_name": "부천시"
+      }
+    }
+  ]
+}
+
+###
+
+### [STEP 3] (실패 테스트) 인증하지 않은 '경기도 수원시'에 게시글 작성하기
+# 예상 결과: 4xx 에러와 함께 "해당 지역을 방문한 기록이 없어 게시글을 작성할 수 없습니다." 메시지가 반환됩니다.
+POST http://localhost:8080/api/articles
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjo0LCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU2MTMzNTYsImV4cCI6MTc1NTYxNTE1Nn0.sBp34iaBplSjIh6DdoU-b1JwTx4YIiQjZokAe2utbkI
+
+{
+  "title": "[실패] 수원 방문 없이 작성하는 글",
+  "content": "수원에 방문한 적이 없기 때문에 이 글은 작성되면 안 됩니다.",
+  "tags": ["RESTAURANT"],
+  "places": [
+    {
+      "placeOrder": 1,
+      "placeName": "수원역 맛집",
+      "description": "방문 인증을 하지 않은 수원시에 작성하는 글입니다.",
+      "photoUrl": "https://...",
+      "roadAddress": {
+        "address_name": "경기도 수원시 팔달구 덕영대로 924",
+        "region_1depth_name": "경기도",
+        "region_2depth_name": "수원시"
+      }
+    }
+  ]
+}
+
+### =================================================================
+### ✨ [최종] 프로필 및 게시글 사진 업로드/수정 테스트 ✨
+### =================================================================
+# [테스트 순서]
+# 1. STEP 1, 2를 실행하여 테스트용 계정을 만들고 토큰을 발급받습니다.
+# 2. 발급받은 토큰을 복사하여 STEP 3, 4, 5의 'Authorization: Bearer ???' 부분에 붙여넣습니다.
+# 3. 각 테스트에 명시된 이미지 파일 경로를 실제 컴퓨터 경로로 수정하여 순서대로 실행합니다.
+
+### [STEP 1] 테스트용 사용자 회원가입
+POST http://localhost:8080/api/auth/signup
+Content-Type: application/json
+
+{
+  "email": "photo-tester@example.com",
+  "password": "passWORD123!",
+  "name": "사진테스터",
+  "nickname": "찰칵맨"
+}
+
+### [STEP 2] 로그인하여 토큰 발급
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "photo-tester@example.com",
+  "password": "passWORD123!"
+}
+
+### =======================================
+### ✨ 프로필 이미지 테스트 ✨
+### =======================================
+
+### [STEP 3] 프로필 이미지 업로드 (수정)
+# 'profileImage' 파트의 파일 경로를 실제 컴퓨터에 있는 이미지 경로로 수정하세요.
+POST http://localhost:8080/api/user/profile-image
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giLCJ1c2VyRW1haWwiOiJwaG90by10ZXN0ZXJAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6IuyCrOynhO2FjOyKpO2EsCIsInVzZXJSb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoicGhvdG8tdGVzdGVyQGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTYwMTk4NDksImV4cCI6MTc1NjAyMTY0OX0.YmjbYRLQ2FCdVbgtrapilFmJoojmXF3dNziI4iFoSVc
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="profileImage"; filename="profile.jpg"
+Content-Type: image/jpeg
+
+< C:\이미지테스트\seulgi1.webp
+--boundary--
+
+### [STEP 4] 프로필 이미지 삭제 (기본 이미지로 복원)
+DELETE http://localhost:8080/api/user/profile-image
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giLCJ1c2VyRW1haWwiOiJwaG90by10ZXN0ZXJAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6IuyCrOynhO2FjOyKpO2EsCIsInVzZXJSb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoicGhvdG8tdGVzdGVyQGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU5NTcxNzksImV4cCI6MTc1NTk1ODk3OX0.glL-A0reEYIPc7wtGg6rdw0reHs42vrK00onUs0Wpi4
+
+### =======================================
+### ✨ 게시글 (장소별 이미지) 테스트 ✨
+### =======================================
+
+### [STEP 5] 지역 방문 인증 (게시글 작성을 위해 필수)
+# 게시글을 작성할 '경기도 수원시'에 대한 방문 인증을 먼저 수행합니다.
+POST http://localhost:8080/api/location/verify
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giLCJ1c2VyRW1haWwiOiJwaG90by10ZXN0ZXJAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6IuyCrOynhO2FjOyKpO2EsCIsInVzZXJSb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoicGhvdG8tdGVzdGVyQGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTYwMzQ4NTQsImV4cCI6MTc1NjAzNjY1NH0.r-VlKQqGe-ct-lBoSgqu_yQDOzoXX-0cUc9T57UWack
+
+{
+  "road_address": {
+    "address_name": "경기도 수원시 영통구 동수원로 538",
+    "region_1depth_name": "경기도",
+    "region_2depth_name": "수원시"
+  }
+}
+
+###
+
+### [STEP 6] 장소 2개와 각 장소의 이미지 2개로 게시글 생성
+# 'images' 파트의 파일 경로 2개를 모두 실제 컴퓨터 경로로 수정하세요.
+POST http://localhost:8080/api/articles
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giLCJ1c2VyRW1haWwiOiJwaG90by10ZXN0ZXJAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6IuyCrOynhO2FjOyKpO2EsCIsInVzZXJSb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoicGhvdG8tdGVzdGVyQGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTYwMzQ4NTQsImV4cCI6MTc1NjAzNjY1NH0.r-VlKQqGe-ct-lBoSgqu_yQDOzoXX-0cUc9T57UWack
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="request"
+Content-Type: application/json
+
+{
+  "title": "장소별 사진 게시글 (생성)",
+  "content": "장소 2개와 각 장소의 사진입니다.",
+  "tags": ["RESTAURANT", "CAFE"],
+  "places": [
+    {
+      "placeOrder": 1,
+      "placeName": "첫 번째 장소",
+      "description": "첫 번째 장소 설명",
+      "roadAddress": { "address_name": "경기도 수원시", "region_1depth_name": "경기도", "region_2depth_name": "수원시" }
+    },
+    {
+      "placeOrder": 2,
+      "placeName": "두 번째 장소",
+      "description": "두 번째 장소 설명",
+      "roadAddress": { "address_name": "경기도 수원시", "region_1depth_name": "경기도", "region_2depth_name": "수원시" }
+    }
+  ]
+}
+
+--boundary
+# 첫 번째 장소(placeOrder: 1)에 매칭될 이미지
+Content-Disposition: form-data; name="images"; filename="place1_image.jpg"
+Content-Type: image/jpeg
+
+< C:\이미지테스트\seulgi1.webp
+
+--boundary
+# 두 번째 장소(placeOrder: 2)에 매칭될 이미지
+Content-Disposition: form-data; name="images"; filename="place2_image.png"
+Content-Type: image/png
+
+< C:\이미지테스트\seulgi2.jpeg
+--boundary--
+
+
+###
+
+### [STEP 7] 게시글 수정 (장소 1개 삭제, 1개 유지, 1개 추가)
+# **수정할 게시글 ID**를 URL에 맞게 변경해주세요 (예: /api/articles/1)
+PUT http://localhost:8080/api/articles/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giLCJ1c2VyRW1haWwiOiJwaG90by10ZXN0ZXJAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6IuyCrOynhO2FjOyKpO2EsCIsInVzZXJSb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoicGhvdG8tdGVzdGVyQGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTYwMzQ4NTQsImV4cCI6MTc1NjAzNjY1NH0.r-VlKQqGe-ct-lBoSgqu_yQDOzoXX-0cUc9T57UWack
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="request"
+Content-Type: application/json
+
+{
+  "title": "장소별 사진 게시글 (수정)",
+  "content": "장소 구성이 변경되었습니다.",
+  "tags": ["TRAVEL_SPOT"],
+  "places": [
+    {
+      "placeOrder": 2,
+      "placeName": "유지되는 두 번째 장소 (사진만 교체)",
+      "description": "설명도 수정!",
+      "roadAddress": { "address_name": "경기도 수원시", "region_1depth_name": "경기도", "region_2depth_name": "수원시" }
+    },
+    {
+      "placeOrder": 3,
+      "placeName": "새로 추가된 세 번째 장소",
+      "description": "새로운 장소입니다.",
+      "roadAddress": { "address_name": "경기도 수원시", "region_1depth_name": "경기도", "region_2depth_name": "수원시" }
+    }
+  ],
+  "remainingPhotoUrls": []
+}
+
+--boundary
+# 수정되는 두 번째 장소(placeOrder: 2)의 새 이미지
+Content-Disposition: form-data; name="newImages"; filename="place2_new_image.webp"
+Content-Type: image/webp
+
+< C:\이미지테스트\슬기3.jpg
+
+--boundary
+# 새로 추가된 세 번째 장소(placeOrder: 3)의 이미지
+Content-Disposition: form-data; name="newImages"; filename="place3_image.gif"
+Content-Type: image/gif
+
+< C:\이미지테스트\슬기4.jpg
+--boundary--
+
+
+
+### ✨ 스크랩 목록 조회 및 필터링 테스트 ✨
+# [테스트 방법]
+# 1. '로그인 테스트'를 실행해서 1번 사용자('test@example.com')의 토큰을 발급받으세요.
+# 2. 발급받은 accessToken을 아래 'Bearer ???' 부분에 붙여넣으세요.
+# 3. dummy.sql에 따라 1번 유저는 2번, 3번, 4번 게시글을 스크랩한 상태입니다.
+
+### [스크랩 목록 조회] 내가 스크랩한 모든 게시글 목록 보기 (기본)
+# 예상 결과: 200 OK, 스크랩한 3개의 게시글(ID: 2, 3, 4)이 최신순으로 조회됩니다.
+GET http://localhost:8080/api/user/scraps
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjo0LCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU5NjE0MTEsImV4cCI6MTc1NTk2MzIxMX0.3CAa9YL46nP15BQGZw-z6Y39lvfAvLwelasINXvqjZA
+
+###
+
+### [스크랩 필터링] 스크랩한 글 중에서 '부산광역시' 게시글만 보기
+# 예상 결과: 200 OK, 2번 게시글("부산 해변 기차 여행") 1개만 조회됩니다.
+GET http://localhost:8080/api/user/scraps?region=부산광역시
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjo0LCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU5NjE0MTEsImV4cCI6MTc1NTk2MzIxMX0.3CAa9YL46nP15BQGZw-z6Y39lvfAvLwelasINXvqjZA
+
+###
+
+### [스크랩 필터링] 스크랩한 글 중에서 'CAFE' 태그가 있는 글만 보기
+# 예상 결과: 200 OK, 4번 게시글("제주의 맛집과 카페") 1개만 조회됩니다.
+GET http://localhost:8080/api/user/scraps?tags=CAFE
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjo0LCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU5NjE0MTEsImV4cCI6MTc1NTk2MzIxMX0.3CAa9YL46nP15BQGZw-z6Y39lvfAvLwelasINXvqjZA
+
+###
+
+### [스크랩 필터링] 스크랩한 글 중에서 'RESTAURANT' 태그와 'TRAVEL_SPOT' 태그를 모두 가진 글만 보기
+# 예상 결과: 200 OK, 4번 게시글은 두 태그를 모두 만족하지 않으므로, 아무것도 조회되지 않아야 정상입니다.
+# (dummy.sql에 RESTAURANT와 TRAVEL_SPOT을 모두 가진 게시글은 없음)
+GET http://localhost:8080/api/user/scraps?tags=RESTAURANT,TRAVEL_SPOT
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiJraW5nIiwidXNlckVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInVzZXJOYW1lIjoi7YWM7Iqk7YSwIiwidXNlclJvbGUiOiJVU0VSIiwidXNlcklkIjo0LCJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU5NjE0MTEsImV4cCI6MTc1NTk2MzIxMX0.3CAa9YL46nP15BQGZw-z6Y39lvfAvLwelasINXvqjZA
+
+
+### =======================================
+### ✨ 길찾기 API 테스트 ✨
+### =======================================
+
+# [테스트 방법]
+# 1. 아래 GET 요청을 실행합니다.
+# 2. 응답(Response)으로 200 OK와 함께 JSON 데이터가 오면 성공입니다.
+
+### [길찾기] 판교역 -> 카카오판교아지트 (경유지 없음)
+GET http://localhost:8080/api/directions?origin=127.111202,37.394912&destination=127.108621,37.402111
+
+
+### [길찾기] 판교역 -> 운중동 (경유지 1개 추가)
+GET http://localhost:8080/api/directions?origin=127.111202,37.394912&destination=127.093226,37.405397&waypoints=127.108621,37.402111

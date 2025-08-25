@@ -1,12 +1,17 @@
 package com.sinsaimdang.masilkkoon.masil.article.entity;
 
 import com.sinsaimdang.masilkkoon.masil.user.entity.User;
+import com.sinsaimdang.masilkkoon.masil.region.entity.Region;
 import jakarta.persistence.*; // JPA 관련 어노테이션
 import lombok.Getter; // Lombok Getter
 import lombok.Setter; // Lombok Setter
 import java.time.LocalDateTime; // 생성일, 수정일을 위한 LocalDateTime
 import java.util.HashSet;
 import java.util.Set;
+import java.util.ArrayList; // [추가] ArrayList import
+import java.util.List;    // [추가] List import
+import com.sinsaimdang.masilkkoon.masil.article.dto.ArticleUpdateRequest;
+import java.util.stream.Collectors;
 
 @Entity // 이 클래스가 JPA 엔티티임을 명시
 @Table(name = "articles") // 데이터베이스 테이블 이름 지정 (관례상 소문자 복수형)
@@ -30,8 +35,9 @@ public class Article {
     @JoinColumn(name = "user_id", nullable = false) // DB의 user_id 컬럼과 매핑
     private User user; // 작성자 정보를 User 객체로 관리
 
-    @Column(nullable = false, length = 50) // 10개 지역 중 하나
-    private String region; // 지역
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "region_id", nullable = false)
+    private Region region;
 
     // 태그: Enum 컬렉션을 DB에 저장하기 위해 @ElementCollection 사용
     // List 대신 Set을 사용하여 MultipleBagFetchException 회피 및 중복 방지
@@ -41,25 +47,24 @@ public class Article {
     @Column(name = "tag") // 태그 값을 저장할 컬럼명
     private Set<ArticleTag> articleTags = new HashSet<>();
 
-    // 사진 URL: URL 문자열 Set으로 저장
-    @ElementCollection(fetch = FetchType.LAZY) // 지연 로딩
-    @CollectionTable(name = "article_photos", joinColumns = @JoinColumn(name = "article_id"))
-    @Column(name = "photo_url", length = 1000) // 사진 URL을 저장할 컬럼명 (URL이 길 수 있음)
-    private Set<String> photos = new HashSet<>();
-
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "int default 0")
     private int scrapCount = 0; // 스크랩 수
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "int default 0")
     private int likeCount = 0; // 좋아요 수
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "int default 0")
     private int viewCount = 0; // 조회수
 
-    // 장소 경로: ArticlePlace 임베디드 타입의 Set으로 저장
-    @ElementCollection(fetch = FetchType.LAZY) // 지연 로딩
+//    // 장소 경로: ArticlePlace 임베디드 타입의 Set으로 저장
+//    @ElementCollection(fetch = FetchType.LAZY) // 지연 로딩
+//    @CollectionTable(name = "article_places", joinColumns = @JoinColumn(name = "article_id"))
+//    private Set<ArticlePlace> articlePlaces = new HashSet<>();
+
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "article_places", joinColumns = @JoinColumn(name = "article_id"))
-    private Set<ArticlePlace> articlePlaces = new HashSet<>();
+    @OrderBy("placeOrder ASC") // placeOrder 필드 기준으로 항상 오름차순 정렬
+    private List<ArticlePlace> articlePlaces = new ArrayList<>();
 
     @Column(name = "created_at", updatable = false, nullable = false)
     private LocalDateTime createdAt; // 게시글 생성 시간
@@ -108,46 +113,39 @@ public class Article {
     protected Article() {
     }
 
-    public Article(String title, String content, User user, String region,
-                   Set<ArticleTag> articleTags, Set<String> photos,
-                   Set<ArticlePlace> articlePlaces) {
+    public Article(String title, String content, User user, Region region,
+                   Set<ArticleTag> articleTags, List<ArticlePlace> articlePlaces) {
         this.title = title;
         this.content = content;
         this.user = user;
         this.region = region;
         this.articleTags = articleTags != null ? new HashSet<>(articleTags) : new HashSet<>();
-        this.photos = photos != null ? new HashSet<>(photos) : new HashSet<>();
-        this.articlePlaces = articlePlaces != null ? new HashSet<>(articlePlaces) : new HashSet<>();
+        this.articlePlaces = articlePlaces != null ? new ArrayList<>(articlePlaces) : new ArrayList<>();
         this.scrapCount = 0;
         this.likeCount = 0;
         this.viewCount = 0;
     }
 
-    // 게시글 업데이트를 위한 비즈니스 메서드 (Setter 대신 사용 권장)
-    public void updateArticle(String title, String content, String region,
-                              Set<ArticleTag> articleTags, Set<String> photos,
-                              Set<ArticlePlace> articlePlaces) {
-        if (title != null && !title.isEmpty()) {
-            this.title = title;
-        }
-        if (content != null && !content.isEmpty()) {
-            this.content = content;
-        }
-        if (region != null && !region.isEmpty()) {
-            this.region = region;
-        }
-        if (articleTags != null) {
-            this.articleTags.clear();
-            this.articleTags.addAll(articleTags);
-        }
-        if (photos != null) {
-            this.photos.clear();
-            this.photos.addAll(photos);
-        }
-        if (articlePlaces != null) {
-            this.articlePlaces.clear();
-            this.articlePlaces.addAll(articlePlaces);
-        }
-        // updatedAt은 @PreUpdate에서 자동 처리됨
+    /**
+     * 게시글 수정 DTO를 기반으로 엔티티의 내용을 업데이트하는 메서드
+     * @param request 수정 요청 DTO
+     */
+    public void update(ArticleUpdateRequest request, Region region, List<ArticlePlace> updatedArticlePlaces) {
+        this.title = request.getTitle();
+        this.content = request.getContent();
+        this.region = region;
+
+        this.articleTags.clear();
+        this.articleTags.addAll(request.getTags());
+
+//        // 1. 기존 장소 목록에서, 새로운 목록에 없는 장소들을 제거한다.
+//        this.articlePlaces.retainAll(updatedArticlePlaces);
+
+//        // 2. 새로운 목록에서, 기존 목록에 이미 있는 장소들을 제외하고, '새로운' 장소들만 추가한다.
+//        updatedArticlePlaces.removeAll(this.articlePlaces);
+//        this.articlePlaces.addAll(updatedArticlePlaces);
+
+        this.articlePlaces.clear();
+        this.articlePlaces.addAll(updatedArticlePlaces);
     }
 }
