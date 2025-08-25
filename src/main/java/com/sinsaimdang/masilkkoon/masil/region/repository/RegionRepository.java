@@ -2,6 +2,7 @@ package com.sinsaimdang.masilkkoon.masil.region.repository;
 
 import com.sinsaimdang.masilkkoon.masil.region.entity.Region;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -14,5 +15,6 @@ public interface RegionRepository extends JpaRepository<Region, Long> {
 
     Optional<Region> findByNameAndParentIsNull(String name);
 
+    @Query("select r from Region r left join fetch r.children where r.parent is null")
     List<Region> findAllByParentIsNull();
 }

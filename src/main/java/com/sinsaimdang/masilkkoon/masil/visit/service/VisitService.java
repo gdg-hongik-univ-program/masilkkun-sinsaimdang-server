@@ -12,8 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -87,24 +87,40 @@ public class VisitService {
                 });
 
         List<Region> allTopRegions = regionRepository.findAllByParentIsNull();
-        List<Long> allTopRegionIds = allTopRegions.stream()
-                .map(Region::getId)
-                .collect(Collectors.toList());
+        List<MapStampResponse> response = new ArrayList<>();
 
-        List<Visit> userVisits = userVisitRepository.findByUserIdAndRegionIdIn(userId, allTopRegionIds);
+        for (Region topRegion : allTopRegions) {
+            List<Region> children  = topRegion.getChildren();
+            int totalChildrenCount = children.size();
 
-        Map<Long, Integer> visitCountMap = userVisits.stream()
-                .collect(Collectors.toMap(visit -> visit.getRegion().getId(), Visit::getVisitCount));
+            if(totalChildrenCount == 0){
+                boolean visited = userVisitRepository.existsByUser_IdAndRegion_Id(userId, topRegion.getId());
+                int colorLevel = visited ? 5 : 0;
+                response.add(new MapStampResponse(topRegion.getName(), colorLevel));
+                continue;
+            }
 
-        List<MapStampResponse> response = allTopRegions.stream()
-                .map(region -> {
-                    int visitCount = visitCountMap.getOrDefault(region.getId(), 0);
-                    return new MapStampResponse(region, visitCount);
-                })
-                .collect(Collectors.toList());
+            List<Long> childrenIds = children.stream()
+                    .map(Region::getId)
+                    .collect(Collectors.toList());
 
-        log.info("스탬프 지도 정보 조회 완료 - 사용자 ID - {}", userId);
+            long visitedChildrenCount = userVisitRepository.countByUserIdAndRegionIdIn(userId, childrenIds);
+
+            double visitedRatio = (double) visitedChildrenCount / (double) totalChildrenCount;
+            int colorLevel = calculateColorLevel(visitedRatio);
+
+            response.add(new MapStampResponse(topRegion.getName(), colorLevel));
+        }
+        log.info("스탬프 지도 정보 조회 완료 - 사용자 ID {}", userId);
         return response;
+    }
+
+    private int calculateColorLevel(double ratio) {
+        if (ratio >= 1.0) return 4;
+        if (ratio >= 0.66  ) return 3;
+        if (ratio >= 0.33) return 2;
+        if (ratio > 0) return 1;
+        return 0;
     }
 
     /**
