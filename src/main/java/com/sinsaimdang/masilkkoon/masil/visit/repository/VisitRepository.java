@@ -21,6 +21,7 @@ public interface VisitRepository extends JpaRepository<Visit, Long> {
 
 
     List<Visit> findByUserIdAndRegionIdIn(Long userId, List<Long> regionIds);
+    Long countByUserIdAndRegionIdIn(Long userId, List<Long> regionIds);
 
     /**
      * 특정 사용자가 특정 지역을 방문한 기록이 있는지 확인하는 메서드
