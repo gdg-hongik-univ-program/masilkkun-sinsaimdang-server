@@ -19,7 +19,9 @@ import org.springframework.web.multipart.MultipartFile;
 //import org.springframework.web.bind.annotation.RequestMapping; // 요청 매핑 어노테이션
 //import org.springframework.web.bind.annotation.RestController; // REST Controller 어노테이션 (JSON 응답)
 import jakarta.servlet.http.HttpServletRequest; // HttpServletRequest 임포트
-import java.util.List; // List 임포트
+import java.util.List;
+import java.util.Arrays;
+import java.util.ArrayList;
 
 import com.sinsaimdang.masilkkoon.masil.article.dto.ArticleSearchCondition;
 import org.springframework.data.domain.Page;
@@ -218,7 +220,7 @@ public class ArticleController {
     @PostMapping
     public ResponseEntity<Map<String, Object>> createArticle(
             @Valid @RequestPart("request") ArticleCreateRequest request,
-            @RequestPart(value = "images", required = false) List<MultipartFile> images,
+            @RequestPart(value = "images", required = false) MultipartFile[] images,
             CurrentUser currentUser) {
 
         // 요청 수신 및 받은 데이터(DTO) 전체를 기록
@@ -226,7 +228,8 @@ public class ArticleController {
 
         try {
 
-            ArticleResponse createdArticle = articleService.createArticle(request, images, currentUser.getId());
+            List<MultipartFile> imageList = (images != null) ? Arrays.asList(images) : new ArrayList<>();
+            ArticleResponse createdArticle = articleService.createArticle(request, imageList, currentUser.getId());
 
             return ApiResponseUtil.created("게시글이 성공적으로 등록되었습니다.", createdArticle);
 
@@ -289,13 +292,22 @@ public class ArticleController {
     public ResponseEntity<Map<String, Object>> updateArticle(
             @PathVariable Long articleId,
             @Valid @RequestPart("request") ArticleUpdateRequest request,
-            @RequestPart(value = "newImages", required = false) List<MultipartFile> newImages,
+            @RequestPart(value = "newImages", required = false) MultipartFile[] newImages,
             CurrentUser currentUser) {
+
+        log.info("### 디버깅: 수신된 newImages 배열 길이: {}", (newImages != null ? newImages.length : "null"));
+        if (newImages != null) {
+            for (int i = 0; i < newImages.length; i++) {
+                log.info("### 디버깅: newImages[{}]: 파일명={}, 사이즈={}", i, newImages[i].getOriginalFilename(), newImages[i].getSize());
+            }
+        }
 
         log.info("게시글 수정 요청 - 게시글 ID: {}, 요청자 ID: {}", articleId, currentUser.getId());
 
         try {
-            ArticleResponse updatedArticle = articleService.updateArticle(articleId, request, newImages, currentUser.getId());
+            List<MultipartFile> newImageList = (newImages != null) ? Arrays.asList(newImages) : new ArrayList<>();
+            ArticleResponse updatedArticle = articleService.updateArticle(articleId, request, newImageList, currentUser.getId());
+
             return ApiResponseUtil.success("게시글이 성공적으로 수정되었습니다.", updatedArticle);
 
         } catch (IllegalArgumentException e) {

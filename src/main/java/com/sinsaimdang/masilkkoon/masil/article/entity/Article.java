@@ -128,6 +128,7 @@ public class Article {
 
     /**
      * 게시글 수정 DTO를 기반으로 엔티티의 내용을 업데이트하는 메서드
+     *
      * @param request 수정 요청 DTO
      */
     public void update(ArticleUpdateRequest request, Region region, List<ArticlePlace> updatedArticlePlaces) {
@@ -136,16 +137,13 @@ public class Article {
         this.region = region;
 
         this.articleTags.clear();
-        this.articleTags.addAll(request.getTags());
-
-//        // 1. 기존 장소 목록에서, 새로운 목록에 없는 장소들을 제거한다.
-//        this.articlePlaces.retainAll(updatedArticlePlaces);
-
-//        // 2. 새로운 목록에서, 기존 목록에 이미 있는 장소들을 제외하고, '새로운' 장소들만 추가한다.
-//        updatedArticlePlaces.removeAll(this.articlePlaces);
-//        this.articlePlaces.addAll(updatedArticlePlaces);
+        if (request.getTags() != null) {
+            this.articleTags.addAll(request.getTags());
+        }
 
         this.articlePlaces.clear();
-        this.articlePlaces.addAll(updatedArticlePlaces);
+        if (updatedArticlePlaces != null) {
+            this.articlePlaces.addAll(updatedArticlePlaces);
+        }
     }
 }

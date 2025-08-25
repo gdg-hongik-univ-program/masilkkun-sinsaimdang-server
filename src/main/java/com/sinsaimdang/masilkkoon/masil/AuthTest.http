@@ -363,7 +363,7 @@ Content-Type: application/json
 ### [STEP 3] 프로필 이미지 업로드 (수정)
 # 'profileImage' 파트의 파일 경로를 실제 컴퓨터에 있는 이미지 경로로 수정하세요.
 POST http://localhost:8080/api/user/profile-image
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giLCJ1c2VyRW1haWwiOiJwaG90by10ZXN0ZXJAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6IuyCrOynhO2FjOyKpO2EsCIsInVzZXJSb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoicGhvdG8tdGVzdGVyQGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTYwMTk4NDksImV4cCI6MTc1NjAyMTY0OX0.YmjbYRLQ2FCdVbgtrapilFmJoojmXF3dNziI4iFoSVc
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giLCJ1c2VyRW1haWwiOiJwaG90by10ZXN0ZXJAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6IuyCrOynhO2FjOyKpO2EsCIsInVzZXJSb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoicGhvdG8tdGVzdGVyQGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTYxMzU3NTUsImV4cCI6MTc1NjEzNzU1NX0.yDEFQfDYQsnPO02JNVo8AhT9IDv46N6KFjTu-WlDItY
 Content-Type: multipart/form-data; boundary=boundary
 
 --boundary
@@ -375,7 +375,7 @@ Content-Type: image/jpeg
 
 ### [STEP 4] 프로필 이미지 삭제 (기본 이미지로 복원)
 DELETE http://localhost:8080/api/user/profile-image
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giLCJ1c2VyRW1haWwiOiJwaG90by10ZXN0ZXJAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6IuyCrOynhO2FjOyKpO2EsCIsInVzZXJSb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoicGhvdG8tdGVzdGVyQGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTU5NTcxNzksImV4cCI6MTc1NTk1ODk3OX0.glL-A0reEYIPc7wtGg6rdw0reHs42vrK00onUs0Wpi4
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giLCJ1c2VyRW1haWwiOiJwaG90by10ZXN0ZXJAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6IuyCrOynhO2FjOyKpO2EsCIsInVzZXJSb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoicGhvdG8tdGVzdGVyQGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTYxMzU3NTUsImV4cCI6MTc1NjEzNzU1NX0.yDEFQfDYQsnPO02JNVo8AhT9IDv46N6KFjTu-WlDItY
 
 ### =======================================
 ### ✨ 게시글 (장소별 이미지) 테스트 ✨
@@ -385,7 +385,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giL
 # 게시글을 작성할 '경기도 수원시'에 대한 방문 인증을 먼저 수행합니다.
 POST http://localhost:8080/api/location/verify
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giLCJ1c2VyRW1haWwiOiJwaG90by10ZXN0ZXJAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6IuyCrOynhO2FjOyKpO2EsCIsInVzZXJSb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoicGhvdG8tdGVzdGVyQGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTYwMzQ4NTQsImV4cCI6MTc1NjAzNjY1NH0.r-VlKQqGe-ct-lBoSgqu_yQDOzoXX-0cUc9T57UWack
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giLCJ1c2VyRW1haWwiOiJwaG90by10ZXN0ZXJAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6IuyCrOynhO2FjOyKpO2EsCIsInVzZXJSb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoicGhvdG8tdGVzdGVyQGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTYxMzU3NTUsImV4cCI6MTc1NjEzNzU1NX0.yDEFQfDYQsnPO02JNVo8AhT9IDv46N6KFjTu-WlDItY
 
 {
   "road_address": {
@@ -400,7 +400,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giL
 ### [STEP 6] 장소 2개와 각 장소의 이미지 2개로 게시글 생성
 # 'images' 파트의 파일 경로 2개를 모두 실제 컴퓨터 경로로 수정하세요.
 POST http://localhost:8080/api/articles
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giLCJ1c2VyRW1haWwiOiJwaG90by10ZXN0ZXJAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6IuyCrOynhO2FjOyKpO2EsCIsInVzZXJSb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoicGhvdG8tdGVzdGVyQGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTYwMzQ4NTQsImV4cCI6MTc1NjAzNjY1NH0.r-VlKQqGe-ct-lBoSgqu_yQDOzoXX-0cUc9T57UWack
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giLCJ1c2VyRW1haWwiOiJwaG90by10ZXN0ZXJAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6IuyCrOynhO2FjOyKpO2EsCIsInVzZXJSb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoicGhvdG8tdGVzdGVyQGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTYxMzU3NTUsImV4cCI6MTc1NjEzNzU1NX0.yDEFQfDYQsnPO02JNVo8AhT9IDv46N6KFjTu-WlDItY
 Content-Type: multipart/form-data; boundary=boundary
 
 --boundary
@@ -541,3 +541,251 @@ GET http://localhost:8080/api/directions?origin=127.111202,37.394912&destination
 
 ### [길찾기] 판교역 -> 운중동 (경유지 1개 추가)
 GET http://localhost:8080/api/directions?origin=127.111202,37.394912&destination=127.093226,37.405397&waypoints=127.108621,37.402111
+
+
+
+
+#### =======================================
+#### ✨ 인증/사용자 API 테스트 (수동 방식) ✨
+#### =======================================
+#
+#### [STEP 1] 테스트용 사용자 회원가입
+#POST http://localhost:8080/api/auth/signup
+#Content-Type: application/json
+#
+#{
+#  "email": "photo-tester@example.com",
+#  "password": "passWORD123!",
+#  "name": "사진테스터",
+#  "nickname": "찰칵맨"
+#}
+#
+#### [STEP 2] 로그인하여 토큰 발급
+## [테스트 방법]
+## 1. 이 요청을 실행하고 응답 본문(Response Body)에서 "accessToken" 값을 복사하세요.
+## 2. 이후 'Authorization: Bearer ???' 가 필요한 모든 요청에 해당 토큰을 붙여넣으세요.
+#POST http://localhost:8080/api/auth/login
+#Content-Type: application/json
+#
+#{
+#  "email": "photo-tester@example.com",
+#  "password": "passWORD123!"
+#}
+#
+#
+#### =================================================================
+#### ✨ [최종] 게시글 생성 및 수정 시나리오 테스트 ✨
+#### =================================================================
+#
+#### [STEP 3] 지역 방문 인증 (게시글 작성을 위해 필수)
+## [테스트 방법]
+## 위 [STEP 2]에서 발급받은 accessToken을 아래 'Bearer ???' 부분에 붙여넣으세요.
+#POST http://localhost:8080/api/location/verify
+#Content-Type: application/json
+#Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giLCJ1c2VyRW1haWwiOiJwaG90by10ZXN0ZXJAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6IuyCrOynhO2FjOyKpO2EsCIsInVzZXJSb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoicGhvdG8tdGVzdGVyQGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTYxMzgyMDgsImV4cCI6MTc1NjE0MDAwOH0.gBqCUluZocOvVUizcQq5Cbx0sxDN_fQmOEg7BWnarY8
+#
+#{
+#  "road_address": {
+#    "address_name": "경기도 수원시 영통구 동수원로 538",
+#    "region_1depth_name": "경기도",
+#    "region_2depth_name": "수원시"
+#  }
+#}
+#
+#### [STEP 4] (준비) 수정을 위한 원본 게시글 생성
+## [테스트 방법]
+## 1. 위 [STEP 2]에서 발급받은 accessToken을 아래 'Bearer ???' 부분에 붙여넣으세요.
+## 2. 이 요청을 실행하고 응답 본문에서 생성된 게시글의 "id"와 각 장소의 "photoUrl" 값들을 복사해두세요.
+## 3. 아래 이어지는 [시나리오 1], [시나리오 2] 테스트에서 사용됩니다.
+#POST http://localhost:8080/api/articles
+#Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giLCJ1c2VyRW1haWwiOiJwaG90by10ZXN0ZXJAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6IuyCrOynhO2FjOyKpO2EsCIsInVzZXJSb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoicGhvdG8tdGVzdGVyQGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTYxMzgyMDgsImV4cCI6MTc1NjE0MDAwOH0.gBqCUluZocOvVUizcQq5Cbx0sxDN_fQmOEg7BWnarY8
+#Content-Type: multipart/form-data; boundary=boundary
+#
+#--boundary
+#Content-Disposition: form-data; name="request"
+#Content-Type: application/json
+#
+#{
+#  "title": "수정 테스트를 위한 원본 게시글",
+#  "content": "장소 3개와 각 사진입니다.",
+#  "tags": ["RESTAURANT", "CAFE"],
+#  "places": [
+#    {
+#      "placeOrder": 1, "placeName": "원본 장소 1", "description": "첫 번째 장소 설명",
+#      "roadAddress": { "address_name": "경기도 수원시 영통구 동수원로 538", "region_1depth_name": "경기도", "region_2depth_name": "수원시" }
+#    },
+#    {
+#      "placeOrder": 2, "placeName": "원본 장소 2", "description": "두 번째 장소 설명",
+#      "roadAddress": { "address_name": "경기도 수원시 영통구 동수원로 539", "region_1depth_name": "경기도", "region_2depth_name": "수원시" }
+#    },
+#    {
+#      "placeOrder": 3, "placeName": "원본 장소 3", "description": "세 번째 장소 설명",
+#      "roadAddress": { "address_name": "경기도 수원시 영통구 동수원로 540", "region_1depth_name": "경기도", "region_2depth_name": "수원시" }
+#    }
+#  ]
+#}
+#--boundary
+#Content-Disposition: form-data; name="images"; filename="photo1.webp"
+#Content-Type: image/webp
+#
+#< C:\이미지테스트\seulgi1.webp
+#--boundary
+#Content-Disposition: form-data; name="images"; filename="photo2.jpeg"
+#Content-Type: image/jpeg
+#
+#< C:\이미지테스트\seulgi2.jpeg
+#--boundary
+#Content-Disposition: form-data; name="images"; filename="photo3.jpg"
+#Content-Type: image/jpeg
+#
+#< C:\이미지테스트\seulgi3.jpg
+#--boundary--
+#
+#
+#### -----------------------------------------------------------------
+#### [시나리오 1] 내용만 수정 (사진/장소 유지)
+#### -----------------------------------------------------------------
+## [테스트 방법]
+## 1. 위 [STEP 4]에서 생성된 게시글의 ID를 아래 URL 경로의 {articleId}에 입력하세요. (예: /api/articles/15)
+## 2. 위 [STEP 2]에서 발급받은 accessToken을 'Bearer ???' 부분에 붙여넣으세요.
+## 3. body의 각 "photoUrl" 값에 위 [STEP 4] 응답에서 복사해 둔 원본 사진 URL들을 각각 붙여넣으세요.
+#PUT http://localhost:8080/api/articles/1
+#Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giLCJ1c2VyRW1haWwiOiJwaG90by10ZXN0ZXJAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6IuyCrOynhO2FjOyKpO2EsCIsInVzZXJSb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoicGhvdG8tdGVzdGVyQGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTYxMzgyMDgsImV4cCI6MTc1NjE0MDAwOH0.gBqCUluZocOvVUizcQq5Cbx0sxDN_fQmOEg7BWnarY8
+#Content-Type: multipart/form-data; boundary=boundary
+#
+#--boundary
+#Content-Disposition: form-data; name="request"
+#Content-Type: application/json
+#
+#{
+#  "title": "[수정] 내용만 변경된 게시글",
+#  "content": "사진과 장소 구성은 그대로입니다.",
+#  "tags": ["RESTAURANT"],
+#  "places": [
+#    {
+#      "placeOrder": 1, "placeName": "원본 장소 1 (설명만 수정)", "description": "설명이 수정되었습니다.",
+#      "photoUrl": "C:/Users/user/masil-uploads/article-images/1bf961bf-5079-4967-b377-7e35ffccf7ca_photo1.webp",
+#      "roadAddress": { "address_name": "경기도 수원시", "region_1depth_name": "경기도", "region_2depth_name": "수원시" }
+#    },
+#    {
+#      "placeOrder": 2, "placeName": "원본 장소 2", "description": "두 번째 장소 설명",
+#      "photoUrl": "C:/Users/user/masil-uploads/article-images/c8f7699e-3d5b-452a-badc-1bc2fc0ef2a4_photo2.jpeg",
+#      "roadAddress": { "address_name": "경기도 수원시", "region_1depth_name": "경기도", "region_2depth_name": "수원시" }
+#    },
+#    {
+#      "placeOrder": 3, "placeName": "원본 장소 3", "description": "세 번째 장소 설명",
+#      "photoUrl": "C:/Users/user/masil-uploads/article-images/424194a7-be87-4834-9f9a-81a50379b440_photo3.jpg",
+#      "roadAddress": { "address_name": "경기도 수원시", "region_1depth_name": "경기도", "region_2depth_name": "수원시" }
+#    }
+#  ]
+#}
+#--boundary--
+#
+#### -----------------------------------------------------------------
+#### [시나리오 2] 복합 수정 (삭제, 순서 변경, 사진 교체, 신규 추가)
+#### -----------------------------------------------------------------
+## [테스트 방법]
+## 1. 위 [STEP 4]에서 생성된 게시글의 ID를 아래 URL 경로의 {articleId}에 입력하세요. (예: /api/articles/15)
+## 2. 위 [STEP 2]에서 발급받은 accessToken을 'Bearer ???' 부분에 붙여넣으세요.
+## 3. body의 "photoUrl" 값에 위 [STEP 4] 응답에서 복사해 둔 '원본 장소 3'의 사진 URL을 붙여넣으세요.
+## 4. C:\image_test\ 경로에 새 이미지 파일 2개를 준비하고 파일명을 맞게 수정하여 테스트를 진행하세요.
+#PUT http://localhost:8080/api/articles/1
+#Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giLCJ1c2VyRW1haWwiOiJwaG90by10ZXN0ZXJAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6IuyCrOynhO2FjOyKpO2EsCIsInVzZXJSb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoicGhvdG8tdGVzdGVyQGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTYxMzgyMDgsImV4cCI6MTc1NjE0MDAwOH0.gBqCUluZocOvVUizcQq5Cbx0sxDN_fQmOEg7BWnarY8
+#Content-Type: multipart/form-data; boundary=boundary
+#
+#--boundary
+#Content-Disposition: form-data; name="request"
+#Content-Type: application/json
+#
+#{
+#  "title": "[수정] 복합적인 수정 테스트",
+#  "content": "장소 구성이 완전히 변경되었습니다.",
+#  "tags": ["TRAVEL_SPOT"],
+#  "places": [
+#    {
+#      "placeOrder": 1, "placeName": "순서 변경된 장소 3", "description": "기존 3번 장소입니다. 사진은 유지됩니다.",
+#      "photoUrl": "C:/Users/user/masil-uploads/article-images/20925a9c-7ab5-48b9-b979-188e5e4f8a92_photo3.jpg",
+#      "roadAddress": { "address_name": "경기도 수원시", "region_1depth_name": "경기도", "region_2depth_name": "수원시" }
+#    },
+#    {
+#      "placeOrder": 2, "placeName": "사진 교체된 장소 2", "description": "기존 2번 장소입니다. 사진이 교체됩니다.",
+#      "photoUrl": null,
+#      "roadAddress": { "address_name": "경기도 수원시", "region_1depth_name": "경기도", "region_2depth_name": "수원시" }
+#    },
+#    {
+#      "placeOrder": 3, "placeName": "새로 추가된 장소 4", "description": "완전히 새로운 장소입니다.",
+#      "photoUrl": null,
+#      "roadAddress": { "address_name": "경기도 수원시", "region_1depth_name": "경기도", "region_2depth_name": "수원시" }
+#    }
+#  ]
+#}
+#
+#--boundary
+## 사진이 교체되는 '장소 2'의 새 이미지 (newImages의 첫 번째 파일)
+#Content-Disposition: form-data; name="newImages"; filename="place2_new.jpg"
+#< C:\이미지테스트\seulgi4.jpg
+#
+#--boundary
+## 새로 추가되는 '장소 4'의 이미지 (newImages의 두 번째 파일)
+#Content-Disposition: form-data; name="newImages"; filename="place4_new.jpg"
+#< C:\이미지테스트\seulgi4.jpg
+#--boundary--
+#
+#
+#curl -X PUT http://localhost:8080/api/articles/1 \
+#-H "Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giLCJ1c2VyRW1haWwiOiJwaG90by10ZXN0ZXJAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6IuyCrOynhO2FjOyKpO2EsCIsInVzZXJSb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoicGhvdG8tdGVzdGVyQGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTYxMzgyMDgsImV4cCI6MTc1NjE0MDAwOH0.gBqCUluZocOvVUizcQq5Cbx0sxDN_fQmOEg7BWnarY8" \
+#-F "request={
+#  \"title\": \"[수정] 복합적인 수정 테스트\",
+#  \"content\": \"장소 구성이 완전히 변경되었습니다.\",
+#  \"tags\": [\"TRAVEL_SPOT\"],
+#  \"places\": [
+#    {
+#      \"placeOrder\": 1,
+#      \"placeName\": \"순서 변경된 장소 3\",
+#      \"description\": \"기존 3번 장소입니다. 사진은 유지됩니다.\",
+#      \"photoUrl\": \"C:/Users/user/masil-uploads/article-images/20925a9c-7ab5-48b9-b979-188e5e4f8a92_photo3.jpg\",
+#      \"roadAddress\": { \"address_name\": \"경기도 수원시\", \"region_1depth_name\": \"경기도\", \"region_2depth_name\": \"수원시\" }
+#    },
+#    {
+#      \"placeOrder\": 2,
+#      \"placeName\": \"사진 교체된 장소 2\",
+#      \"description\": \"기존 2번 장소입니다. 사진이 교체됩니다.\",
+#      \"photoUrl\": null,
+#      \"roadAddress\": { \"address_name\": \"경기도 수원시\", \"region_1depth_name\": \"경기도\", \"region_2depth_name\": \"수원시\" }
+#    },
+#    {
+#      \"placeOrder\": 3,
+#      \"placeName\": \"새로 추가된 장소 4\",
+#      \"description\": \"완전히 새로운 장소입니다.\",
+#      \"photoUrl\": null,
+#      \"roadAddress\": { \"address_name\": \"경기도 수원시\", \"region_1depth_name\": \"경기도\", \"region_2depth_name\": \"수원시\" }
+#    }
+#  ]
+#};type=application/json" \
+#-F "newImages=@C:/이미지테스트/seulgi4.jpg" \
+#-F "newImages=@C:/이미지테스트/seulgi4.jpg"
+#
+#
+#### -----------------------------------------------------------------
+#### [시나리오 3] 모든 장소 삭제
+#### -----------------------------------------------------------------
+## [테스트 방법]
+## 1. 위 [STEP 4]에서 생성된 게시글의 ID를 아래 URL 경로의 {articleId}에 입력하세요. (예: /api/articles/15)
+## 2. 위 [STEP 2]에서 발급받은 accessToken을 'Bearer ???' 부분에 붙여넣으세요.
+#PUT http://localhost:8080/api/articles/1
+#Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyTmlja25hbWUiOiLssLDsubXrp6giLCJ1c2VyRW1haWwiOiJwaG90by10ZXN0ZXJAZXhhbXBsZS5jb20iLCJ1c2VyTmFtZSI6IuyCrOynhO2FjOyKpO2EsCIsInVzZXJSb2xlIjoiVVNFUiIsInVzZXJJZCI6MSwic3ViIjoicGhvdG8tdGVzdGVyQGV4YW1wbGUuY29tIiwiaXNzIjoibWFzaWwiLCJpYXQiOjE3NTYxMzY5NzMsImV4cCI6MTc1NjEzODc3M30.ezdmOyUoFw3LoTWckYPFIcLvTzf8lL5H4i8SIZ0241I
+#Content-Type: multipart/form-data; boundary=boundary
+#
+#--boundary
+#Content-Disposition: form-data; name="request"
+#Content-Type: application/json
+#
+#{
+#  "title": "[수정] 모든 장소가 삭제된 게시글",
+#  "content": "장소가 하나도 없습니다.",
+#  "tags": [],
+#  "places": []
+#}
+#--boundary--
+
+// Postman을 사용하세요

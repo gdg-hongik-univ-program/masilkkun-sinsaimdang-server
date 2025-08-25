@@ -35,7 +35,7 @@ public class LocalUploader implements Uploader {
         log.info("로컬에 파일 업로드 완료: {}", dest.getAbsolutePath());
 
         // DB에는 로컬 파일 시스템의 절대 경로를 저장합니다.
-        return dest.getAbsolutePath();
+        return dest.getAbsolutePath().replace("\\", "/");
     }
 
     @Override
