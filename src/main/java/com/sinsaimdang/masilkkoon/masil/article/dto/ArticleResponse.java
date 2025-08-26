@@ -27,8 +27,11 @@ public class ArticleResponse {
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 
+    private Boolean isLiked;
+    private Boolean isScrapped;
+
     // == 생성자 (Article 엔티티를 ArticleResponse DTO로 변환) == //
-    public ArticleResponse(Article article) {
+    public ArticleResponse(Article article, boolean isLiked, boolean isScrapped) {
         this.id = article.getId();
         this.title = article.getTitle();
         this.content = article.getContent();
@@ -45,6 +48,12 @@ public class ArticleResponse {
                 .distinct()
                 .sorted(Comparator.comparingInt(ArticlePlaceResponse::getPlaceOrder))
                 .collect(Collectors.toList());
+        this.isLiked = isLiked;
+        this.isScrapped = isScrapped;
+    }
+
+    public ArticleResponse(Article article) {
+        this(article, false, false); // 위쪽의 메인 생성자를 기본값으로 호출
     }
 
     // == 작성자 정보를 담는 내부 DTO 클래스 == //

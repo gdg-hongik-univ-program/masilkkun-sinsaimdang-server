@@ -252,12 +252,13 @@ public class UserController {
     @GetMapping("/{userId}/articles")
     public ResponseEntity<Map<String, Object>> getArticlesByUserId(
             @PathVariable Long userId,
-            Pageable pageable) {
+            Pageable pageable,
+            CurrentUser currentUser) {
 
-        log.info("API REQ >> GET /api/user/{}/articles | 요청", userId);
+        log.info("API REQ >> GET /api/user/{}/articles | 요청자 ID: {}", userId, currentUser.getId());
 
         try {
-            Page<ArticleResponse> userArticles = articleService.findArticlesByUserId(userId, pageable);
+            Page<ArticleResponse> userArticles = articleService.findArticlesByUserId(userId, currentUser.getId(), pageable);
 
             log.info("API RES >> GET /api/user/{}/articles | 조회된 게시글 수: {}",
                     userId, userArticles.getContent().size());
