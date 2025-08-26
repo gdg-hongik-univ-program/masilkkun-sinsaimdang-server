@@ -53,6 +53,7 @@ public class FilterConfig {
         config.addAllowedOrigin("http://localhost:3000");  // React 기본 포트
         config.addAllowedOrigin("http://127.0.0.1:3000");
         config.addAllowedOrigin("http://localhost:8080");
+        config.addAllowedOrigin("https://masilkkun-sinsaimdang-web.vercel.app");
 
         config.addAllowedMethod("GET");
         config.addAllowedMethod("POST");
