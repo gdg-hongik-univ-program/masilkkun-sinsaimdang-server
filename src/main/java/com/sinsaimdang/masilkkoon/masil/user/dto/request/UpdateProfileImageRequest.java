@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * 프로필 이미지 변경 요청을 위한 DTO 클래스
+ */
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter

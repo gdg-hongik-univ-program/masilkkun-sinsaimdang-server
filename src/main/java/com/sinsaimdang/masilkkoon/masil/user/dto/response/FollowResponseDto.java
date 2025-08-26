@@ -5,6 +5,9 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
+/**
+ * 팔로우 요청에 대한 응답 DTO 클래스
+ */
 @Getter
 @AllArgsConstructor
 public class FollowResponseDto {

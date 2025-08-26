@@ -20,6 +20,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+/**
+ * 팔로우 관련 기능
+ */
 @RestController
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
@@ -29,6 +32,13 @@ FollowController {
 
     private final FollowService followService;
 
+    /**
+     * 다른 사용자를 팔로우합니다.
+     *
+     * @param userId 팔로우할 사용자의 ID
+     * @param currentUser 현재 사용자 정보
+     * @return 팔로우 정보를 담은 DTO
+     */
     @PostMapping("/{userId}/follow")
     public ResponseEntity<Map<String, Object>> followUser(
             @PathVariable Long userId, CurrentUser currentUser) {
@@ -52,6 +62,13 @@ FollowController {
         return ApiResponseUtil.success("팔로우가 완료되었습니다", responseDto);
     }
 
+    /**
+     * 다른 사용자를 언팔로우합니다.
+     *
+     * @param userId 언팔로우할 사용자의 ID
+     * @param currentUser 현재 사용자 정보
+     * @return 언팔로우 정보를 담은 DTO
+     */
     @DeleteMapping("/{userId}/follow")
     public ResponseEntity<Map<String, Object>> unfollowUser(
             @PathVariable Long userId, CurrentUser currentUser) {
@@ -73,6 +90,13 @@ FollowController {
         return ApiResponseUtil.success("언팔로우가 완료되었습니다", responseDto);
     }
 
+    /**
+     * 특정 사용자에 대한 팔로우 상태를 조회합니다.
+     *
+     * @param userId 조회할 사용자의 ID
+     * @param currentUser 현재 사용자 정보
+     * @return 팔로우 상태 정보를 담은 DTO
+     */
     @GetMapping("/{userId}/follow-status")
     public ResponseEntity<Map<String, Object>> getFollowStatus(
             @PathVariable Long userId, CurrentUser currentUser) {
@@ -97,6 +121,12 @@ FollowController {
         return ApiResponseUtil.success("팔로우 상태 조회 성공", responseDto);
     }
 
+    /**
+     * 특정 사용자의 팔로워 및 팔로잉 수를 조회합니다.
+     *
+     * @param userId 조회할 사용자의 ID
+     * @return 팔로우 정보를 담은 DTO
+     */
     @GetMapping("/{userId}/follow-info")
     public ResponseEntity<Map<String, Object>> getFollowInfo(@PathVariable Long userId) {
         log.info("API REQ : GET api/user/{}/follow-info", userId);
@@ -107,6 +137,13 @@ FollowController {
         return ApiResponseUtil.success("팔로우 통계 조회 성공", responseDto);
     }
 
+    /**
+     * 특정 사용자의 팔로워 목록을 조회합니다.
+     *
+     * @param userId 조회할 사용자의 ID
+     * @param pageable 페이징 정보
+     * @return 팔로워 목록을 담은 DTO의 Slice
+     */
     @GetMapping("/{userId}/followers")
     public ResponseEntity<Map<String, Object>> getFollowers(
             @PathVariable Long userId,
@@ -120,6 +157,13 @@ FollowController {
         return ApiResponseUtil.success("팔로워 목록 조회 성공", followerDtos);
     }
 
+    /**
+     * 특정 사용자의 팔로잉 목록을 조회합니다.
+     *
+     * @param userId 조회할 사용자의 ID
+     * @param pageable 페이징 정보
+     * @return 팔로잉 목록을 담은 DTO의 Slice
+     */
     @GetMapping("/{userId}/followings")
     public ResponseEntity<Map<String, Object>> getFollowings(
             @PathVariable Long userId,

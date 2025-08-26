@@ -24,9 +24,12 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * 사용자 관련 비즈니스 로직을 처리하는 서비스 클래스입니다.
+ */
 @Service
 @RequiredArgsConstructor
-@Slf4j // Lombok에서 제공하는 Logger 필드 자동 생성기 *** 공부 필요 ***
+@Slf4j
 public class UserService {
 
     private final ArticleRepository articleRepository;
@@ -42,6 +45,12 @@ public class UserService {
     private final Uploader uploader;
     private final SignupValidator signupValidator;
 
+    /**
+     * ID로 사용자를 조회합니다.
+     *
+     * @param id 조회할 사용자의 ID
+     * @return Optional<UserDto> 객체
+     */
     public Optional<UserDto> findById(Long id){
         log.debug("ID으로 사용자 조회: {}", id);
 
@@ -55,6 +64,12 @@ public class UserService {
         return result;
     }
 
+    /**
+     * 이메일로 사용자를 조회합니다.
+     *
+     * @param email 조회할 사용자의 이메일
+     * @return Optional<UserDto> 객체
+     */
     public Optional<UserDto> findByEmail(String email) {
         String normalizedEmail = email.toLowerCase().trim();
         log.debug("사용자 이메일로 조회 요청 - 이메일: {}", normalizedEmail);
@@ -70,6 +85,14 @@ public class UserService {
         return result;
     }
 
+    /**
+     * 사용자의 닉네임을 변경합니다.
+     *
+     * @param id          변경할 사용자의 ID
+     * @param newNickname 새로운 닉네임
+     * @return 수정된 사용자 정보 DTO
+     * @throws IllegalArgumentException 이미 존재하는 닉네임일 경우
+     */
     @Transactional
     public UserDto updateNickname(Long id, String newNickname) {
         log.info("사용자 닉네임 수정 요청 - ID = {}, 새 닉네임 = {}", id, newNickname);
@@ -96,6 +119,13 @@ public class UserService {
         return UserDto.from(savedUser);
     }
 
+    /**
+     * 사용자의 비밀번호를 변경합니다.
+     *
+     * @param userId      변경할 사용자의 ID
+     * @param newPassword 새로운 비밀번호
+     * @return 수정된 사용자 정보 DTO
+     */
     @Transactional
     public UserDto updatePassword(Long userId, String newPassword) {
         log.info("사용자 비밀번호 변경 요청 - ID: {}", userId);
@@ -113,6 +143,12 @@ public class UserService {
         return UserDto.from(savedUser);
     }
 
+    /**
+     * 비밀번호의 보안 정책을 검증합니다.
+     *
+     * @param password 검증할 비밀번호
+     * @throws SecurityException 보안 정책에 맞지 않는 경우
+     */
     private void validatePasswordSecurity(String password) {
         if (password == null || password.trim().isEmpty()) {
             throw new SecurityException("비밀번호는 필수 항목입니다.");
@@ -145,6 +181,14 @@ public class UserService {
         log.debug("비밀번호 보안 정책 검증 통과");
     }
 
+    /**
+     * 사용자의 프로필 이미지를 변경합니다.
+     *
+     * @param userId           변경할 사용자의 ID
+     * @param profileImageFile 새로운 프로필 이미지 파일
+     * @return 수정된 사용자 정보 DTO
+     * @throws IOException 파일 처리 중 발생할 수 있는 예외
+     */
     @Transactional
     public UserDto updateProfileImage(Long userId, MultipartFile profileImageFile) throws IOException {
         log.info("프로필 이미지 업데이트 요청 - ID: {}", userId);
@@ -168,6 +212,12 @@ public class UserService {
         return UserDto.from(savedUser);
     }
 
+    /**
+     * 사용자의 프로필 이미지를 기본 이미지로 변경합니다.
+     *
+     * @param userId 변경할 사용자의 ID
+     * @return 수정된 사용자 정보 DTO
+     */
     @Transactional
     public UserDto removeProfileImage(Long userId) {
         log.info("프로필 사진 삭제 요청 - ID: {}", userId);
@@ -188,6 +238,13 @@ public class UserService {
         return UserDto.from(savedUser);
     }
 
+    /**
+     * ID로 User 엔티티를 조회합니다.
+     *
+     * @param userId 조회할 사용자의 ID
+     * @return User 엔티티
+     * @throws IllegalArgumentException 존재하지 않는 사용자일 경우
+     */
     public User getUserEntity(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> {
@@ -196,6 +253,12 @@ public class UserService {
                 });
     }
 
+    /**
+     * 사용자 탈퇴를 처리합니다. 관련 데이터를 삭제합니다.
+     *
+     * @param userId 삭제할 사용자의 ID
+     * @throws IllegalArgumentException 존재하지 않는 사용자일 경우
+     */
     @Transactional
     public void deleteUser(Long userId) {
         log.info("사용자 삭제 요청 - ID = {}", userId);

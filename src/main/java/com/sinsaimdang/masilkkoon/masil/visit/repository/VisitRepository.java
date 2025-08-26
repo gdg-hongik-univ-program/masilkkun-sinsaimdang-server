@@ -19,8 +19,6 @@ public interface VisitRepository extends JpaRepository<Visit, Long> {
     @Query("DELETE FROM Visit v WHERE v.user.id = :userId")
     void deleteAllByUserId(@Param("userId") Long userId);
 
-
-    List<Visit> findByUserIdAndRegionIdIn(Long userId, List<Long> regionIds);
     Long countByUserIdAndRegionIdIn(Long userId, List<Long> regionIds);
 
     /**

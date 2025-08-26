@@ -7,7 +7,6 @@ import com.sinsaimdang.masilkkoon.masil.auth.dto.CurrentUser;
 import com.sinsaimdang.masilkkoon.masil.common.util.ApiResponseUtil;
 import com.sinsaimdang.masilkkoon.masil.user.dto.request.UpdateNicknameRequest;
 import com.sinsaimdang.masilkkoon.masil.user.dto.request.UpdatePasswordRequest;
-import com.sinsaimdang.masilkkoon.masil.user.dto.request.UpdateProfileImageRequest;
 import com.sinsaimdang.masilkkoon.masil.user.dto.UserDto;
 import com.sinsaimdang.masilkkoon.masil.user.service.UserService;
 import jakarta.validation.Valid;
@@ -23,12 +22,7 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
- * User 관련 API 엔드포인트
- * 1. 현재 사용자 정보 조회 : GET /api/user/me
- * 2. 사용자 프로필 조회 : GET /api/user/profile
- * 3. 닉네임 변경 : PATCH GET /api/user/nickname
- * 4. 비밀번호 변경 : PATCH /api/user/password
- * 5. 회원 탈퇴 : DELETE /api/user/me
+ * 사용자 관리 Controller
  */
 @RestController
 @RequestMapping("/api/user")
@@ -39,6 +33,12 @@ public class UserController {
     private final UserService userService;
     private final ArticleService articleService;
 
+    /**
+     * 현재 로그인한 사용자의 정보를 조회합니다.
+     *
+     * @param currentUser 현재 사용자 정보
+     * @return 사용자 정보 DTO
+     */
     @GetMapping("/me")
     public ResponseEntity<Map<String, Object>> getCurrentUser(CurrentUser currentUser) {
         log.info("API REQ >> GET /api/user/me | 요청자 ID: {}", currentUser.getId());
@@ -57,6 +57,12 @@ public class UserController {
         return ApiResponseUtil.success("사용자 정보 조회 성공", userProfile);
     }
 
+    /**
+     * 특정 사용자의 프로필 정보를 조회합니다.
+     *
+     * @param userId 조회할 사용자의 ID
+     * @return 사용자 정보 DTO
+     */
     @GetMapping("/{userId}/profile")
     public ResponseEntity<Map<String, Object>> getUserProfileById(@PathVariable Long userId) {
         log.info("API REQ >> GET /api/user/{}/profile", userId);
@@ -72,6 +78,13 @@ public class UserController {
         return ApiResponseUtil.success("프로필 조회 성공", userProfile);
     }
 
+    /**
+     * 사용자의 닉네임을 변경합니다.
+     *
+     * @param currentUser 현재 사용자 정보
+     * @param updateRequest 닉네임 변경 요청 DTO
+     * @return 수정된 사용자 정보 DTO
+     */
     @PatchMapping("/nickname")
     public ResponseEntity<Map<String, Object>> updateNickname(
             CurrentUser currentUser,
@@ -88,6 +101,13 @@ public class UserController {
         return ApiResponseUtil.success("닉네임이 성공적으로 변경되었습니다", updatedUser);
     }
 
+    /**
+     * 사용자의 비밀번호를 변경합니다.
+     *
+     * @param currentUser 현재 사용자 정보
+     * @param updateRequest 비밀번호 변경 요청 DTO
+     * @return 수정된 사용자 정보 DTO
+     */
     @PatchMapping("/password")
     public ResponseEntity<Map<String, Object>> updatePassword(
             CurrentUser currentUser,
@@ -149,6 +169,12 @@ public class UserController {
         return ApiResponseUtil.success("프로필 이미지가 성공적으로 업데이트 되었습니다.", updatedUser);
     }
 
+    /**
+     * 사용자의 프로필 이미지를 삭제합니다.
+     *
+     * @param currentUser 현재 사용자 정보
+     * @return 수정된 사용자 정보 DTO
+     */
     @DeleteMapping("/profile-image")
     public ResponseEntity<Map<String, Object>> removeProfileImage(CurrentUser currentUser) {
         log.info("API REQ >> DELETE /api/user/profile-image | 요청자 ID: {}", currentUser.getId());
@@ -163,6 +189,12 @@ public class UserController {
         return ApiResponseUtil.success("프로필 이미지가 삭제되었습니다", updatedUser);
     }
 
+    /**
+     * 회원 탈퇴를 처리합니다.
+     *
+     * @param currentUser 현재 사용자 정보
+     * @return 성공 여부
+     */
     @DeleteMapping("/me")
     public ResponseEntity<Map<String, Object>> deleteUser(CurrentUser currentUser) {
         log.info("API REQ >> DELETE /api/user/me | 요청자 ID: {}", currentUser.getId());
@@ -177,23 +209,14 @@ public class UserController {
         return ApiResponseUtil.success("회원 탈퇴가 완료되었습니다.");
     }
 
-    @GetMapping("/test")
-    public ResponseEntity<Map<String, Object>> testAuth(CurrentUser currentUser) {
-        log.info("JWT 인증 테스트 요청");
-
-        if (!currentUser.isAuthenticated()) {
-            return ApiResponseUtil.unauthorized("인증 실패");
-        }
-
-        Map<String, Object> testData = Map.of(
-                "userId", currentUser.getId(),
-                "timestamp", System.currentTimeMillis()
-        );
-
-        log.info("JWT 인증 테스트 성공 - 사용자 ID: {}", currentUser.getId());
-        return ApiResponseUtil.success("JWT 인증 성공!", testData);
-    }
-
+    /**
+     * 현재 로그인한 사용자가 스크랩한 게시글 목록을 조회합니다.
+     *
+     * @param currentUser 현재 사용자 정보
+     * @param condition 검색 조건
+     * @param pageable 페이징 정보
+     * @return 스크랩한 게시글 DTO 목록
+     */
     @GetMapping("/scraps")
     public ResponseEntity<Map<String, Object>> getMyScrapedArticles(
             CurrentUser currentUser,
@@ -220,8 +243,8 @@ public class UserController {
     }
 
     /**
-     * 특정 사용자가 작성한 게시글 목록 조회 API
-     * (내 게시글, 다른 사용자 게시글 조회 모두 처리)
+     * 특정 사용자가 작성한 게시글 목록을 조회합니다.
+     *
      * @param userId 조회할 사용자의 ID
      * @param pageable 페이징 정보
      * @return 해당 사용자가 작성한 게시글 DTO 목록

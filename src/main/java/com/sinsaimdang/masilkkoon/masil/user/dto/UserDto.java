@@ -6,6 +6,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * 사용자 정보를 전달하기 DTO 클래스
+ */
 @Getter
 @Builder
 @NoArgsConstructor
@@ -20,7 +23,12 @@ public class UserDto {
     private int followerCount;
     private int followingCount;
 
-    // password 제외 -> 노출 위험 있음
+    /**
+     * User 엔티티를 UserDto로 변환합니다.
+     *
+     * @param user 변환할 User 엔티티
+     * @return 변환된 UserDto 객체
+     */
     public static UserDto from(User user){
         return UserDto.builder()
                 .id(user.getId())
