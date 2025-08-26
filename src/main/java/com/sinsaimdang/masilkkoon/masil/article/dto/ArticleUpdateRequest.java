@@ -5,6 +5,7 @@ import com.sinsaimdang.masilkkoon.masil.visit.dto.VisitRequest;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 @Getter
+@Setter
 @NoArgsConstructor
 @ToString
 public class ArticleUpdateRequest {
@@ -28,11 +30,22 @@ public class ArticleUpdateRequest {
     @NotNull
     private List<PlaceInfo> places;
 
-    private List<String> remainingPhotoUrls;
-
     @Getter
+    @Setter
     @NoArgsConstructor
-    public static class PlaceInfo extends ArticleCreateRequest.PlaceInfo {
-        // 부모 클래스의 필드를 그대로 사용
+    public static class PlaceInfo {
+        @NotNull
+        private int placeOrder;
+
+        @NotBlank
+        private String placeName;
+
+        @NotNull
+        private VisitRequest.RoadAddress roadAddress;
+
+        @NotBlank
+        private String description;
+
+        private String photoUrl;
     }
 }
