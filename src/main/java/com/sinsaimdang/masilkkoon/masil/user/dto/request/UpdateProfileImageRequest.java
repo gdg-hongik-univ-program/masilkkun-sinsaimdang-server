@@ -8,6 +8,7 @@ import lombok.Setter;
 
 /**
  * 프로필 이미지 변경 요청을 위한 DTO 클래스
+ * S3 연결로 인해 사용 X
  */
 @NoArgsConstructor
 @AllArgsConstructor

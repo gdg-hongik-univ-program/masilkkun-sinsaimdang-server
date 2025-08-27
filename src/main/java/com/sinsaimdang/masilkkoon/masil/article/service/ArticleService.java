@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List; // 이 임포트는 더 이상 직접 사용되지 않지만, ArticleResponse의 반환 타입으로 사용될 수 있으므로 일단 유지
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Collections;
 import java.util.Set; // Set 임포트 추가 (findAllArticles()의 내부 변환에서 사용)
 import java.util.stream.Collectors; // Stream API를 위한 Collectors 임포트
 import java.util.Map;
@@ -78,13 +79,12 @@ public class ArticleService {
     /**
      * 특정 ID의 게시글 단건 조회 (N+1 문제 해결을 위해 Fetch Join 적용)
      * @param articleId 조회할 게시글 ID
-     * @param userRole 현재 사용자의 역할 (인증되지 않은 경우 null)
      * @return 게시글 DTO
      * @throws IllegalArgumentException 해당 ID의 게시글을 찾을 수 없을 경우
      */
     @Transactional // 조회수 증가 로직 때문에 별도 트랜잭션 필요
-    public ArticleResponse findArticleById(Long articleId, String userRole) {
-        log.info("-> 게시글 단건 조회 서비스 시작 - ID: {}, 역할: {}", articleId, userRole);
+    public ArticleResponse findArticleById(Long articleId, Long currentUserId) {
+        log.info("-> 게시글 단건 조회 서비스 시작 - ID: {}, 역할: {}", articleId, currentUserId);
 
         // ArticleRepository의 findByIdWithCollections() 메서드를 호출하여
         // Article 엔티티와 연관된 컬렉션들을 Fetch Join으로 한 번에 가져옵니다.
@@ -102,9 +102,17 @@ public class ArticleService {
         article.incrementViewCount(); // Article 엔티티 내부의 조회수 증가 메서드 호출
         log.debug("게시글 조회수 증가 완료 - ID: {}", articleId);
 
+        boolean isLiked = false;
+        boolean isScrapped = false;
+        // 비로그인 상태(currentUserId=null)가 아닐 때만 DB를 조회합니다.
+        if (currentUserId != null) {
+            isLiked = articleLikeRepository.existsByUserIdAndArticleId(currentUserId, articleId);
+            isScrapped = articleScrapRepository.existsByUserIdAndArticleId(currentUserId, articleId);
+        }
+
         // 조회된 Article 엔티티를 ArticleResponse DTO로 변환
         log.info("<- 게시글 단건 조회 서비스 완료 - ID: {}", articleId);
-        return new ArticleResponse(article);
+        return new ArticleResponse(article, isLiked, isScrapped);
     }
 
     // TODO: 게시글 생성, 수정, 삭제 등의 비즈니스 로직은 나중에 추가
@@ -132,29 +140,42 @@ public class ArticleService {
      * 게시글 목록 조회 및 필터링
      * @param condition 검색 조건 (지역, 태그)
      * @param pageable 페이징 정보
-     * @param userRole 현재 사용자의 역할 (인증되지 않은 경우 null)
      * @return 필터링된 게시글 목록 (페이지네이션 포함)
      */
     @Transactional(readOnly = true)
-    public Page<ArticleResponse> searchArticles(ArticleSearchCondition condition, Pageable pageable, String userRole) {
-        log.info("-> 게시글 목록 조회 서비스 시작 - 조건: {}, 역할: {}", condition, userRole);
+    public Page<ArticleResponse> searchArticles(ArticleSearchCondition condition, Pageable pageable, Long currentUserId) {
+        log.info("-> 게시글 목록 조회 서비스 시작 - 조건: {}, 역할: {}", condition, currentUserId);
 
-        // 관리자(ADMIN) 역할일 경우 지역 필터링을 무시합니다.
-        // 'ADMIN'은 UserRole enum의 문자열 이름이므로, equals로 비교합니다.
-        if (UserRole.ADMIN.name().equals(userRole)) { // 관리자 역할 분기 처리
-            // condition.setRegion(null)을 통해 Querydsl의 regionEq 조건이 적용되지 않도록 합니다.
-            // (regionEq는 StringUtils.hasText(region) 검사를 하므로 null이면 조건이 적용되지 않음)
-            condition.setRegion(null);
-            log.debug("ADMIN 역할이므로 지역 필터링 조건을 초기화합니다."); // 로깅
+        Page<Article> articlesPage = articleRepository.search(condition, pageable);
+
+        // 비로그인 상태(currentUserId=null)일 경우, 모든 isLiked/isScrapped 값을 false로 설정
+        if (currentUserId == null) {
+            log.debug("비로그인 사용자 요청, 좋아요/스크랩 정보 없이 반환");
+            return articlesPage.map(article -> new ArticleResponse(article, false, false));
         }
-        // TODO: (나중에) 일반 사용자(USER)의 지역 인증 로직 구현 시,
-        // 이곳에서 `condition.getRegion()`과 사용자의 "인증된 지역"을 비교하는 로직을 추가합니다.
-        // 만약 USER인데 region이 null이라면, 사용자의 인증된 지역을 기본으로 설정하거나,
-        // 지역 미선택 시 기본 동작(예: 모든 지역 조회 허용 또는 오류 반환)을 정의해야 합니다.
+
+        // 로그인 상태일 경우, DB에서 '좋아요'/'스크랩' 정보를 한 번에 조회하여 처리
+        List<Long> articleIds = articlesPage.getContent().stream()
+                .map(Article::getId)
+                .collect(Collectors.toList());
+
+        Set<Long> likedArticleIds = Collections.emptySet();
+        Set<Long> scrappedArticleIds = Collections.emptySet();
+
+        if (!articleIds.isEmpty()) {
+            likedArticleIds = articleLikeRepository.findLikedArticleIdsByUserIdAndArticleIds(currentUserId, articleIds);
+            scrappedArticleIds = articleScrapRepository.findScrappedArticleIdsByUserIdAndArticleIds(currentUserId, articleIds);
+        }
+
+        final Set<Long> finalLikedIds = likedArticleIds;
+        final Set<Long> finalScrappedIds = scrappedArticleIds;
 
         log.info("<- 게시글 목록 조회 서비스 완료");
-        return articleRepository.search(condition, pageable).map(ArticleResponse::new);
-    }
+        return articlesPage.map(article -> {
+            boolean isLiked = finalLikedIds.contains(article.getId());
+            boolean isScrapped = finalScrappedIds.contains(article.getId());
+            return new ArticleResponse(article, isLiked, isScrapped);
+        });    }
 
     @Transactional
     public void addLike(Long userId, Long articleId) {
@@ -255,10 +276,21 @@ public class ArticleService {
 
         Page<Article> scrapedArticles = articleRepository.searchScrapedArticles(userId, condition, pageable);
 
+        List<Long> articleIds = scrapedArticles.getContent().stream()
+                .map(Article::getId)
+                .collect(Collectors.toList());
+
+        Set<Long> likedArticleIds = articleIds.isEmpty() ? Collections.emptySet() :
+                articleLikeRepository.findLikedArticleIdsByUserIdAndArticleIds(userId, articleIds);
+
         log.info("사용자 스크랩 목록 조회 완료 - 사용자 ID: {}, 조회된 게시글 수: {}",
                 userId, scrapedArticles.getContent().size());
 
-        return scrapedArticles.map(ArticleResponse::new);
+        return scrapedArticles.map(article -> {
+            boolean isLiked = likedArticleIds.contains(article.getId());
+            // 스크랩 목록 조회이므로 isScrapped는 항상 true입니다.
+            return new ArticleResponse(article, isLiked, true);
+        });
     }
 
     /**
@@ -268,16 +300,32 @@ public class ArticleService {
      * @return 해당 사용자가 작성한 게시글 목록 (페이지네이션 포함)
      */
     @Transactional(readOnly = true)
-    public Page<ArticleResponse> findArticlesByUserId(Long userId, Pageable pageable) {
+    public Page<ArticleResponse> findArticlesByUserId(Long userId, Long currentUserId, Pageable pageable) {
         log.info("-> 특정 사용자 작성 게시글 목록 조회 서비스 시작 - 사용자 ID: {}", userId);
 
         // Repository 메서드를 호출
         Page<Article> articles = articleRepository.findByUser_Id(userId, pageable);
 
+        // 비로그인 상태(currentUserId=null)일 경우, false로 처리
+        if (currentUserId == null) {
+            return articles.map(article -> new ArticleResponse(article, false, false));
+        }
+
+        // 로그인 상태일 경우, 현재 로그인한 사용자를 기준으로 계산
+        List<Long> articleIds = articles.getContent().stream().map(Article::getId).collect(Collectors.toList());
+        Set<Long> likedArticleIds = articleIds.isEmpty() ? Collections.emptySet() :
+                articleLikeRepository.findLikedArticleIdsByUserIdAndArticleIds(currentUserId, articleIds);
+        Set<Long> scrappedArticleIds = articleIds.isEmpty() ? Collections.emptySet() :
+                articleScrapRepository.findScrappedArticleIdsByUserIdAndArticleIds(currentUserId, articleIds);
+
         log.info("<- 특정 사용자 작성 게시글 목록 조회 서비스 완료 - 조회된 게시글 수: {}", articles.getContent().size());
 
         // 조회된 결과를 ArticleResponse DTO 페이지로 변환하여 반환
-        return articles.map(ArticleResponse::new);
+        return articles.map(article -> {
+            boolean isLiked = likedArticleIds.contains(article.getId());
+            boolean isScrapped = scrappedArticleIds.contains(article.getId());
+            return new ArticleResponse(article, isLiked, isScrapped);
+        });
     }
 
     /**
@@ -329,24 +377,24 @@ public class ArticleService {
             ArticleCreateRequest.PlaceInfo placeInfo = sortedPlaces.get(i);
             MultipartFile imageFile = images.get(i); // 정렬된 순서에 맞는 이미지 파일
 
-        // 각 이미지 파일이 비어있지 않은지 다시 한번 확인합니다.
-        if (imageFile == null || imageFile.isEmpty()) {
-            throw new IllegalArgumentException("업로드된 파일 중 비어있는 파일이 있습니다. (순서: " + (i + 1) + ")");
+            // 각 이미지 파일이 비어있지 않은지 다시 한번 확인합니다.
+            if (imageFile == null || imageFile.isEmpty()) {
+                throw new IllegalArgumentException("업로드된 파일 중 비어있는 파일이 있습니다. (순서: " + (i + 1) + ")");
+            }
+
+            // 각 이미지를 S3(또는 로컬)에 업로드하고 URL을 받습니다.
+            String photoUrl = uploader.upload(imageFile, "article-images");
+
+            // 업로드된 URL을 포함하여 ArticlePlace 객체를 생성합니다.
+            ArticlePlace articlePlace = new ArticlePlace(
+                    placeInfo.getPlaceOrder(),
+                    placeInfo.getPlaceName(),
+                    placeInfo.getRoadAddress().getAddressName(),
+                    placeInfo.getDescription(),
+                    photoUrl
+            );
+            articlePlaces.add(articlePlace);
         }
-
-        // 각 이미지를 S3(또는 로컬)에 업로드하고 URL을 받습니다.
-        String photoUrl = uploader.upload(imageFile, "article-images");
-
-        // 업로드된 URL을 포함하여 ArticlePlace 객체를 생성합니다.
-        ArticlePlace articlePlace = new ArticlePlace(
-                placeInfo.getPlaceOrder(),
-                placeInfo.getPlaceName(),
-                placeInfo.getRoadAddress().getAddressName(),
-                placeInfo.getDescription(),
-                photoUrl
-        );
-        articlePlaces.add(articlePlace);
-    }
 
         // 4. 게시글 엔티티 생성
         Article article = request.toEntity(currentUser, childRegion, articlePlaces);
@@ -480,8 +528,16 @@ public class ArticleService {
         // Article 엔티티의 update 메서드를 호출하여 변경사항 적용
         article.update(request, childRegion, updatedArticlePlaces);
 
-        log.info("<- 게시글 수정 서비스 완료 - ID: {}", articleId);
-        return new ArticleResponse(article);
+        // ▼▼▼ [핵심 수정] 응답을 반환하기 전, '좋아요'와 '스크랩' 상태를 다시 조회합니다. ▼▼▼
+        boolean isLiked = false;
+        boolean isScrapped = false;
+        if (currentUserId != null) {
+            isLiked = articleLikeRepository.existsByUserIdAndArticleId(currentUserId, articleId);
+            isScrapped = articleScrapRepository.existsByUserIdAndArticleId(currentUserId, articleId);
+        }
+
+        log.info("<- 게시글 수정 서비스 완료 - ID: {}", articleId, isLiked, isScrapped);
+        return new ArticleResponse(article, isLiked, isScrapped);
     }
 
     private Region findRegionFromCreateRequest(List<ArticleCreateRequest.PlaceInfo> places) {
